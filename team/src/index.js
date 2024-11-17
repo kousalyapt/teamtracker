@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider} from "react-router-dom";
 import Register from './components/Register';
 import Login from './components/Login';
+import { CookiesProvider} from 'react-cookie'
 
 const router = createBrowserRouter([
   {
@@ -25,7 +26,10 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <CookiesProvider defaultSetOptions={{ path: '/'}}>
+      <RouterProvider router={router} />
+    </CookiesProvider>
+    
   </React.StrictMode>
 );
 

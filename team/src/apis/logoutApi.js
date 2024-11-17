@@ -1,13 +1,13 @@
 import { DOMAIN } from "./config"
 
 
-export const loginApi = async(bodyObject) => {
+export const logoutApi = async(jwtToken) => {
     const requestOptions = {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(bodyObject)
+            'Content-Type': 'application/json',
+            'Authorization': jwtToken
+        }
     };
 
     // try {
@@ -31,7 +31,7 @@ export const loginApi = async(bodyObject) => {
     //     return ['',`Server down: ${error}`]
     // }
     try {
-        const response = await fetch(`${DOMAIN}/users/sign_in`, requestOptions);
+        const response = await fetch(`${DOMAIN}/users/sign_out`, requestOptions);
     
         if (response.ok) {
             

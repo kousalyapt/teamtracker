@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { validateEmail, validatePassword } from '../utilities/validation'
 import { Link } from 'react-router-dom'
 import { loginApi } from '../apis/login'
 import { useNavigate } from 'react-router-dom'
+import { useCookies } from 'react-cookie'
 
 const initialErrorsState = {
     email: '',
@@ -13,7 +14,15 @@ const initialErrorsState = {
 
 
 function Login() {
+    const [cookies, setCookie] = useCookies(['jwt']);
     const navigate = useNavigate()
+
+    useEffect(() => {
+
+        if(cookies.jwt){
+            navigate('/')
+        }
+    })
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [errors, setErrors] = useState(initialErrorsState)
@@ -53,75 +62,136 @@ function Login() {
         if (hasErrors){
             return
         }
-        const [result,error] = await loginApi({
+        const [response,error] = await loginApi({
             user: {
                 email: email,
                 password: password
             }
         })
-        console.log("result:",result)
-        console.log("error:",error)
-        if(error){
+        // console.log("result:",result)
+        // console.log("error:",error)
+        if(error !== ''){
             setErrors({
                 ...error,
                 api: error
             })
             
         }else{
-            const message = result.message;
-            const user = result.data;
+            const jwt = response.headers.get('authorization')
+            const result = await response.json(); // Parse the JSON response for successful requests
+            //const message = result.message;
+            //const user = result.data;
 
+            // console.log("message: ",message)
+            // console.log("user: ",user)
+
+            setCookie('jwt', jwt)
+            //console.log("cookies: ", cookies.jwt)
             navigate('/')
         }
     
     }
   return (
-    <div className='bg-white'>
-        <div className='max-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-12'>
-            <h3 className='text-2xl font-bold'>Login</h3>
-
-            <form onSubmit={handleSubmit} className='mt-10 max-w-96 flex flex-col gap-8'>
-                <div>
-                    <input
-                    name="email"
-                    type="email"
-                    className='py-2 w-full border border-gray-600 rounded px-3'
-                    placeholder='Enter email'
-                    value={email}
-                    onChange={handleEmailChange}
-                    />
-                    {errors.email && <p className='text-sm text-medium text-red-500'>{errors.email}</p>}
-
-                </div>
-                
-                <div>
-                    <input
-                    name="password"
-                    type="password"
-                    className='py-2 w-full border border-gray-600 rounded px-3'
-                    placeholder='Enter Password'
-                    value={password}
-                    onChange={handlePasswordChange}
-                    />       
-
-                    {errors.password && <p className='text-sm text-medium text-red-500'>{errors.password}</p>}            
-                </div>
-
-                <button 
-                type="submit"
-                className='bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded'>
-                    Login
-                </button>
-                {errors.api && <p className='text-sm text-medium text-red-500'>{errors.api}</p>}
-            </form>
-            <p className='mt-1'>New to Team Tracker?
-                <Link to= '/register'
-                className='ms-1 underline'>
-                Create Account
-                </Link>
-            </p>
-        </div>
+    <div className="bg-white min-h-screen flex items-center justify-center">
+  <div className="w-full max-w-md bg-white rounded-lg p-8">
+    {/* Logo Section */}
+    <div className="text-center mb-8">
+      <h1 className="text-3xl  text-black-600 font-roboto">Team Tracker</h1>
     </div>
+
+    {/* Title Section */}
+    <div className="text-center mb-6">
+      <h3 className="text-xl text-gray-700 font-roboto">Sign In</h3>
+    </div>
+
+    {/* Error Message */}
+    {errors.api && (
+      <div className="text-center mb-4 text-red-500 text-sm">
+        {errors.api}
+      </div>
+    )}
+
+    {/* Login Form */}
+    <form onSubmit={handleSubmit} className="space-y-6 border p-4 rounded">
+      {/* Email Input */}
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          Email Address
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-indigo-500 focus:border-indigo-500"
+          placeholder="Enter email"
+          value={email}
+          onChange={handleEmailChange}
+        />
+        {errors.email && (
+          <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+        )}
+      </div>
+
+      {/* Password Input */}
+      <div>
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          Password
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-indigo-500 focus:border-indigo-500"
+          placeholder="Enter password"
+          value={password}
+          onChange={handlePasswordChange}
+        />
+        {errors.password && (
+          <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+        )}
+      </div>
+
+      {/* Forgot Password Link
+      <div className="flex justify-between items-center">
+        <span></span>
+        <Link to="/users/password/new" className="text-sm text-indigo-500 hover:underline">
+          Forgot password?
+        </Link>
+      </div> */}
+
+      {/* Submit Button */}
+      <div>
+        <button
+          type="submit"
+          className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        >
+          Sign In
+        </button>
+      </div>
+    </form>
+
+    {/* Create Account Section */}
+    <div className="text-center mt-6 border rounded p-4">
+      <p className="text-sm text-gray-700">
+        New to Team Tracker?{' '}
+        <Link to="/register" className="text-indigo-500 hover:underline">
+          Create an account
+        </Link>
+      </p>
+    </div>
+
+    {/* Footer Links */}
+    <div className="text-center mt-8">
+      <div className="space-x-4 text-sm text-gray-500">
+        <Link to="" className="hover:underline">Terms</Link>
+        <Link to="" className="hover:underline">Privacy</Link>
+        <Link to="" className="hover:underline">Security</Link>
+        <Link to="" className="hover:underline">Contact</Link>
+      </div>
+    </div>
+  </div>
+</div>
+
   )
 }
 
