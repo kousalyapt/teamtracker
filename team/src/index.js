@@ -7,6 +7,8 @@ import { createBrowserRouter, RouterProvider} from "react-router-dom";
 import Register from './components/Register';
 import Login from './components/Login';
 import { CookiesProvider} from 'react-cookie'
+import NewProject from './components/NewProject';
+import ProjectTasks from './components/ProjectTasks'
 
 const router = createBrowserRouter([
   {
@@ -20,6 +22,14 @@ const router = createBrowserRouter([
   {
     path:"/register",
     element: <Register/>
+  },
+  {
+    path:"/projects/new",
+    element: <NewProject/>
+  },
+  {
+    path:"/projects/:id/tasks",
+    element: <ProjectTasks/>
   }
 ])
 
