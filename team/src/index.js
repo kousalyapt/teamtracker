@@ -10,7 +10,8 @@ import { CookiesProvider} from 'react-cookie'
 import NewProject from './components/NewProject';
 import ProjectTasks from './components/ProjectTasks';
 import MainLayout from './components/MainLayout'; 
-import CreateTask from './components/CreateTask'
+import CreateTask from './components/CreateTask';
+import Label from './components/Label'
 
 // const router = createBrowserRouter([
 //   {
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: "projects/:id/create_task",
         element: <CreateTask />
+      },
+      {
+        path: "/projects/:id/labels",
+        element: <Label />
       }
     ]
   },

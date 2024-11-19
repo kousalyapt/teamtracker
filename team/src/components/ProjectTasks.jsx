@@ -544,6 +544,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import DOMPurify from 'dompurify';
 import { formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 
 const ProjectTasks = () => {
@@ -554,6 +555,7 @@ const ProjectTasks = () => {
   const [selectedTab, setSelectedTab] = useState('tasks');
   const [showNewTaskForm, setShowNewTaskForm] = useState(false);
   const [cookies] = useCookies(['jwt']);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const jwtToken = cookies.jwt;
@@ -591,6 +593,11 @@ const ProjectTasks = () => {
     setShowNewTaskForm(false);
   };
 
+  const handleLabelClick = () => {
+    // Navigate to the label creation page using navigate
+    navigate(`/projects/${id}/labels`);
+  };
+
   if (loading) {
     return <div className="text-center text-lg font-semibold text-gray-600 py-4">Loading...</div>;
   }
@@ -622,7 +629,19 @@ const ProjectTasks = () => {
       {/* Conditional Content Rendering */}
       {selectedTab === 'tasks' && (
         <div className="space-y-4 bg-white p-4">
-          <div className="flex justify-between items-center">
+          
+          <div className="flex ">
+          <button
+            className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 border-2 rounded-md ml-40"
+          >
+            Filter
+          </button>
+          <button
+            onClick={handleLabelClick}
+            className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 border-2 rounded-md ml-8"
+          >
+            Manage Labels
+          </button>
             <button
               className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md  ml-auto mr-40"
               onClick={() => setShowNewTaskForm(!showNewTaskForm)}
@@ -654,6 +673,24 @@ const ProjectTasks = () => {
                   <p>Created {formatDistanceToNow(new Date(task.created_at))} ago</p>
                   <p>{console.log("Task created at:", task.created_at)}</p> 
                   <p>{console.log("Parsed Date:", new Date(task.created_at))}</p> */}
+                  <div className="mt-2">
+          {task.labels && task.labels.length > 0 ? (
+            <ul className="flex space-x-2">
+              {task.labels.map((label) => (
+                <li key={label.id} className=" text-gray-700 px-2 py-1 rounded-md">
+                  <span
+                className="text-lg font-semibold"
+                style={{ backgroundColor: label.color, padding: '5px', borderRadius: '5px' }} // Apply color to label background
+              >
+                {label.name}
+              </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500">No labels</p>
+          )}
+        </div>
                 </li>
               ))}
               </div>
@@ -681,6 +718,29 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated }) => {
   const [assignee, setAssignee] = useState('');
   const [estimatedHours, setEstimatedHours] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [availableLabels, setAvailableLabels] = useState([]);  // List of labels for the project
+  const [filteredLabels, setFilteredLabels] = useState([]); 
+  const [loading, setLoading] = useState(true);
+  // const [isLabelInputFocused, setIsLabelInputFocused] = useState(false);
+
+  useEffect(() => {
+    const fetchLabels = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`http://localhost:3000/labels`, {
+          headers: { Authorization: `${cookies.jwt}` },
+        });
+        setAvailableLabels(response.data);
+        setFilteredLabels(response.data);  // Initialize filtered labels with all available labels
+      } catch (error) {
+        console.error('Error fetching labels:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLabels();
+  }, [projectId, cookies.jwt]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -692,7 +752,7 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated }) => {
       assigned_to_id: assignee,
       estimated_time: estimatedHours,
       due_date: dueDate,
-      labels,
+      label_ids: [labels],
     };
 
     try {
@@ -713,62 +773,38 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated }) => {
     }
   };
 
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setLabels(value);
+
+    // Filter the available labels based on the input value
+    const filtered = availableLabels.filter((label) =>
+      label.name.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredLabels(filtered);
+  };
+
+  const handleLabelClick = (labelName) => {
+    // When a label is clicked, set it as the value in the input
+    setLabels(labelName);
+    setFilteredLabels([]); 
+    // setIsLabelInputFocused(false);
+  };
+
+  // const handleLabelInputFocus = () => {
+  //   setIsLabelInputFocused(true); // Show dropdown on input focus
+  // };
+
+  // const handleLabelInputBlur = () => {
+  //   // Delay hiding dropdown slightly to allow for label click
+  //   setTimeout(() => setIsLabelInputFocused(false), 200);
+  // };
+
+  if (loading) {
+    return <div>Loading labels...</div>;
+  }
+
   return (
-    // <form className="space-y-6 grid grid-cols-2 gap-6" onSubmit={handleSubmit}>
-    //   <div className='flex'>
-    //   <div className="space-y-4">
-    //     <input
-    //       type="text"
-    //       className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-    //       placeholder="Task Title"
-    //       value={title}
-    //       onChange={(e) => setTitle(e.target.value)}
-    //       required
-    //     />
-    //     <ReactQuill
-    //       value={description}
-    //       onChange={setDescription}
-    //       className="bg-white rounded"
-    //     />
-    //     <button
-    //       type="submit"
-    //       className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-    //     >
-    //       Submit New Task
-    //     </button>
-    //     </div>
-    //     <div className="space-y-4">
-    //     <input
-    //       type="text"
-    //       className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-    //       placeholder="Labels"
-    //       value={labels}
-    //       onChange={(e) => setLabels(e.target.value)}
-    //     />
-    //     <input
-    //       type="text"
-    //       className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-    //       placeholder="Assignee"
-    //       value={assignee}
-    //       onChange={(e) => setAssignee(e.target.value)}
-    //     />
-    //     <input
-    //       type="number"
-    //       className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-    //       placeholder="Estimated Hours"
-    //       value={estimatedHours}
-    //       onChange={(e) => setEstimatedHours(e.target.value)}
-    //     />
-    //     <input
-    //       type="date"
-    //       className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-    //       value={dueDate}
-    //       onChange={(e) => setDueDate(e.target.value)}
-    //     />
-        
-    //   </div>
-    //   </div>
-    // </form>
     <form className="grid grid-cols-[3fr,1fr] gap-8 ml-40 mr-40" onSubmit={handleSubmit}>
   <div className="flex flex-col space-y-4 ">
     <div className='border-2 p-2 '>
@@ -797,14 +833,42 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated }) => {
     
   </div>
   
-  <div className="flex flex-col space-y-4 ">
-    <input
+  {/* <div className="flex flex-col space-y-4 "> */}
+    {/* <input
       type="text"
       className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
       placeholder="Labels"
       value={labels}
       onChange={(e) => setLabels(e.target.value)}
-    />
+    /> */}
+
+<div className="flex flex-col space-y-4 ">
+        <div className="relative">
+          {/* Label Input Field */}
+          <input
+            type="text"
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
+            placeholder="Labels"
+            value={labels}
+            onChange={handleInputChange}
+            // onFocus={handleLabelInputFocus}
+            // onBlur={handleLabelInputBlur} 
+          />
+          {/* Label Dropdown */}
+          { filteredLabels.length > 0 && (
+            <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+              {filteredLabels.map((label) => (
+                <li
+                  key={label.id}
+                  className="px-3 py-2 cursor-pointer hover:bg-blue-100"
+                  onClick={() => handleLabelClick(label.name)} // Set the label when clicked
+                >
+                  {label.name}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
     <input
       type="text"
       className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"

@@ -6,9 +6,11 @@ Rails.application.routes.draw do
   get '/projects', to: 'projects#index'
   resources :users
   resources :projects do
-    resources :tasks, only: [:index, :create, :update, :destroy]
+    resources :tasks, only: [:index, :create, :update, :destroy] do
+      post 'add_label/:label_id', to: 'tasks#add_label', as: 'add_label'
+    end
   end
-  resources :labels
+  resources :labels, only: [:index, :create, :destroy]
 
 
   # Assuming the endpoint is within the Dashboard controller
