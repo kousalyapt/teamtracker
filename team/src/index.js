@@ -8,30 +8,65 @@ import Register from './components/Register';
 import Login from './components/Login';
 import { CookiesProvider} from 'react-cookie'
 import NewProject from './components/NewProject';
-import ProjectTasks from './components/ProjectTasks'
+import ProjectTasks from './components/ProjectTasks';
+import MainLayout from './components/MainLayout'; 
+import CreateTask from './components/CreateTask'
+
+// const router = createBrowserRouter([
+//   {
+//     path: "/",
+//     element: <App />
+//   },
+//   {
+//     path: "/login",
+//     element: <Login/>
+//   },
+//   {
+//     path:"/register",
+//     element: <Register/>
+//   },
+//   {
+//     path:"/projects/new",
+//     element: <NewProject/>
+//   },
+//   {
+//     path:"/projects/:id/tasks",
+//     element: <ProjectTasks/>
+//   }
+// ])
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <App />
+    path: "/", 
+    element: <MainLayout />, // Shared Layout for Navbar and Footer
+    children: [
+      {
+        index: true, // Default route for "/"
+        element: <App />
+      },
+      {
+        path: "projects/new",
+        element: <NewProject />
+      },
+      {
+        path: "projects/:id/tasks",
+        element: <ProjectTasks />
+      },
+      {
+        path: "projects/:id/create_task",
+        element: <CreateTask />
+      }
+    ]
   },
   {
-    path: "/login",
-    element: <Login/>
+    path: "/login", // Routes outside the main layout
+    element: <Login />
   },
   {
-    path:"/register",
-    element: <Register/>
-  },
-  {
-    path:"/projects/new",
-    element: <NewProject/>
-  },
-  {
-    path:"/projects/:id/tasks",
-    element: <ProjectTasks/>
+    path: "/register",
+    element: <Register />
   }
-])
+]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
