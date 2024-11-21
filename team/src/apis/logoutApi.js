@@ -38,12 +38,10 @@ export const logoutApi = async(jwtToken) => {
             return [response, ''];
         }
     
-        // Handle non-OK responses
-        const errorText = await response.text(); // Extract raw text for non-OK responses
+        const errorText = await response.text(); 
         return ['', `Server side error: ${errorText}`];
     
     } catch (networkError) {
-        // Handle network errors
         return ['', `Server down: ${networkError.message}`];
     }
     

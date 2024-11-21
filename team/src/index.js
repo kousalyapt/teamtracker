@@ -10,7 +10,6 @@ import { CookiesProvider} from 'react-cookie'
 import NewProject from './components/NewProject';
 import ProjectTasks from './components/ProjectTasks';
 import MainLayout from './components/MainLayout'; 
-import CreateTask from './components/CreateTask';
 import Label from './components/Label'
 
 // const router = createBrowserRouter([
@@ -39,10 +38,10 @@ import Label from './components/Label'
 const router = createBrowserRouter([
   {
     path: "/", 
-    element: <MainLayout />, // Shared Layout for Navbar and Footer
+    element: <MainLayout />, 
     children: [
       {
-        index: true, // Default route for "/"
+        index: true, 
         element: <App />
       },
       {
@@ -54,17 +53,13 @@ const router = createBrowserRouter([
         element: <ProjectTasks />
       },
       {
-        path: "projects/:id/create_task",
-        element: <CreateTask />
-      },
-      {
         path: "/projects/:id/labels",
         element: <Label />
       }
     ]
   },
   {
-    path: "/login", // Routes outside the main layout
+    path: "/login", 
     element: <Login />
   },
   {

@@ -39,22 +39,20 @@ export const registerApi = async(bodyObject) => {
             return [response, ''];
         }
     
-        // Handle non-OK responses
-        const errorText = await response.text(); // Extract the raw text from the response
+        const errorText = await response.text(); 
         let errorMessage = '';
     
         try {
-            const errorJson = JSON.parse(errorText); // Attempt to parse the error text as JSON
+            const errorJson = JSON.parse(errorText); 
             errorMessage = errorJson.errors || errorJson.message || 'An unknown error occurred';
         } catch (parseError) {
-            errorMessage = 'Failed to parse server error'; // Fallback if response is not JSON
+            errorMessage = 'Failed to parse server error'; 
         }
     
-        console.error(errorMessage); // Log the error for debugging
+        console.error(errorMessage); 
         return ['', `Server side error: ${errorMessage}`];
     
     } catch (networkError) {
-        // Handle network errors (e.g., server is down, connection refused)
         console.error(`Network error: ${networkError}`);
         return ['', `Server down: ${networkError.message}`];
     }

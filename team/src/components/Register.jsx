@@ -90,7 +90,7 @@ const Register = () => {
             
         }else{
             const jwt = response.headers.get('authorization')
-            const result = await response.json(); // Parse the JSON response for successful requests
+            const result = await response.json(); 
             //const message = result.message;
             //const user = result.data;
 

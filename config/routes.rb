@@ -10,6 +10,17 @@ Rails.application.routes.draw do
       post 'add_label/:label_id', to: 'tasks#add_label', as: 'add_label'
     end
   end
+  resources :projects do
+    member do
+      get :members
+    end
+  end
+
+  resources :tasks do
+    collection do
+      get 'filter'
+    end
+  end
   resources :labels, only: [:index, :create, :destroy]
 
 

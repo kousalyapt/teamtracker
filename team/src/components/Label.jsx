@@ -98,7 +98,6 @@ const LabelPage = () => {
         Go back to Project
       </button>
 
-      {/* Label Creation Form */}
       <form onSubmit={handleAddLabel} className="mb-4">
         <input
           type="text"
@@ -123,7 +122,6 @@ const LabelPage = () => {
         </button>
       </form>
 
-      {/* Display Existing Labels */}
       {labels.length === 0 ? (
         <div className="text-center text-gray-600">No labels found for this project.</div>
       ) : (
@@ -132,7 +130,7 @@ const LabelPage = () => {
             <li key={label.id} className="flex justify-between items-center py-2 border-b">
               <span
                 className="text-lg font-semibold"
-                style={{ backgroundColor: label.color, padding: '5px', borderRadius: '5px' }} // Apply color to label background
+                style={{ backgroundColor: label.color, padding: '5px', borderRadius: '5px' }} 
               >
                 {label.name}
               </span>

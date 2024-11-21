@@ -1,15 +1,30 @@
 class ProjectsController < ApplicationController
     before_action :authenticate_user!
+
+    def members
+      @project = Project.find(params[:id])
+      all_members = @project.members.to_a
+      all_members << @project.user unless all_members.include?(@project.user)
   
-    # POST http://localhost:3000/projects
+      render json: {
+        members: all_members.map do |member|
+          {
+            id: member.id,
+            name: member.name,
+            email: member.email
+          }
+        end
+      }, status: :ok
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: "Project not found" }, status: :not_found
+    end
+  
     def create
-      # Create a new project for the current user
       logger.info "Received params: #{params[:project]}"
 
       @project = current_user.projects.new(project_params.except(:member_emails))
   
       if @project.save
-        # Add members if member_emails are provided
         if params[:project][:member_emails].present?
           add_members_to_project(@project, params[:project][:member_emails])
         end
@@ -19,7 +34,6 @@ class ProjectsController < ApplicationController
       end
     end
   
-    # GET http://localhost:3000/projects
     def index
       @user = current_user # Get the current user
       @projects_created = @user.projects # Projects the user has created
@@ -31,28 +45,22 @@ class ProjectsController < ApplicationController
     def show
         @project = Project.find(params[:id])
     
-        # If you have tasks associated with this project, include them in the response
         render json: @project
       rescue ActiveRecord::RecordNotFound
         render json: { error: "Project not found" }, status: 404
       end
     private
   
-    # Strong parameters
     def project_params
-      # Permit title, description, and member_emails
       params.require(:project).permit(:title, :description, member_emails: [])
     end
   
-    # Add members to the project based on emails
     def add_members_to_project(project, member_emails)
       member_emails.each do |email|
         user = User.find_by(email: email)
         if user
-          # Add the user as a member if they are not already part of the project
           project.members << user unless project.members.include?(user)
         else
-          # Log a warning for invalid emails
           Rails.logger.warn("User with email #{email} not found")
         end
       end

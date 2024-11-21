@@ -7,21 +7,29 @@ class TasksController < ApplicationController
       @task.labels << @label unless @task.labels.include?(@label)
       render json: @task.labels, status: :ok
     end
+
+    def filter
+      from_date = params[:from_date].present? ? Date.parse(params[:from_date]) : nil
+      to_date = params[:to_date].present? ? Date.parse(params[:to_date]) : nil
   
+      if from_date && to_date
+        @tasks = Task.where(due_date: from_date..to_date)
+      else
+        @tasks = Task.all
+      end
   
-    # Fetch all tasks for a specific project
-    #http://localhost:3000/projects/47/tasks GET
+      render json: @tasks
+    end
+  
     def index
       @tasks = @project.tasks
       tasks_with_creator_name = @tasks.map do |task|
-        task.as_json(include: :labels).merge(creator_name: task.creator.name)  # Include creator's name
+        task.as_json(include: :labels).merge(creator_name: task.creator&.name || 'Unknown') # Include creator's name
       end
     
       render json: tasks_with_creator_name
     end
   
-    # Create a new task
-    #http://localhost:3000/projects/47/tasks POST
     def create
       @task = @project.tasks.new(task_params)
       @task.created_by = current_user.id
@@ -41,8 +49,6 @@ class TasksController < ApplicationController
       end
     end
   
-    # Update an existing task
-    #http://localhost:3000/projects/47/tasks/1 PATCH
     def update
       if @task.update(task_params)
         if params[:label_ids].present?
@@ -57,7 +63,6 @@ class TasksController < ApplicationController
       end
     end
   
-    # Delete a task
     def destroy
       @task.destroy
       head :no_content
@@ -65,17 +70,14 @@ class TasksController < ApplicationController
   
     private
   
-    # Set the project based on the project_id in the URL
     def set_project
       @project = Project.find(params[:project_id])
     end
   
-    # Set the task based on the task_id in the URL
     def set_task
       @task = Task.find(params[:id])
     end
   
-    # Strong parameters for task attributes
     def task_params
       params.require(:task).permit(:title, :description, :assigned_to_id, :estimated_time, :due_date, label_ids: [])
     end

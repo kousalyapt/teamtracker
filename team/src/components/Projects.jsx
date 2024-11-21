@@ -4,14 +4,13 @@ import axios from 'axios';
 import { useCookies } from 'react-cookie';
 
 const Projects = () => {
-  const [projects, setProjects] = useState([]); // All projects fetched from the server
-  const [searchQuery, setSearchQuery] = useState(''); // State for search input
-  const [cookies] = useCookies(['jwt']); // Get the JWT cookie
+  const [projects, setProjects] = useState([]); 
+  const [searchQuery, setSearchQuery] = useState(''); 
+  const [cookies] = useCookies(['jwt']); 
 
-  // Fetch projects from the server
   useEffect(() => {
     const headers = {
-      Authorization: `${cookies.jwt}` // Send JWT as Bearer token
+      Authorization: `${cookies.jwt}` 
     };
 
     axios
@@ -23,7 +22,7 @@ const Projects = () => {
               ? response.data.projects_created.map((project) => ({
                   id: project.id,
                   title: project.title,
-                  type: 'created', // Optionally tag the project type
+                  type: 'created', 
                 }))
               : [];
           
@@ -31,14 +30,12 @@ const Projects = () => {
               ? response.data.projects_as_member.map((project) => ({
                   id: project.id,
                   title: project.title,
-                  type: 'member', // Optionally tag the project type
+                  type: 'member', 
                 }))
               : [];
-          
-            // Combine both arrays (if needed)
+      
             const allProjects = [...createdProjects, ...memberProjects];
-          
-            // Store the combined array or process separately as needed
+        
             setProjects(allProjects);
                     
         } else {
@@ -48,9 +45,8 @@ const Projects = () => {
       .catch((error) => {
         console.error('Error fetching projects:', error);
       });
-  }, [cookies.jwt]); // The effect will rerun when the JWT cookie changes
+  }, [cookies.jwt]); 
 
-  // Filter projects based on the search query
   const filteredProjects = projects.filter((project) =>
     project.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -58,17 +54,13 @@ const Projects = () => {
   return (
     <div className="container mx-auto p-4">
     <div className="flex flex-col lg:flex-row">
-      {/* Optional Sidebar for Activities */}
       <div className="hidden lg:block lg:w-1/4 px-4">
         <div className="bg-gray-50 shadow-md p-4">
           <div className="text-lg font-bold text-gray-800 mb-2">Activities</div>
-          {/* Placeholder for activities */}
           <div className="text-gray-500">No recent activities</div>
         </div>
       </div>
-      {/* Spacer to push projects section to the extreme right */}
       <div className="flex-1"></div>
-      {/* Projects list section */}
       <div className="w-full lg:w-1/4 px-4">
         <div className="bg-gray-50 shadow-md p-6">
           <div className="flex justify-between items-center border-b pb-4">
@@ -83,7 +75,6 @@ const Projects = () => {
               </button>
             </Link>
           </div>
-          {/* Search bar */}
           <div className="my-4">
             <input
               type="text"
@@ -93,7 +84,6 @@ const Projects = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          {/* Project list */}
           <div className="mt-0">
             {filteredProjects.length > 0 ? (
               filteredProjects.map((project) => (

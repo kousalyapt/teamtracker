@@ -11,9 +11,9 @@ const NewProject = () => {
   const [description, setDescription] = useState('');
   const [members, setMembers] = useState('');
   const [error, setError] = useState('');
-  const [users, setUsers] = useState([]); // List of all users
-  const [filteredUsers, setFilteredUsers] = useState([]); // Filtered list of users
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Control dropdown visibility
+  const [users, setUsers] = useState([]); 
+  const [filteredUsers, setFilteredUsers] = useState([]); 
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false); 
 
   useEffect(() => {
     if (!cookies.jwt) {
@@ -21,7 +21,6 @@ const NewProject = () => {
     }
   }, [cookies.jwt, navigate]);
 
-  // Fetch all users on component mount
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -30,7 +29,7 @@ const NewProject = () => {
             Authorization: `${cookies.jwt}`,
           },
         });
-        setUsers(response.data); // Set all users
+        setUsers(response.data); 
       } catch (error) {
         console.error('Error fetching users:', error);
       }
@@ -46,7 +45,6 @@ const NewProject = () => {
     const value = e.target.value;
     setMembers(value);
 
-    // Filter users based on the input text
     if (value.length > 0) {
       setFilteredUsers(users.filter(user => user.email.toLowerCase().startsWith(value.toLowerCase())));
       setIsDropdownVisible(true);
@@ -58,7 +56,7 @@ const NewProject = () => {
 
   const handleMemberSelect = (email) => {
     setMembers(email);
-    setIsDropdownVisible(false); // Hide dropdown after selection
+    setIsDropdownVisible(false); 
   };
 
   const handleSubmit = async (e) => {
@@ -100,7 +98,6 @@ const NewProject = () => {
         {error && <div className="text-red-500 mb-4">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          {/* Title Field */}
           <div className="mb-4">
             <label htmlFor="title" className="block text-gray-700 font-medium mb-2">
               Project Name
@@ -116,7 +113,6 @@ const NewProject = () => {
             />
           </div>
 
-          {/* Description Field */}
           <div className="mb-4">
             <label htmlFor="description" className="block text-gray-700 font-medium mb-2">
               Description 
@@ -131,7 +127,6 @@ const NewProject = () => {
             />
           </div>
 
-          {/* Members Field */}
           <div className="mb-4">
             <label htmlFor="members" className="block text-gray-700 font-medium mb-2">
               Members (comma-separated emails)
@@ -160,7 +155,6 @@ const NewProject = () => {
             )}
           </div>
 
-          {/* Buttons */}
           <div className="flex justify-end space-x-4">
             <button
               type="submit"

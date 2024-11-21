@@ -1,541 +1,3 @@
-// // // 
-
-// // import React, { useState, useEffect } from 'react';
-// // import axios from 'axios';
-// // import { useParams } from 'react-router-dom';
-// // import { useCookies } from 'react-cookie';
-
-// // const ProjectTasks = () => {
-// //   const { id } = useParams();
-// //   const [project, setProject] = useState(null);
-// //   const [tasks, setTasks] = useState([]);
-// //   const [loading, setLoading] = useState(true);
-// //   const [cookies] = useCookies(['jwt']); // Assuming you're using react-cookie for JWT
-
-// //   useEffect(() => {
-// //     const jwtToken = cookies.jwt;
-
-// //     if (!jwtToken) {
-// //       console.error('No JWT token found.');
-// //       return;
-// //     }
-
-// //     const headers = { Authorization: `${jwtToken}` };
-
-// //     // Fetch project details
-// //     axios
-// //       .get(`http://localhost:3000/projects/${id}`, { headers })
-// //       .then((response) => {
-// //         setProject(response.data);
-// //       })
-// //       .catch((error) => {
-// //         console.error('Error fetching project:', error);
-// //       })
-// //       .finally(() => {
-// //         setLoading(false);
-// //       });
-
-// //     // Fetch tasks
-// //     axios
-// //       .get(`http://localhost:3000/projects/${id}/tasks`, { headers })
-// //       .then((response) => {
-// //         setTasks(response.data);
-// //       })
-// //       .catch((error) => {
-// //         console.error('Error fetching tasks:', error);
-// //       });
-// //   }, [id, cookies.jwt]);
-
-// //   if (loading) {
-// //     return <div className="text-center text-lg font-semibold text-gray-600 py-4">Loading...</div>;
-// //   }
-
-// //   return (
-// //     <div className="max-w-7xl mx-auto space-y-6">
-
-    
-// //       <div className=" rounded-lg p-6 bg-gray-50">
-// //         <h2 className="text-xl font-semibold text-gray-800">{project?.title || 'Project Title'}</h2>
-// //         <p className="text-gray-600 mt-2">{project?.description || 'Project Description'}</p>
-// //       </div>
-
-      
-// //       <div className="space-y-4 bg-white max-h-50 p-4">
-// //         <div className="flex justify-between items-center">
-// //           <h3 className="text-lg font-bold text-gray-800">Tasks</h3>
-// //           <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md">
-// //             New Task
-// //           </button>
-// //         </div>
-
-// //         {tasks.length === 0 ? (
-// //           <div className="text-center text-gray-600">
-// //             <p className="font-semibold">Welcome to Tasks!</p>
-// //             <p>
-// //               Tasks are used to track todos, bugs, feature requests, and more. To get started, create a new task.
-// //             </p>
-// //           </div>
-// //         ) : (
-// //           <ul className="space-y-4">
-// //             {tasks.map((task) => (
-// //               <li
-// //                 key={task.id}
-// //                 className="p-4 bg-white shadow-md rounded-lg border border-gray-200"
-// //               >
-// //                 <h4 className="font-semibold text-gray-800">{task.title}</h4>
-// //                 <p className="text-gray-600 mt-1">{task.description}</p>
-// //               </li>
-// //             ))}
-// //           </ul>
-// //         )}
-// //       </div>
-// //     </div>
-// //   );
-// // };
-
-// // export default ProjectTasks;
-
-
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
-// import { useParams } from 'react-router-dom';
-// import { useCookies } from 'react-cookie';
-
-// const ProjectTasks = () => {
-//   const { id } = useParams();
-//   const [project, setProject] = useState(null);
-//   const [tasks, setTasks] = useState([]);
-//   const [teamWall, setTeamWall] = useState([]); // Assuming you have a "team wall" data structure
-//   const [loading, setLoading] = useState(true);
-//   const [selectedTab, setSelectedTab] = useState('tasks'); // Track selected tab
-//   const [cookies] = useCookies(['jwt']); // Assuming you're using react-cookie for JWT
-
-//   useEffect(() => {
-//     const jwtToken = cookies.jwt;
-
-//     if (!jwtToken) {
-//       console.error('No JWT token found.');
-//       return;
-//     }
-
-//     const headers = { Authorization: `${jwtToken}` };
-
-//     // Fetch project details
-//     axios
-//       .get(`http://localhost:3000/projects/${id}`, { headers })
-//       .then((response) => {
-//         setProject(response.data);
-//       })
-//       .catch((error) => {
-//         console.error('Error fetching project:', error);
-//       })
-//       .finally(() => {
-//         setLoading(false);
-//       });
-
-//     // Fetch tasks
-//     axios
-//       .get(`http://localhost:3000/projects/${id}/tasks`, { headers })
-//       .then((response) => {
-//         setTasks(response.data);
-//       })
-//       .catch((error) => {
-//         console.error('Error fetching tasks:', error);
-//       });
-
-//     // Fetch team wall data (Assuming there's a team wall endpoint)
-//     axios
-//       .get(`http://localhost:3000/projects/${id}/team_wall`, { headers })
-//       .then((response) => {
-//         setTeamWall(response.data);
-//       })
-//       .catch((error) => {
-//         console.error('Error fetching team wall:', error);
-//       });
-//   }, [id, cookies.jwt]);
-
-//   if (loading) {
-//     return <div className="text-center text-lg font-semibold text-gray-600 py-4">Loading...</div>;
-//   }
-
-//   return (
-//     <div className=" ">
-//       {/* Project Info */}
-//       <div className="rounded-lg p-6 bg-gray-50">
-//         <h2 className="text-xl font-semibold text-gray-800 ml-24">{project?.title || 'Project Title'}</h2>
-//         <p className="text-gray-600 mt-2 ml-24">{project?.description || 'Project Description'}</p>
-        
-//       </div>
-
-//       {/* Tab Links */}
-//       <div className="flex bg-gray-50 border-b-1">
-//         <button
-//           className={`px-4 py-2 ml-32  ${selectedTab === 'tasks' ? 'bg-white border-t-2 border-red-500' : 'bg-gray-50'}`}
-//           onClick={() => setSelectedTab('tasks')}
-//         >
-//           Tasks
-//         </button>
-//         <button
-//           className={`px-4 py-2 ${selectedTab === 'team_wall' ? 'bg-white border-t-2 border-red-500' : 'bg-gray-50'}`}
-//           onClick={() => setSelectedTab('team_wall')}
-//         >
-//           Team Wall
-//         </button>
-//       </div>
-
-//       {/* Conditional Content Rendering */}
-//       {selectedTab === 'tasks' && (
-//         <div className="space-y-4 bg-white max-h-50 p-4">
-//           <div className="flex justify-between items-center">
-//             <h3 className="text-lg font-bold text-gray-800">Tasks</h3>
-//             <button className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md mr-40">
-//               New Task
-//             </button>
-//           </div>
-
-//           {tasks.length === 0 ? (
-//             <div className="text-center bg-gray-50  w-[1000px] h-[300px] mx-auto p-4 border-2 border-gray-40">
-//               <p className="font-semibold">Welcome to Tasks!</p>
-//               <p>Tasks are used to track todos, bugs, feature requests, and more. To get started, create a new task.</p>
-//             </div>
-//           ) : (
-//             <ul className="space-y-4">
-//               {tasks.map((task) => (
-//                 <li key={task.id} className="p-4 bg-white shadow-md rounded-lg border border-gray-200">
-//                   <h4 className="font-semibold text-gray-800">{task.title}</h4>
-//                   <p className="text-gray-600 mt-1">{task.description}</p>
-//                 </li>
-//               ))}
-//             </ul>
-//           )}
-//         </div>
-//       )}
-
-//       {selectedTab === 'team_wall' && (
-//         <div className="space-y-4 bg-white max-h-50 p-4">
-//           <h3 className="text-lg font-bold text-gray-800">Team Wall</h3>
-//           {/* Assuming teamWall is an array of posts or updates */}
-//           {teamWall.length === 0 ? (
-//             <div className="text-center text-gray-600">
-//               <p className="font-semibold">No posts on the Team Wall yet.</p>
-//             </div>
-//           ) : (
-//             <ul className="space-y-4">
-//               {teamWall.map((post) => (
-//                 <li key={post.id} className="p-4 bg-white shadow-md rounded-lg border border-gray-200">
-//                   <h4 className="font-semibold text-gray-800">{post.title}</h4>
-//                   <p className="text-gray-600 mt-1">{post.content}</p>
-//                 </li>
-//               ))}
-//             </ul>
-//           )}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default ProjectTasks;
-
-
-// 
-
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
-// import { useParams } from 'react-router-dom';
-// import { useCookies } from 'react-cookie';
-// import ReactQuill from 'react-quill';
-// import 'react-quill/dist/quill.snow.css';
-// import { useNavigate } from 'react-router-dom';
-
-// const ProjectTasks = () => {
-//   const { id } = useParams();
-//   const [project, setProject] = useState(null);
-//   const [tasks, setTasks] = useState([]);
-//   const [teamWall, setTeamWall] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [selectedTab, setSelectedTab] = useState('tasks');
-//   const [showNewTaskForm, setShowNewTaskForm] = useState(false);
-//   const [cookies] = useCookies(['jwt']);
-
-//   useEffect(() => {
-//     const jwtToken = cookies.jwt;
-
-//     if (!jwtToken) {
-//       console.error('No JWT token found.');
-//       return;
-//     }
-
-//     const headers = { Authorization: `${jwtToken}` };
-
-//     // Fetch project details
-//     axios
-//       .get(`http://localhost:3000/projects/${id}`, { headers })
-//       .then((response) => {
-//         setProject(response.data);
-//       })
-//       .catch((error) => {
-//         console.error('Error fetching project:', error);
-//       })
-//       .finally(() => {
-//         setLoading(false);
-//       });
-
-//     // Fetch tasks
-//     axios
-//       .get(`http://localhost:3000/projects/${id}/tasks`, { headers })
-//       .then((response) => {
-//         setTasks(response.data);
-//       })
-//       .catch((error) => {
-//         console.error('Error fetching tasks:', error);
-//       });
-
-//     // Fetch team wall data
-//   //   axios
-//   //     .get(`http://localhost:3000/projects/${id}/team_wall`, { headers })
-//   //     .then((response) => {
-//   //       setTeamWall(response.data);
-//   //     })
-//   //     .catch((error) => {
-//   //       console.error('Error fetching team wall:', error);
-//   //     });
-//    }, [id, cookies.jwt]);
-
-//   if (loading) {
-//     return <div className="text-center text-lg font-semibold text-gray-600 py-4">Loading...</div>;
-//   }
-
-//   return (
-//     <div>
-//       {/* Project Info */}
-//       <div className="rounded-lg p-6 bg-gray-50">
-//         <h2 className="text-xl font-semibold text-gray-800 ml-24">{project?.title || 'Project Title'}</h2>
-//         <p className="text-gray-600 mt-2 ml-24">{project?.description || 'Project Description'}</p>
-//       </div>
-
-//       {/* Tab Links */}
-//       <div className="flex bg-gray-50 border-b-1">
-//         <button
-//           className={`px-4 py-2 ml-32 ${selectedTab === 'tasks' ? 'bg-white border-t-2 border-red-500' : 'bg-gray-50'}`}
-//           onClick={() => setSelectedTab('tasks')}
-//         >
-//           Tasks
-//         </button>
-//         <button
-//           className={`px-4 py-2 ${selectedTab === 'team_wall' ? 'bg-white border-t-2 border-red-500' : 'bg-gray-50'}`}
-//           onClick={() => setSelectedTab('team_wall')}
-//         >
-//           Team Wall
-//         </button>
-//       </div>
-
-//       {/* Conditional Content Rendering */}
-//       {selectedTab === 'tasks' && (
-//         <div className="space-y-4 bg-white p-4">
-//           <div className="flex justify-between items-center">
-//             <h3 className="text-lg font-bold text-gray-800">Tasks</h3>
-//             <button
-//               className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md"
-//               onClick={() => setShowNewTaskForm(!showNewTaskForm)}
-//             >
-//               {showNewTaskForm ? 'Cancel' : 'New Task'}
-//             </button>
-//           </div>
-
-//           {showNewTaskForm ? (
-//             <NewTaskForm cookies={cookies} projectId={id}  />
-//           ) : tasks.length === 0 ? (
-//             <div className="text-center bg-gray-50 w-[1000px] h-[300px] mx-auto p-4 border-2 border-gray-40">
-//               <p className="font-semibold">Welcome to Tasks!</p>
-//               <p>Tasks are used to track todos, bugs, feature requests, and more. To get started, create a new task.</p>
-//             </div>
-//           ) : (
-//             <ul className="space-y-4">
-//               {tasks.map((task) => (
-//                 <li key={task.id} className="p-4 bg-white shadow-md rounded-lg border border-gray-200">
-//                   <h4 className="font-semibold text-gray-800">{task.title}</h4>
-//                   <p className="text-gray-600 mt-1">{task.description}</p>
-//                 </li>
-//               ))}
-//             </ul>
-//           )}
-//         </div>
-//       )}
-
-//       {selectedTab === 'team_wall' && (
-//         <div className="space-y-4 bg-white p-4">
-//           <h3 className="text-lg font-bold text-gray-800">Team Wall</h3>
-//           {teamWall.length === 0 ? (
-//             <div className="text-center text-gray-600">
-//               <p className="font-semibold">No posts on the Team Wall yet.</p>
-//             </div>
-//           ) : (
-//             <ul className="space-y-4">
-//               {teamWall.map((post) => (
-//                 <li key={post.id} className="p-4 bg-white shadow-md rounded-lg border border-gray-200">
-//                   <h4 className="font-semibold text-gray-800">{post.title}</h4>
-//                   <p className="text-gray-600 mt-1">{post.content}</p>
-//                 </li>
-//               ))}
-//             </ul>
-//           )}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-
-
-// const NewTaskForm = ({cookies, projectId }) => {
-//   const [title, setTitle] = useState('');
-//   const [description, setDescription] = useState('');
-//   const [labels, setLabels] = useState('');
-//   const [assignee, setAssignee] = useState('');
-//   const [estimatedHours, setEstimatedHours] = useState('');
-//   const [dueDate, setDueDate] = useState('');
-//   const [files, setFiles] = useState(null);
-//   const navigate = useNavigate();
-
-//   const handleFileChange = (e) => setFiles(e.target.files);
-
-  
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-  
-//     const newTaskData = {
-//       title,
-//       description,
-//       assigned_to_id: assignee,
-//       estimated_time: estimatedHours,
-//       due_date: dueDate,
-//       labels,
-//     };
-  
-//     try {
-//       const response = await axios.post(`/projects/${projectId}/tasks`, newTaskData, {
-//         headers: {
-//           Authorization: `${cookies.jwt}`,
-//         },
-//       });
-//       // Handle successful task creation
-//       console.log('Task created successfully:', response.data)
-//       navigate(`/projects/${projectId}/tasks`);
-//     } catch (error) {
-//       console.error('Error creating task:', error);
-//       // Display error message or handle errors
-//     }
-//   };
-  
-
-//   return (
-//     <form className="space-y-6 grid grid-cols-2 gap-6" onSubmit={handleSubmit}>
-//       {/* Left Section */}
-//       <div className="space-y-4">
-//         {/* Task Title */}
-//         <div>
-//           <input
-//             type="text"
-//             className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-//             placeholder="Task Title"
-//             value={title}
-//             onChange={(e) => setTitle(e.target.value)}
-//             required
-//           />
-//         </div>
-
-//         {/* Task Description */}
-//         <div>
-//           <label className="block text-gray-700 mb-2">Task Description</label>
-//           <ReactQuill
-//             value={description}
-//             onChange={setDescription}
-//             className="bg-white rounded"
-//           />
-//         </div>
-
-//         {/* Attach Files */}
-//         <div>
-//           <label className="block text-gray-700 mb-2">Attach Files</label>
-//           <input
-//             type="file"
-//             multiple
-//             onChange={handleFileChange}
-//             className="w-full border rounded"
-//           />
-//         </div>
-
-//         {/* Buttons */}
-//         <div className="flex space-x-4">
-//           <button
-//             type="submit"
-//             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-//           >
-//             Submit New Task
-//           </button>
-//           <button
-//             type="button"
-//             onClick={() => console.log('Cancel clicked')} // Replace with cancel logic
-//             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-//           >
-//             Cancel
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* Right Section */}
-//       <div className="space-y-4">
-//         {/* Labels */}
-//         <div>
-//           <input
-//             type="text"
-//             className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-//             placeholder="Labels"
-//             value={labels}
-//             onChange={(e) => setLabels(e.target.value)}
-//           />
-//         </div>
-
-//         {/* Assignee */}
-//         <div>
-//           <input
-//             type="text"
-//             className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-//             placeholder="Assignee"
-//             value={assignee}
-//             onChange={(e) => setAssignee(e.target.value)}
-//           />
-//         </div>
-
-//         {/* Estimated Hours */}
-//         <div>
-//           <input
-//             type="number"
-//             className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-//             placeholder="Estimated Hours"
-//             value={estimatedHours}
-//             onChange={(e) => setEstimatedHours(e.target.value)}
-//           />
-//         </div>
-
-//         {/* Due Date */}
-//         <div>
-//           <label className="block text-gray-700 mb-2">Due Date</label>
-//           <input
-//             type="date"
-//             className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-//             value={dueDate}
-//             onChange={(e) => setDueDate(e.target.value)}
-//           />
-//         </div>
-//       </div>
-//     </form>
-//   );
-// };
-// export default ProjectTasks;
-
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -545,6 +7,9 @@ import 'react-quill/dist/quill.snow.css';
 import DOMPurify from 'dompurify';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import NewTaskForm from './NewTaskForm';
+
 
 
 const ProjectTasks = () => {
@@ -554,8 +19,66 @@ const ProjectTasks = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('tasks');
   const [showNewTaskForm, setShowNewTaskForm] = useState(false);
-  const [cookies] = useCookies(['jwt']);
+  const [cookies,setCookies] = useCookies(['jwt']);
   const navigate = useNavigate()
+  const [filteredTasks, setFilteredTasks] = useState([]);
+  const [filter, setFilter] = useState('all');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showLabelDropdown, setShowLabelDropdown] = useState(false);
+  const [availableLabels, setAvailableLabels] = useState([]);
+  const [projectMembers, setProjectMembers] = useState([]); 
+  const [showDateRangeDropdown, setShowDateRangeDropdown] = useState(false);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+
+
+
+  useEffect(() => {
+    const fetchProjectMembers = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`http://localhost:3000/projects/${id}/members`, {
+          headers: { Authorization: `${cookies.jwt}` },
+        });
+        console.log(response)
+        setProjectMembers(response.data.members); 
+      } catch (error) {
+        console.error('Error fetching project members:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+console.log(`projmem ${projectMembers.class}`)
+    fetchProjectMembers();
+  }, [id, cookies.jwt]);
+
+  
+
+  useEffect(() => {
+    const uniqueLabels = new Map();
+  
+    tasks.forEach(task => {
+      task.labels?.forEach(label => {
+        if (!uniqueLabels.has(label.id)) {
+          uniqueLabels.set(label.id, label); 
+        }
+      });
+    });
+  
+    setAvailableLabels(Array.from(uniqueLabels.values()));
+  }, [tasks]);
+  
+
+  const toggleLabelDropdown = () => {
+    setShowLabelDropdown(!showLabelDropdown);
+  };
+
+  const handleLabelFilter = (label) => {
+    setFilter(`label_${label.id}`);
+    setShowLabelDropdown(false);
+  };
+  
+  
 
   useEffect(() => {
     const jwtToken = cookies.jwt;
@@ -565,19 +88,29 @@ const ProjectTasks = () => {
       return;
     }
 
+    try {
+      const decodedToken = jwtDecode(jwtToken);
+      console.log('Decoded Token:', decodedToken);
+      const userId = decodedToken.sub; 
+      setCookies('userId', userId);
+    } catch (error) {
+      console.error('Error decoding JWT:', error);
+    }
+
+    
+
     const headers = { Authorization: `${jwtToken}` };
 
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        // Fetch project details
         const projectResponse = await axios.get(`http://localhost:3000/projects/${id}`, { headers });
         setProject(projectResponse.data);
 
-        // Fetch tasks
         const tasksResponse = await axios.get(`http://localhost:3000/projects/${id}/tasks`, { headers });
         setTasks(tasksResponse.data);
+         
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -587,14 +120,75 @@ const ProjectTasks = () => {
 
     fetchData();
   }, [id, cookies.jwt]);
+  useEffect(() => {
+    console.log('Tasks:', tasks);
+  }, [tasks]);
 
+  useEffect(() => {
+    let filtered =[]
+    filtered = tasks.filter((task) => {
+      const dueDate = new Date(task.due_date); 
+  
+      const today = new Date();
+      
+      const isToday = dueDate.toDateString() === today.toDateString();
+  
+      const userId = cookies.userId; 
+      
+
+      if (filter.startsWith('label_')) {
+        const labelId = parseInt(filter.split('_')[1], 10);
+        return task.labels.some((label) => label.id === labelId);
+      }
+      
+      if (filter.startsWith('assignee_')) {
+        const assigneeId = parseInt(filter.split('_')[1], 10); 
+        return task.assigned_to_id === assigneeId; 
+      }
+      if (filter == 'date_range') {
+        console.log(`datarange ${task}`)
+        
+          const dueDate = new Date(task.due_date);
+          return dueDate >= new Date(fromDate) && dueDate <= new Date(toDate);
+        
+      }
+  
+      if (filter === 'all') {
+        return true; 
+      }
+      if (filter === 'assigned_for_you') {
+        return task.assigned_to_id === userId; 
+      }
+      if (filter === 'your_tasks_for_today') {
+        return task.assigned_to_id === userId && isToday; 
+      }
+      return task;
+    });
+  
+    setFilteredTasks(filtered);
+  }, [filter, tasks,fromDate, toDate, cookies.userId]);
+
+  const toggleDateRangeDropdown = () => {
+    setShowDateRangeDropdown(!showDateRangeDropdown);
+  };
+
+  const handleApplyDateFilter = () => {
+    setShowDateRangeDropdown(false);
+    setFilter('date_range'); 
+  };
+
+
+  const toggleFilterDropdown = () => {
+    setShowFilterDropdown(!showFilterDropdown);
+  };
+  
   const handleTaskCreated = (newTask) => {
     setTasks((prevTasks) => [...prevTasks, newTask]);
     setShowNewTaskForm(false);
   };
 
   const handleLabelClick = () => {
-    // Navigate to the label creation page using navigate
+  
     navigate(`/projects/${id}/labels`);
   };
 
@@ -604,13 +198,13 @@ const ProjectTasks = () => {
 
   return (
     <div>
-      {/* Project Info */}
+    
       <div className="rounded-lg p-6 bg-gray-50">
         <h2 className="text-xl font-semibold text-gray-800 ml-24">{project?.title || 'Project Title'}</h2>
         <p className="text-gray-600 mt-2 ml-24">{project?.description || 'Project Description'}</p>
       </div>
 
-      {/* Tab Links */}
+      
       <div className="flex bg-gray-50 border-b-1">
         <button
           className={`px-4 py-2 ml-32 ${selectedTab === 'tasks' ? 'bg-white border-t-2 border-red-500' : 'bg-gray-50'}`}
@@ -626,76 +220,205 @@ const ProjectTasks = () => {
         </button>
       </div>
 
-      {/* Conditional Content Rendering */}
+    
       {selectedTab === 'tasks' && (
         <div className="space-y-4 bg-white p-4">
           
           <div className="flex ">
-          <button
-            className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 border-2 rounded-md ml-40"
-          >
-            Filter
-          </button>
+          {!showNewTaskForm && 
+          <>
+          <div className="flex justify-between">
+          <div className="relative">
+  <button
+    className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 border-2 rounded-md ml-32"
+    onClick={toggleFilterDropdown}
+  >
+    Filter
+  </button>
+  <button onClick={() => setFilter('all')}>Clear Filters</button>
+
+  {showFilterDropdown && (
+    <div className="absolute right-0 w-48 mt-2 bg-white border-2 rounded-md shadow-lg">
+      <button
+        className="w-full px-4 py-2 text-left"
+        onClick={() => { setFilter('assigned_for_you'); setShowFilterDropdown(false); }}
+      >
+        Everything assigned for you
+      </button>
+      <button
+        className="w-full px-4 py-2 text-left"
+        onClick={() => { setFilter('your_tasks_for_today'); setShowFilterDropdown(false); }}
+      >
+        Your tasks for today
+      </button>
+      <button
+        className="w-full px-4 py-2 text-left"
+        onClick={() => { setFilter('all'); setShowFilterDropdown(false); }}
+      >
+        Show all tasks
+      </button>
+    </div>
+  )}
+</div>
+
+          </div>
           <button
             onClick={handleLabelClick}
             className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 border-2 rounded-md ml-8"
           >
             Manage Labels
-          </button>
+          </button> 
+          
+          </>
+          
+}
             <button
               className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md  ml-auto mr-40"
               onClick={() => setShowNewTaskForm(!showNewTaskForm)}
             >
-              {showNewTaskForm ? 'Cancel' : 'New Task'}
+              {!showNewTaskForm ? 'New Task' : 'Cancel'}
             </button>
           </div>
+          
 
+          {selectedTab === 'tasks' && (
+        <div className=" bg-white p-4">
           {showNewTaskForm ? (
             <NewTaskForm
               cookies={cookies}
               projectId={id}
               onTaskCreated={handleTaskCreated}
             />
-          ) : tasks.length === 0 ? (
+          ) : filteredTasks.length === 0 ? (
             <div className="text-center bg-gray-50 w-[1000px] h-[300px] mx-auto p-4 border-2 border-gray-40">
-              <p className="font-semibold">Welcome to Tasks!</p>
-              <p>Tasks are used to track todos, bugs, feature requests, and more. To get started, create a new task.</p>
+              <p className="font-semibold">No tasks found!</p>
+              <p>Try adjusting your filters or create a new task.</p>
             </div>
           ) : (
-            <ul className="space-y-4">
-              <div className=" bg-gray-50 w-[1000px] mx-auto">
-              {tasks.map((task) => (
-                <li key={task.id} className="p-4 bg-white border-2 border-gray-40">
-                  <h4 className="font-semibold text-gray-800">{task.title}</h4>
-                  <p className="text-gray-600 mt-1">{task.description}</p>
-                  <p className='text-gray-600'>Opened {formatDistanceToNow(new Date(task.created_at))} ago by {task.creator_name}</p>
-                  {/* <p className='text-gray-600'>Created by {task.creator_name}</p>
-                  <p>Created {formatDistanceToNow(new Date(task.created_at))} ago</p>
-                  <p>{console.log("Task created at:", task.created_at)}</p> 
-                  <p>{console.log("Parsed Date:", new Date(task.created_at))}</p> */}
-                  <div className="mt-2">
-          {task.labels && task.labels.length > 0 ? (
-            <ul className="flex space-x-2">
-              {task.labels.map((label) => (
-                <li key={label.id} className=" text-gray-700 px-2 py-1 rounded-md">
-                  <span
-                className="text-lg font-semibold"
-                style={{ backgroundColor: label.color, padding: '5px', borderRadius: '5px' }} // Apply color to label background
+            <>
+            <div className="bg-gray-100 w-[1000px] mx-auto border-2 mb-0 flex justify-between items-center p-2">
+  
+  <div className="flex space-x-4">
+    <button className=" text-gray px-4 py-1 rounded-md">Opened</button>
+    <button className="text-gray px-4 py-1 rounded-md">Resolved</button>
+    <button className="text-gray px-4 py-1 rounded-md">Closed</button>
+  </div>
+
+  
+  <div className="flex space-x-4">
+  <div className="flex justify-between">
+        <button
+          className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 border-2 rounded-md"
+          onClick={toggleDateRangeDropdown}
+        >
+          Filter by Date
+        </button>
+        
+        {showDateRangeDropdown && (
+          <div className="absolute mt-2 bg-white border-2 rounded-md shadow-lg z-10">
+            <div className="p-4">
+              <label htmlFor="fromDate">From:</label>
+              <input
+                type="date"
+                id="fromDate"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="border px-2 py-1 rounded-md"
+              />
+              <label htmlFor="toDate" className="ml-4">To:</label>
+              <input
+                type="date"
+                id="toDate"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="border px-2 py-1 rounded-md"
+              />
+              <button
+                onClick={handleApplyDateFilter}
+                className="bg-green-500 text-white px-4 py-2 mt-2 rounded-md"
               >
-                {label.name}
-              </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No labels</p>
-          )}
-        </div>
-                </li>
-              ))}
+                Apply
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    <div className="relative">
+    <button
+      className="text-gray-800 px-4 py-1 rounded-md"
+      onClick={toggleLabelDropdown}
+    >
+      Label
+    </button>
+    {showLabelDropdown && (
+      <div className="absolute right-0 w-48 mt-2 bg-white border-2 rounded-md shadow-lg z-10">
+        {availableLabels.map((label) => (
+          <button
+            key={label.id}
+            className="w-full px-4 py-2 text-left text-gray-800 hover:bg-gray-100"
+            onClick={() => handleLabelFilter(label)}
+          >
+            {label.name}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+  <div className="assignee-filter">
+  <label htmlFor="assignee">Filter by Assignee:</label>
+  <select
+    id="assignee"
+    onChange={(e) => setFilter(`assignee_${e.target.value}`)}
+  >
+    <option value="">All Assignees</option>
+    {projectMembers.map(assignee => (
+      <option key={assignee.id} value={assignee.id}>
+        {assignee.name}
+      </option>
+    ))}
+  </select>
+</div>
+
+  </div>
+</div>
+
+            <ul className="space-y-4 mt-0">
+              <div className=" bg-gray-50 w-[1000px] mx-auto ">
+                {filteredTasks.map((task) => (
+                  <li key={task.id} className="p-4 bg-white border-2 border-gray-40">
+                    <h4 className="font-semibold text-gray-800">{task.title}</h4>
+                    <p className="text-gray-600 mt-1">{task.description}</p>
+                    <p className="text-gray-600">Opened {formatDistanceToNow(new Date(task.created_at))} ago by {task.creator_name}</p>
+                    <div className="mt-2">
+                      {task.labels && task.labels.length > 0 ? (
+                        <ul className="flex space-x-2">
+                          {task.labels.map((label) => (
+                            <li key={label.id} className=" text-gray-700 px-2 py-1 rounded-md">
+                              <span
+                                className="text-lg font-semibold"
+                                style={{
+                                  backgroundColor: label.color,
+                                  padding: '5px',
+                                  borderRadius: '5px',
+                                }}
+                              >
+                                {label.name}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-gray-500">No labels</p>
+                      )}
+                    </div>
+                  </li>
+                ))}
               </div>
             </ul>
+            </>
           )}
+        </div>
+      )}
         </div>
       )}
 
@@ -711,188 +434,5 @@ const ProjectTasks = () => {
   );
 };
 
-const NewTaskForm = ({ cookies, projectId, onTaskCreated }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [labels, setLabels] = useState('');
-  const [assignee, setAssignee] = useState('');
-  const [estimatedHours, setEstimatedHours] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [availableLabels, setAvailableLabels] = useState([]);  // List of labels for the project
-  const [filteredLabels, setFilteredLabels] = useState([]); 
-  const [loading, setLoading] = useState(true);
-  // const [isLabelInputFocused, setIsLabelInputFocused] = useState(false);
-
-  useEffect(() => {
-    const fetchLabels = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`http://localhost:3000/labels`, {
-          headers: { Authorization: `${cookies.jwt}` },
-        });
-        setAvailableLabels(response.data);
-        setFilteredLabels(response.data);  // Initialize filtered labels with all available labels
-      } catch (error) {
-        console.error('Error fetching labels:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLabels();
-  }, [projectId, cookies.jwt]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const sanitizedDescription = DOMPurify.sanitize(description, { ALLOWED_TAGS: [] });
-    const newTaskData = {
-      title,
-      description: sanitizedDescription,
-      assigned_to_id: assignee,
-      estimated_time: estimatedHours,
-      due_date: dueDate,
-      label_ids: [labels],
-    };
-
-    try {
-      const response = await axios.post(
-        `http://localhost:3000/projects/${projectId}/tasks`,
-        newTaskData,
-        {
-          headers: {
-            Authorization: `${cookies.jwt}`,
-          },
-        }
-      );
-
-      // Handle successful task creation
-      onTaskCreated(response.data);
-    } catch (error) {
-      console.error('Error creating task:', error);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setLabels(value);
-
-    // Filter the available labels based on the input value
-    const filtered = availableLabels.filter((label) =>
-      label.name.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredLabels(filtered);
-  };
-
-  const handleLabelClick = (labelName) => {
-    // When a label is clicked, set it as the value in the input
-    setLabels(labelName);
-    setFilteredLabels([]); 
-    // setIsLabelInputFocused(false);
-  };
-
-  // const handleLabelInputFocus = () => {
-  //   setIsLabelInputFocused(true); // Show dropdown on input focus
-  // };
-
-  // const handleLabelInputBlur = () => {
-  //   // Delay hiding dropdown slightly to allow for label click
-  //   setTimeout(() => setIsLabelInputFocused(false), 200);
-  // };
-
-  if (loading) {
-    return <div>Loading labels...</div>;
-  }
-
-  return (
-    <form className="grid grid-cols-[3fr,1fr] gap-8 ml-40 mr-40" onSubmit={handleSubmit}>
-  <div className="flex flex-col space-y-4 ">
-    <div className='border-2 p-2 '>
-    <input
-      type="text"
-      className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 mb-2"
-      placeholder="Task Title"
-      value={title}
-      onChange={(e) => setTitle(e.target.value)}
-      required
-    />
-    <ReactQuill
-      value={description}
-      onChange={setDescription}
-      className="bg-white rounded h-40"
-    />
-    <div className="flex justify-end"> {/* Make this a flex container */}
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mt-16"
-        >
-          Submit New Task
-        </button>
-      </div>
-    </div>
-    
-  </div>
-  
-  {/* <div className="flex flex-col space-y-4 "> */}
-    {/* <input
-      type="text"
-      className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-      placeholder="Labels"
-      value={labels}
-      onChange={(e) => setLabels(e.target.value)}
-    /> */}
-
-<div className="flex flex-col space-y-4 ">
-        <div className="relative">
-          {/* Label Input Field */}
-          <input
-            type="text"
-            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-            placeholder="Labels"
-            value={labels}
-            onChange={handleInputChange}
-            // onFocus={handleLabelInputFocus}
-            // onBlur={handleLabelInputBlur} 
-          />
-          {/* Label Dropdown */}
-          { filteredLabels.length > 0 && (
-            <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-              {filteredLabels.map((label) => (
-                <li
-                  key={label.id}
-                  className="px-3 py-2 cursor-pointer hover:bg-blue-100"
-                  onClick={() => handleLabelClick(label.name)} // Set the label when clicked
-                >
-                  {label.name}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-    <input
-      type="text"
-      className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-      placeholder="Assignee"
-      value={assignee}
-      onChange={(e) => setAssignee(e.target.value)}
-    />
-    <input
-      type="number"
-      className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-      placeholder="Estimated Hours"
-      value={estimatedHours}
-      onChange={(e) => setEstimatedHours(e.target.value)}
-    />
-    <input
-      type="date"
-      className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-      value={dueDate}
-      onChange={(e) => setDueDate(e.target.value)}
-    />
-  </div>
-</form>
-
-  );
-};
 
 export default ProjectTasks;

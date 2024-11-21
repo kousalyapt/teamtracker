@@ -68,8 +68,7 @@ function Login() {
                 password: password
             }
         })
-        // console.log("result:",result)
-        // console.log("error:",error)
+       
         if(error !== ''){
             setErrors({
                 ...error,
@@ -78,7 +77,7 @@ function Login() {
             
         }else{
             const jwt = response.headers.get('authorization')
-            const result = await response.json(); // Parse the JSON response for successful requests
+            const result = await response.json(); 
             //const message = result.message;
             //const user = result.data;
 
@@ -94,26 +93,21 @@ function Login() {
   return (
     <div className="bg-white min-h-screen flex items-center justify-center">
   <div className="w-full max-w-md bg-white rounded-lg p-8">
-    {/* Logo Section */}
     <div className="text-center mb-8">
       <h1 className="text-3xl  text-black-600 font-roboto">Team Tracker</h1>
     </div>
 
-    {/* Title Section */}
     <div className="text-center mb-6">
       <h3 className="text-xl text-gray-700 font-roboto">Sign In</h3>
     </div>
 
-    {/* Error Message */}
     {errors.api && (
       <div className="text-center mb-4 text-red-500 text-sm">
         {errors.api}
       </div>
     )}
 
-    {/* Login Form */}
     <form onSubmit={handleSubmit} className="space-y-6 border p-4 rounded">
-      {/* Email Input */}
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
           Email Address
@@ -132,7 +126,6 @@ function Login() {
         )}
       </div>
 
-      {/* Password Input */}
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
           Password
@@ -170,7 +163,6 @@ function Login() {
       </div>
     </form>
 
-    {/* Create Account Section */}
     <div className="text-center mt-6 border rounded p-4">
       <p className="text-sm text-gray-700">
         New to Team Tracker?{' '}
@@ -180,7 +172,6 @@ function Login() {
       </p>
     </div>
 
-    {/* Footer Links */}
     <div className="text-center mt-8">
       <div className="space-x-4 text-sm text-gray-500">
         <Link to="" className="hover:underline">Terms</Link>

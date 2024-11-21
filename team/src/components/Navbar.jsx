@@ -8,8 +8,8 @@ import { logoutApi } from '../apis/logoutApi';
 function Navbar() {
   const [cookies, setCookie, removeCookie] = useCookies(['jwt']);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isProjectsOpen, setIsProjectsOpen] = useState(false); // Track dropdown state
-  const [projects, setProjects] = useState([]); // Store fetched projects
+  const [isProjectsOpen, setIsProjectsOpen] = useState(false);
+  const [projects, setProjects] = useState([]); 
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -53,7 +53,7 @@ function Navbar() {
   };
 
   const toggleProjectsDropdown = () => {
-    setIsProjectsOpen(!isProjectsOpen); // Toggle projects dropdown
+    setIsProjectsOpen(!isProjectsOpen); 
   };
 
   const handleLogout = async () => {
@@ -76,7 +76,6 @@ function Navbar() {
           </div>
           <Link to="/all_task" className="hover:text-indigo-400">All Tasks</Link>
 
-           {/* Projects Dropdown */}
            <div className="relative">
             <button onClick={toggleProjectsDropdown} className="hover:text-indigo-400">
               My Projects
@@ -104,14 +103,11 @@ function Navbar() {
           <Link to="/messages" className="hover:text-indigo-400">Team Wall</Link>
         </div>
 
-        {/* Right Section: Notifications & Profile */}
         <div className="flex items-center space-x-4">
-          {/* Notifications */}
           <div className="relative">
             <Link to="/notifications" className="hover:text-indigo-400">Notifications</Link>
           </div>
 
-          {/* Profile Dropdown */}
           <div className="relative">
             <button onClick={toggleProfileDropdown} className="flex items-center">
               <span className="ml-2">{cookies.user?.name || 'User'}</span>
