@@ -1,6 +1,22 @@
 class TasksController < ApplicationController
-    before_action :set_project, only: [:create, :index]
-    before_action :set_task, only: [:update, :destroy, :add_label]
+    before_action :set_project, only: [:create, :index, :show]
+    before_action :set_task, only: [:update, :destroy, :add_label, :show, :resolve, :close]
+
+    def resolve
+      @task.resolve!
+      render json: { message: 'Task resolved successfully', task: @task }, status: :ok
+    end
+  
+    # Change the state to closed
+    def close
+      @task.close!
+      render json: { message: 'Task closed successfully', task: @task }, status: :ok
+    end
+  
+    
+    def show
+      render json: @task.as_json(include: :labels).merge(creator_name: @task.creator&.name || 'Unknown')
+    end
 
     def add_label
       @label = Label.find(params[:label_id])
@@ -80,6 +96,10 @@ class TasksController < ApplicationController
   
     def task_params
       params.require(:task).permit(:title, :description, :assigned_to_id, :estimated_time, :due_date, label_ids: [])
+    end
+
+    def comment_params
+      params.require(:comment).permit(:content)
     end
   end
   

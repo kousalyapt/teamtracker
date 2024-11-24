@@ -9,6 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import NewTaskForm from './NewTaskForm';
+import TaskDetails from './TaskDetails';
 
 
 
@@ -30,6 +31,13 @@ const ProjectTasks = () => {
   const [showDateRangeDropdown, setShowDateRangeDropdown] = useState(false);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [showTaskDetails, setShowTaskDetails] = useState(null);
+
+  // const handleTaskClick = (taskId) => {
+  //   const taskDetails = tasks.find(task => task.id === taskId);
+  //   setSelectedTaskDetails(taskDetails);
+  // };
+  
 
 
 
@@ -199,7 +207,7 @@ console.log(`projmem ${projectMembers.class}`)
   return (
     <div>
     
-      <div className="rounded-lg p-6 bg-gray-50">
+      <div className="rounded-lg p-6 bg-gray-50 ">
         <h2 className="text-xl font-semibold text-gray-800 ml-24">{project?.title || 'Project Title'}</h2>
         <p className="text-gray-600 mt-2 ml-24">{project?.description || 'Project Description'}</p>
       </div>
@@ -219,13 +227,13 @@ console.log(`projmem ${projectMembers.class}`)
           Team Wall
         </button>
       </div>
-
     
       {selectedTab === 'tasks' && (
+        
         <div className="space-y-4 bg-white p-4">
           
-          <div className="flex ">
-          {!showNewTaskForm && 
+          <div className="flex  ">
+          {!showNewTaskForm && !showTaskDetails &&
           <>
           <div className="flex justify-between">
           <div className="relative">
@@ -272,12 +280,32 @@ console.log(`projmem ${projectMembers.class}`)
           </>
           
 }
+{showTaskDetails && !showNewTaskForm && <div >
+  <input
+                                type="text"
+                                className="family-robota text-4xl p-0 m-0 ml-24 "
+                                placeholder="Title"
+                                value={showTaskDetails.title}
+        
+                                required
+                            />
+                   
+                </div>}
             <button
-              className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md  ml-auto mr-40"
+              className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded-md  ml-auto mr-40 max-h-10"
               onClick={() => setShowNewTaskForm(!showNewTaskForm)}
             >
               {!showNewTaskForm ? 'New Task' : 'Cancel'}
+              
             </button>
+            {/* {showTaskDetails && !showNewTaskForm && <>
+                    <button className="bg-blue-500 text-white py-2 px-4 rounded-lg mb-2 hover:bg-blue-600 max-h-10">
+                        Edit
+                    </button>
+                    <button className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 max-h-10">
+                        Delete
+                    </button>
+                </>} */}
           </div>
           
 
@@ -289,7 +317,9 @@ console.log(`projmem ${projectMembers.class}`)
               projectId={id}
               onTaskCreated={handleTaskCreated}
             />
-          ) : filteredTasks.length === 0 ? (
+          ) : showTaskDetails ? (
+            <TaskDetails task={showTaskDetails} projectId={id}/> 
+          ) :filteredTasks.length === 0 ? (
             <div className="text-center bg-gray-50 w-[1000px] h-[300px] mx-auto p-4 border-2 border-gray-40">
               <p className="font-semibold">No tasks found!</p>
               <p>Try adjusting your filters or create a new task.</p>
@@ -386,7 +416,20 @@ console.log(`projmem ${projectMembers.class}`)
               <div className=" bg-gray-50 w-[1000px] mx-auto ">
                 {filteredTasks.map((task) => (
                   <li key={task.id} className="p-4 bg-white border-2 border-gray-40">
-                    <h4 className="font-semibold text-gray-800">{task.title}</h4>
+                    <div key={task.id} className="task-item">
+                      <h3 
+                        className="task-title"
+                        onClick={() => setShowTaskDetails(task)}
+                      >
+                        {task.title}
+                      </h3>
+                      {/* {showTaskDetails === task.id && (
+                      <TaskDetails task={task}/>
+                    )} */}
+                    </div>
+                    
+
+
                     <p className="text-gray-600 mt-1">{task.description}</p>
                     <p className="text-gray-600">Opened {formatDistanceToNow(new Date(task.created_at))} ago by {task.creator_name}</p>
                     <div className="mt-2">

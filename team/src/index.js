@@ -11,6 +11,7 @@ import NewProject from './components/NewProject';
 import ProjectTasks from './components/ProjectTasks';
 import MainLayout from './components/MainLayout'; 
 import Label from './components/Label'
+import TaskDetails from './components/TaskDetails';
 
 // const router = createBrowserRouter([
 //   {
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: "/projects/:id/labels",
         element: <Label />
+      },
+      {
+        path: "/projects/:projectId/tasks/:taskId",
+        element: <TaskDetails />
       }
     ]
   },

@@ -6,8 +6,13 @@ Rails.application.routes.draw do
   get '/projects', to: 'projects#index'
   resources :users
   resources :projects do
-    resources :tasks, only: [:index, :create, :update, :destroy] do
+    resources :tasks, only: [:index, :create, :update, :destroy, :show] do
       post 'add_label/:label_id', to: 'tasks#add_label', as: 'add_label'
+      member do
+        patch :resolve
+        patch :close
+      end
+      resources :comments, only: [:create, :update, :destroy,  :index]
     end
   end
   resources :projects do
