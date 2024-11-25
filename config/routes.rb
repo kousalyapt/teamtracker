@@ -11,6 +11,7 @@ Rails.application.routes.draw do
       member do
         patch :resolve
         patch :close
+        patch :open
       end
       resources :comments, only: [:create, :update, :destroy,  :index]
     end

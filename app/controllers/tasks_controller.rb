@@ -1,6 +1,6 @@
 class TasksController < ApplicationController
     before_action :set_project, only: [:create, :index, :show]
-    before_action :set_task, only: [:update, :destroy, :add_label, :show, :resolve, :close]
+    before_action :set_task, only: [:update, :destroy, :add_label, :show, :resolve, :close, :open]
 
     def resolve
       @task.resolve!
@@ -11,6 +11,11 @@ class TasksController < ApplicationController
     def close
       @task.close!
       render json: { message: 'Task closed successfully', task: @task }, status: :ok
+    end
+
+    def open
+      @task.open!
+      render json: { message: 'Task reopened successfully', task: @task }, status: :ok
     end
   
     

@@ -16,4 +16,8 @@ class Task < ApplicationRecord
   def close!
     update!(state: 'closed')
   end
+
+  def open!
+    update!(state: 'opened')
+  end
 end
