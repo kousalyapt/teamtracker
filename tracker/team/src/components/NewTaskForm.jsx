@@ -10,18 +10,29 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
 
-const NewTaskForm = ({ cookies, projectId, onTaskCreated }) => {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [labels, setLabels] = useState('');
-    const [assignee, setAssignee] = useState('');
-    const [estimatedHours, setEstimatedHours] = useState('');
-    const [dueDate, setDueDate] = useState('');
+const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpdate}) => {
+    const [title, setTitle] = useState(taskDetails ? taskDetails.title : '');
+    const [description, setDescription] = useState(taskDetails ? taskDetails.description : '');
+    const [labels, setLabels] = useState(taskDetails ? taskDetails.labels[0].name : '');
+    const [assignee, setAssignee] = useState(taskDetails ? taskDetails.assigned_to_id : '');
+    const [estimatedHours, setEstimatedHours] = useState(taskDetails ? taskDetails.estimated_time : '');
+    const [dueDate, setDueDate] = useState(taskDetails ? taskDetails.due_date : '');
     const [availableLabels, setAvailableLabels] = useState([]);  
     const [filteredLabels, setFilteredLabels] = useState([]); 
     const [loading, setLoading] = useState(true);
     const [projectMembers, setProjectMembers] = useState([]); 
+    const [isLabelInputFocused, setIsLabelInputFocused] = useState(false); 
     // const [isLabelInputFocused, setIsLabelInputFocused] = useState(false);
+  console.log(`taskdetailssssssssssss is ${JSON.stringify(taskDetails)}`)
+
+  const handleLabelInputFocus = () => {
+    setIsLabelInputFocused(true);
+  };
+
+  const handleLabelInputBlur = () => {
+    // Small delay to allow click on dropdown before hiding
+    setTimeout(() => setIsLabelInputFocused(false), 150);
+  };
   
     useEffect(() => {
       const fetchProjectMembers = async () => {
@@ -62,6 +73,9 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated }) => {
       fetchLabels();
     }, [projectId, cookies.jwt]);
   
+    
+
+    
     const handleSubmit = async (e) => {
       e.preventDefault();
   
@@ -76,22 +90,40 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated }) => {
       };
   
       try {
-        const response = await axios.post(
-          `http://localhost:3000/projects/${projectId}/tasks`,
-          newTaskData,
-          {
-            headers: {
-              Authorization: `${cookies.jwt}`,
-            },
-          }
-        );
+        // const response = await axios.post(
+        //   `http://localhost:3000/projects/${projectId}/tasks`,
+        //   newTaskData,
+        //   {
+        //     headers: {
+        //       Authorization: `${cookies.jwt}`,
+        //     },
+        //   }
+        // );
   
-        onTaskCreated(response.data);
+        // onTaskCreated(response.data);
+        const response = taskDetails 
+        ? await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskDetails.id}`, newTaskData, {
+            headers: { Authorization: `${cookies.jwt}` },
+        }) 
+        : await axios.post(`http://localhost:3000/projects/${projectId}/tasks`, newTaskData, {
+            headers: { Authorization: `${cookies.jwt}` },
+        });
+
+        console.log(`Response:`, JSON.stringify(response.data));
+
+        if (onTaskCreated ) {
+          onTaskCreated(response.data);
+          
+        }
+        if (onTaskUpdate){
+          onTaskUpdate(response.data);
+        }
       } catch (error) {
         console.error('Error creating task:', error);
       }
     };
   
+    
     const handleInputChange = (e) => {
       const value = e.target.value;
       setLabels(value);
@@ -134,7 +166,7 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated }) => {
             type="submit"
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mt-16"
           >
-            Submit New Task
+           {taskDetails ? 'Update Task' : 'Submit New Task'}
           </button>
         </div>
       </div>
@@ -144,31 +176,31 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated }) => {
    
   
   <div className="flex flex-col space-y-4 ">
-          <div className="relative">
-            <input
-              type="text"
-              className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-              placeholder="Labels"
-              value={labels}
-              onChange={handleInputChange}
-              // onFocus={handleLabelInputFocus}
-              // onBlur={handleLabelInputBlur} 
-            />
-            { filteredLabels.length > 0 && (
-              <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-                {filteredLabels.map((label) => (
-                  <li
-                    key={label.id}
-                    className="px-3 py-2 cursor-pointer hover:bg-blue-100"
-                    onClick={() => handleLabelClick(label.name)} 
-                  >
-                    {label.name}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-      
+          
+  <div className="relative">
+    <input
+      type="text"
+      className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
+      placeholder="Labels"
+      value={labels}
+      onChange={handleInputChange}
+      onFocus={handleLabelInputFocus}
+      onBlur={handleLabelInputBlur}
+    />
+    {filteredLabels.length > 0 && isLabelInputFocused && (
+      <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+        {filteredLabels.map((label) => (
+          <li
+            key={label.id}
+            className="px-3 py-2 cursor-pointer hover:bg-blue-100"
+            onMouseDown={() => handleLabelClick(label.name)} // Use onMouseDown to avoid blur before click
+          >
+            {label.name}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
        <select
                 className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
                 value={assignee}
@@ -199,6 +231,6 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated }) => {
   
     );
   };
-  
+
   export default NewTaskForm;
   

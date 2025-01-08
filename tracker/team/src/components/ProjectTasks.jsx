@@ -87,6 +87,20 @@ const ProjectTasks = () => {
   };
 
 
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const headers = { Authorization: `${cookies.jwt}` };
+      const tasksResponse = await axios.get(`http://localhost:3000/projects/${id}/tasks`, { headers });
+      setTasks(tasksResponse.data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
 
   useEffect(() => {
     const jwtToken = cookies.jwt;
@@ -118,6 +132,7 @@ const ProjectTasks = () => {
 
         const tasksResponse = await axios.get(`http://localhost:3000/projects/${id}/tasks`, { headers });
         setTasks(tasksResponse.data);
+        await fetchTasks();
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -192,6 +207,15 @@ const ProjectTasks = () => {
     setShowDateRangeDropdown(!showDateRangeDropdown);
   };
 
+  const handleTitleUpdate = (updatedTask) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === updatedTask.id
+          ? { ...task, title: updatedTask.title } // Update only the title or other fields as needed
+          : task
+      )
+    );
+  }
   const handleApplyDateFilter = () => {
     setShowDateRangeDropdown(false);
     setFilter('date_range');
@@ -334,7 +358,7 @@ const ProjectTasks = () => {
                   onTaskCreated={handleTaskCreated}
                 />
               ) : showTaskDetails ? (
-                <TaskDetails task={showTaskDetails} projectId={id} />
+                <TaskDetails task={showTaskDetails} projectId={id} titleUpdate={handleTitleUpdate} setShowTaskDetails={setShowTaskDetails} fetchTasks={fetchTasks} />
               ) : filteredTasks.length === 0 ? (
                 <div className="text-center bg-gray-50 w-[1000px] h-[300px] mx-auto p-4 border-2 border-gray-40">
                   <p className="font-semibold">No tasks found!</p>

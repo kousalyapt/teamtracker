@@ -4,7 +4,6 @@ Rails.application.routes.draw do
       registrations: 'users/registrations'
   }
   get '/projects', to: 'projects#index'
-  
   resources :users do
     get 'tasks', to: 'tasks#user_tasks'
   end

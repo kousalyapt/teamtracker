@@ -84,7 +84,6 @@ root.render(
     <CookiesProvider defaultSetOptions={{ path: '/'}}>
       <RouterProvider router={router} />
     </CookiesProvider>
-    
   </React.StrictMode>
 );
 

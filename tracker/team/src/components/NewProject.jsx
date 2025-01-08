@@ -9,11 +9,12 @@ const NewProject = () => {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [members, setMembers] = useState('');
+  const [memberInput, setMemberInput] = useState('');
+  const [members, setMembers] = useState([]); // Now an array
   const [error, setError] = useState('');
-  const [users, setUsers] = useState([]); 
-  const [filteredUsers, setFilteredUsers] = useState([]); 
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false); 
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   useEffect(() => {
     if (!cookies.jwt) {
@@ -29,7 +30,7 @@ const NewProject = () => {
             Authorization: `${cookies.jwt}`,
           },
         });
-        setUsers(response.data); 
+        setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
       }
@@ -41,9 +42,9 @@ const NewProject = () => {
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleDescriptionChange = (e) => setDescription(e.target.value);
 
-  const handleMembersChange = (e) => {
+  const handleMemberInputChange = (e) => {
     const value = e.target.value;
-    setMembers(value);
+    setMemberInput(value);
 
     if (value.length > 0) {
       setFilteredUsers(users.filter(user => user.email.toLowerCase().startsWith(value.toLowerCase())));
@@ -55,14 +56,21 @@ const NewProject = () => {
   };
 
   const handleMemberSelect = (email) => {
-    setMembers(email);
-    setIsDropdownVisible(false); 
+    if (!members.includes(email)) {
+      setMembers([...members, email]); // Add the selected member to the list
+    }
+    setMemberInput('');
+    setIsDropdownVisible(false);
+  };
+
+  const removeMember = (email) => {
+    setMembers(members.filter(member => member !== email)); // Remove the selected member
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!title || !description || !members) {
+    if (!title || !description || members.length === 0) {
       setError('Please fill in all fields');
       return;
     }
@@ -71,7 +79,7 @@ const NewProject = () => {
       project: {
         title,
         description,
-        member_emails: members.split(',').map((email) => email.trim()),
+        member_emails: members, // Use the members array directly
       },
     };
 
@@ -115,7 +123,7 @@ const NewProject = () => {
 
           <div className="mb-4">
             <label htmlFor="description" className="block text-gray-700 font-medium mb-2">
-              Description 
+              Description
             </label>
             <textarea
               id="description"
@@ -129,16 +137,15 @@ const NewProject = () => {
 
           <div className="mb-4">
             <label htmlFor="members" className="block text-gray-700 font-medium mb-2">
-              Members (comma-separated emails)
+              Members
             </label>
             <input
               type="text"
               id="members"
-              value={members}
-              onChange={handleMembersChange}
+              value={memberInput}
+              onChange={handleMemberInputChange}
               placeholder="Enter member emails"
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
-              required
             />
             {isDropdownVisible && filteredUsers.length > 0 && (
               <ul className="mt-2 border border-gray-300 rounded-md bg-white shadow-md max-h-48 overflow-y-auto">
@@ -154,6 +161,26 @@ const NewProject = () => {
               </ul>
             )}
           </div>
+
+          {members.length > 0 && (
+            <div className="mb-4">
+              <label className="block text-gray-700 font-medium mb-2">Selected Members</label>
+              <ul className="list-disc list-inside">
+                {members.map((member) => (
+                  <li key={member} className="flex justify-between">
+                    <span>{member}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeMember(member)}
+                      className="text-red-500 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="flex justify-end space-x-4">
             <button

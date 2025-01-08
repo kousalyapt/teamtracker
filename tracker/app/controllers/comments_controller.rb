@@ -44,6 +44,8 @@ class CommentsController < ApplicationController
     end
   
     private
+
+    
   
     def set_task
       @task = Task.find(params[:task_id])  # Find the task based on task_id
