@@ -92,7 +92,7 @@ class TasksController < ApplicationController
       if @task.update(task_params)
         if params[:label_ids].present?
           labels = Label.where(name: params[:label_ids])
-          
+          @task.labels = labels 
         end
         
     

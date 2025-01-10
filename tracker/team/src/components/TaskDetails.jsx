@@ -5,11 +5,12 @@ import { useCookies } from 'react-cookie';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import DOMPurify from 'dompurify';
-import { formatDistanceToNow } from 'date-fns';
+import { parseISO, formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import NewTaskForm from './NewTaskForm';
 import ProjectTasks from './ProjectTasks';
+import { DateTime } from 'luxon';
 
 const TaskDetails = ({ task, projectId, titleUpdate , setShowTaskDetails, fetchTasks}) => {
     const [comment, setComment] = useState("");
@@ -20,12 +21,37 @@ const TaskDetails = ({ task, projectId, titleUpdate , setShowTaskDetails, fetchT
     const [showDropdown, setShowDropdown] = useState(false);
     const [showNewTaskForm, setShowNewTaskForm] = useState(false);
     const [assignedToName, setAssignedToName] = useState(null);
+    const [taskId, setTaskId] = useState(JSON.stringify(task.id))
+    const [taskCreatedAt, setTaskCreatedAt] = useState(JSON.stringify(task.created_at)?.replace(/^"|"$/g, ''))
+    console.log(`taskidis ${JSON.stringify(task.created_at)?.trim()}`)
+    
     const navigate = useNavigate();
-console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
+console.log(`tasked ${JSON.stringify(task)}`)
     useEffect(() => {
         fetchComments();
     }, [task.id]);
 
+
+    const { sub } = jwtDecode(cookies.jwt) || {};
+    console.log(`sub${sub}`)
+
+    const handleDeleteComment = async (commentId , e) => {
+        e.preventDefault();
+        try {
+            console.log(`Deleting comment from URL: http://localhost:3000/projects/${projectId}/tasks/${taskId}/comments/${commentId}`);
+
+            await axios.delete(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/comments/${commentId}`, {
+                headers: { Authorization: `${cookies.jwt}` },
+            });
+            //fetchComments()
+            setComments((prevComments) => prevComments.filter((comment) => comment.id !== commentId));
+            await fetchComments();
+            setShowTaskDetails(true)
+            
+        } catch (error) {
+            console.error("Error deleting comment:", error);
+        }
+    };
 
     useEffect(() => {
         if (task.assigned_to_id ) {
@@ -47,13 +73,18 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
         }
     }
 
+    
     const fetchComments = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`http://localhost:3000/projects/${projectId}/tasks/${task.id}/comments`, {
+            const response = await axios.get(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/comments`, {
                 headers: { Authorization: `${cookies.jwt}` },
             });
-            setComments(response.data);
+            // setComments(response.data);
+            setComments(response.data.map(comment => ({
+    ...comment,
+    created_at: new Date(comment.created_at),
+})));
             setLoading(false);
         } catch (error) {
             console.error("Error fetching comments:", error);
@@ -68,7 +99,7 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
 
     const handleDeleteTask = async () => {
         try {
-            await axios.delete(`http://localhost:3000/projects/${projectId}/tasks/${task.id}`, {
+            await axios.delete(`http://localhost:3000/projects/${projectId}/tasks/${taskId}`, {
                 headers: { Authorization: `${cookies.jwt}` },
             });
             setShowTaskDetails(null)
@@ -80,8 +111,8 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
     };
 
     const handleTaskUpdate = (updatedTask) => {
-        console.log(`taskous ${JSON.stringify(task.data)}`)
-        console.log(`updated task ${JSON.stringify(updatedTask.data)}`)
+        console.log(`taskous ${JSON.stringify(task)}`)
+        console.log(`updated task ${JSON.stringify(updatedTask)}`)
         setShowNewTaskForm(false); // Hide the form after updating
         setTaskState(updatedTask.state); // Update state if needed
         titleUpdate(updatedTask);
@@ -96,7 +127,7 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
             created_at: label.created_at,
             updated_at: label.updated_at
           }));
-          task.assigned_to_id = updatedTask.assigned_to_id;
+        task.assigned_to_id = updatedTask.assigned_to_id;
       };
       
 
@@ -110,7 +141,7 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
         const sanitizedComment = DOMPurify.sanitize(comment, { ALLOWED_TAGS: [] });
         if (comment.trim()) {
             try {
-                const response = await axios.post(`http://localhost:3000/projects/${projectId}/tasks/${task.id}/comments`,
+                const response = await axios.post(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/comments`,
                     {
                         comment: { content: sanitizedComment },
                     },
@@ -124,9 +155,10 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
                     ...response.data,
                     created_at: new Date(response.data.created_at),
                 };
-
+console.log("newcommenttttttttttttttt",newComment)
                 setComments((prevComments) => [...prevComments, newComment]);
                 setComment('');
+                await fetchComments();
             } catch (error) {
                 console.error('Error posting comment:', error);
             }
@@ -148,7 +180,7 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
 
     const handleResolve = async () => {
         try {
-            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${task.id}/resolve`,
+            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/resolve`,
                 {
                     headers: { Authorization: `${cookies.jwt}` },
                 }
@@ -165,7 +197,7 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
 
     const handleClose = async () => {
         try {
-            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${task.id}/close`,
+            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/close`,
                 {
                     headers: { Authorization: `${cookies.jwt}` },
                 }
@@ -182,7 +214,7 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
 
     const handleOpen = async () => {
         try {
-            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${task.id}/open`,
+            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/open`,
                 {
                     headers: { Authorization: `${cookies.jwt}` },
                 }
@@ -241,7 +273,33 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
                 <div className='p-1'>
                 </div>
                 <button className='bg-green-500 p-1 rounded '>{taskState}</button>
-                <p>Opened {formatDistanceToNow(new Date(task.created_at))} ago by {task.creator_name}</p>
+                {console.log(`tskcrt ${task.created_at}`)}
+                {/* <p>Opened {formatDistanceToNow(new Date(task.created_at))} ago by {task.creator_name}</p> */}
+                <p>
+                    {console.log("hiethisis",taskCreatedAt)}
+                    {console.log("taskCreatedAt:", taskCreatedAt)}
+{console.log("Parsed Date:", new Date(taskCreatedAt))}
+
+{console.log("Timestamp:", new Date(taskCreatedAt).getTime())}
+
+  {taskCreatedAt && !isNaN(new Date(taskCreatedAt)?.getTime())
+    ? `Opened ${formatDistanceToNow(new Date(taskCreatedAt))} ago by ${task.creator_name}`
+    : 'Invalid date'}  
+   
+{/* {console.log("Date object:", new Date(taskCreatedAt))}  // Check this output
+{console.log("Formatted date:",new Date(taskCreatedAt).toISOString())} // Check conversion
+
+{taskCreatedAt && new Date(taskCreatedAt).toString() !== 'Invalid Date'
+  ? `Opened ${formatDistanceToNow(new Date(taskCreatedAt))} ago by ${task.creator_name}`
+  : 'Invalid date'} */}
+  {/* const dt = DateTime.fromISO(taskCreatedAt); */}
+  {/* {console.log(DateTime.fromISO(taskCreatedAt))}
+{DateTime.fromISO(taskCreatedAt).isValid
+  ? `Opened ${DateTime.fromISO(taskCreatedAt).toRelative()} ago by ${task.creator_name}`
+  : 'Invalid date'} */}
+
+</p>
+
                 <div className="relative pl-160">
                     <button onClick={toggleDropdown} className="bg-gray-200 p-2 rounded ">
                         More Options
@@ -269,6 +327,7 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
                     //onTaskUpdate={() => setShowNewTaskForm(false)}
                     // onCancel={() => setShowNewTaskForm(false)}
                     onTaskUpdate={handleTaskUpdate}
+                    taskId = {taskId}
                 />
             ) : (
 
@@ -283,7 +342,7 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
                                     <p>Loading comments...</p>
                                 ) : comments.length > 0 ? (
                                     comments.map((comment) => {
-
+                                        console.log(`commentcreated at ${comment.created_at}`)
                                         const createdAt = new Date(comment.created_at);
                                         const validCreatedAt = !isNaN(createdAt);
                                         const displayDate = validCreatedAt ? createdAt : new Date(comment.comment?.created_at || Date.now());
@@ -297,6 +356,16 @@ console.log(`tasked ${JSON.stringify(task.assigned_to_id)}`)
                                                 <p className="text-sm text-gray-500">
                                                     {formatDistanceToNow(displayDate)} ago
                                                 </p>
+                                                {console.log('Comment ID:', comment.id)}
+                                                {console.log(`subid${sub}cretorid${comment.creator_id}`)}
+                                                {comment.id && comment.creator_id == sub && (
+                                            <button 
+                                                onClick={(e) => handleDeleteComment(comment.id, e)}
+                                                className="text-red-500 hover:text-red-700 mt-2"
+                                            >
+                                                Delete
+                                            </button>
+                                        )}
                                                 
                                             </div>
                                         );

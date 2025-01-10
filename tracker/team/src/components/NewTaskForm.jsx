@@ -10,10 +10,11 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
 
-const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpdate}) => {
+const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpdate, taskId}) => {
     const [title, setTitle] = useState(taskDetails ? taskDetails.title : '');
     const [description, setDescription] = useState(taskDetails ? taskDetails.description : '');
-    const [labels, setLabels] = useState(taskDetails ? taskDetails.labels[0].name : '');
+    //const [labels, setLabels] = useState(taskDetails ? taskDetails.labels[0].name : '');
+    const [labels, setLabels] = useState(taskDetails && taskDetails.labels && taskDetails.labels[0] ? taskDetails.labels[0].name : '');
     const [assignee, setAssignee] = useState(taskDetails ? taskDetails.assigned_to_id : '');
     const [estimatedHours, setEstimatedHours] = useState(taskDetails ? taskDetails.estimated_time : '');
     const [dueDate, setDueDate] = useState(taskDetails ? taskDetails.due_date : '');
@@ -22,6 +23,7 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpd
     const [loading, setLoading] = useState(true);
     const [projectMembers, setProjectMembers] = useState([]); 
     const [isLabelInputFocused, setIsLabelInputFocused] = useState(false); 
+    
     // const [isLabelInputFocused, setIsLabelInputFocused] = useState(false);
   console.log(`taskdetailssssssssssss is ${JSON.stringify(taskDetails)}`)
 
@@ -88,6 +90,8 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpd
         due_date: dueDate,
         label_ids: [labels],
       };
+      console.log(`newtaskdata ${JSON.stringify(newTaskData)}`)
+      console.log(`label is ${JSON.stringify(labels)}`)
   
       try {
         // const response = await axios.post(
@@ -101,8 +105,9 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpd
         // );
   
         // onTaskCreated(response.data);
+
         const response = taskDetails 
-        ? await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskDetails.id}`, newTaskData, {
+        ? await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}`, newTaskData, {
             headers: { Authorization: `${cookies.jwt}` },
         }) 
         : await axios.post(`http://localhost:3000/projects/${projectId}/tasks`, newTaskData, {

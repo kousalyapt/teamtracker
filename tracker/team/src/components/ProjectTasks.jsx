@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import NewTaskForm from './NewTaskForm';
 import TaskDetails from './TaskDetails';
+import NewProject from './NewProject';
 
 
 
@@ -32,6 +33,11 @@ const ProjectTasks = () => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [showTaskDetails, setShowTaskDetails] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [editProject, setEditProject] = useState(null)
+  const [editProjectMembers, setEditProjectMembers] = useState(null)
+  console.log("projdetailsssssssssssssssss",project)
 
   // const handleTaskClick = (taskId) => {
   //   const taskDetails = tasks.find(task => task.id === taskId);
@@ -240,15 +246,58 @@ const ProjectTasks = () => {
     return tasks.filter(task => task.state === status).length;
   };
 
+  const handletasktab = () => {
+    setSelectedTab('tasks')
+    fetchTasks()
+    setShowNewTaskForm(false)
+    setShowTaskDetails(null)
+  }
+
+  const toggleDropdown = () => {
+    setShowDropdown((prev) => !prev)
+  }
+
+  const handleEditProject = () => {
+    setIsEditMode(true)
+    setSelectedTab("editProject")
+    
+
+  }
+
+  const handleDeleteProject = () => {
+    
+  }
+
   if (loading) {
     return <div className="text-center text-lg font-semibold text-gray-600 py-4">Loading...</div>;
   }
 
   return (
     <div>
+      
+
 
       <div className="rounded-lg p-6 bg-gray-50 ">
+        <div className='flex justify-between '>
         <h2 className="text-xl font-semibold text-gray-800 ml-24">{project?.title || 'Project Title'}</h2>
+        <div className="relative pl-160">
+                    <button onClick={toggleDropdown} className="bg-gray-200 p-2 rounded ">
+                        More Options
+                    </button>
+                    {showDropdown && (
+                        <div className="absolute bg-white shadow-md rounded border mt-2 z-10">
+                            <button onClick={handleEditProject} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                                Edit
+                            </button>
+                            <button onClick={handleDeleteProject} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                                Delete
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+        </div>
+        
         <p className="text-gray-600 mt-2 ml-24">{project?.description || 'Project Description'}</p>
       </div>
 
@@ -256,7 +305,7 @@ const ProjectTasks = () => {
       <div className="flex bg-gray-50 border-b-1">
         <button
           className={`px-4 py-2 ml-32 ${selectedTab === 'tasks' ? 'bg-white border-t-2 border-red-500' : 'bg-gray-50'}`}
-          onClick={() => setSelectedTab('tasks')}
+          onClick={() => handletasktab()}
         >
           Tasks
         </button>
@@ -267,6 +316,16 @@ const ProjectTasks = () => {
           Team Wall
         </button>
       </div>
+
+      {selectedTab === 'editProject' && (
+  <NewProject
+    projectData={project} 
+    onSubmitSuccess={() => {
+      setIsEditMode(false);
+      setSelectedTab('tasks');  // Return to tasks view after successful edit
+    }} 
+  />
+)}
 
       {selectedTab === 'tasks' && (
 

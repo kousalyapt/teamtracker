@@ -8,6 +8,7 @@ class CommentsController < ApplicationController
           {
             id: comment.id,
             content: comment.content,
+            creator_id: comment.user.id,   
             creator_name: comment.user.name,
             created_at: comment.created_at
           }
@@ -22,7 +23,7 @@ class CommentsController < ApplicationController
       @comment.user = current_user  # Set the logged-in user as the creator
       
       if @comment.save
-        render json: { comment: @comment, creator_name: @comment.user.name }, status: :created
+        render json: { comment: @comment, creator_id: @comment.user.id, creator_name: @comment.user.name }, status: :created
       else
         render json: { errors: @comment.errors.full_messages }, status: :unprocessable_entity
       end
@@ -31,7 +32,7 @@ class CommentsController < ApplicationController
     # Update a comment
     def update
       if @comment.update(comment_params)
-        render json: { comment: @comment, creator_name: @comment.user.name }, status: :ok
+        render json: { comment: @comment,  creator_id: @comment.user.id, creator_name: @comment.user.name }, status: :ok
       else
         render json: { errors: @comment.errors.full_messages }, status: :unprocessable_entity
       end
