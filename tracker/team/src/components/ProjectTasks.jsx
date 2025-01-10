@@ -45,7 +45,7 @@ const ProjectTasks = () => {
   // };
 
 
-
+//console.log("iiiiiiiiiiiiii",projectMembers)
 
   useEffect(() => {
     const fetchProjectMembers = async () => {
@@ -64,7 +64,7 @@ const ProjectTasks = () => {
     };
     console.log(`projmem ${projectMembers.class}`)
     fetchProjectMembers();
-  }, [id, cookies.jwt]);
+  }, [id, cookies.jwt , isEditMode]);
 
 
 
@@ -263,14 +263,40 @@ const ProjectTasks = () => {
     
 
   }
+  const handleEditedProject = (updatedProject) => {
+    setProject(updatedProject)
+    setIsEditMode(false)
+    setSelectedTab("tasks")
+    
+  }
 
-  const handleDeleteProject = () => {
+  const handleDeleteProject = async() => {
+    try{
+      await axios.delete(`http://localhost:3000/projects/${id}`, {
+      headers: { Authorization: `${cookies.jwt}`}})
+    }catch(error){
+      console.error("Error deleting Project:", error);
+    }
+    navigate('/')
     
   }
 
   if (loading) {
     return <div className="text-center text-lg font-semibold text-gray-600 py-4">Loading...</div>;
   }
+
+  if (selectedTab === 'editProject') {
+    return (
+      <NewProject
+        projectData={project}
+        projectMembers = {projectMembers}
+        setIsEditMode = {setIsEditMode}
+        setSelectedTab = {setSelectedTab}
+        handleEditedProject = {handleEditedProject}
+      />
+    );
+  }
+
 
   return (
     <div>
@@ -317,7 +343,7 @@ const ProjectTasks = () => {
         </button>
       </div>
 
-      {selectedTab === 'editProject' && (
+      {/* {selectedTab === 'editProject' && (
   <NewProject
     projectData={project} 
     onSubmitSuccess={() => {
@@ -325,7 +351,7 @@ const ProjectTasks = () => {
       setSelectedTab('tasks');  // Return to tasks view after successful edit
     }} 
   />
-)}
+)} */}
 
       {selectedTab === 'tasks' && (
 

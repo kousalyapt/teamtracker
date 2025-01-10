@@ -3,19 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 
-const NewProject = () => {
+const NewProject = ({projectData, projectMembers, handleEditedProject}) => {
   const [cookies] = useCookies(['jwt']);
   const navigate = useNavigate();
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState(projectData ? projectData.title : '');
+  const [description, setDescription] = useState(projectData ? projectData.description : '');
   const [memberInput, setMemberInput] = useState('');
-  const [members, setMembers] = useState([]); // Now an array
+  const [members, setMembers] = useState(projectMembers ? projectMembers.map((mem) => mem.email):[]); // Now an array
   const [error, setError] = useState('');
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-
+console.log("gggggggggggggg",projectData)
+console.log("hhhhhhhhhh",projectMembers)
+console.log("mmmmmmmmmmm",handleEditedProject)
   useEffect(() => {
     if (!cookies.jwt) {
       navigate('/login');
@@ -67,6 +69,16 @@ const NewProject = () => {
     setMembers(members.filter(member => member !== email)); // Remove the selected member
   };
 
+  const handleCancelButton = () => {
+    console.log(`the url is    /projects/${projectData.projectData.id}/tasks`)
+    if (projectData.projectData) {
+      handleEditedProject()
+    }else{
+      navigate('/')
+    }
+      
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -82,15 +94,32 @@ const NewProject = () => {
         member_emails: members, // Use the members array directly
       },
     };
+    console.log("xxxxxxxxxxxxx",newProjectData)
 
     try {
-      const response = await axios.post('/projects', newProjectData, {
+      
+      const response = projectData ? await axios.patch(`/projects/${projectData.id}`, newProjectData, {
+        headers: {
+          Authorization: `${cookies.jwt}`,
+        },
+      })
+      // navigate(`/projects/${response.data.id}/tasks`)
+      :await axios.post('/projects', newProjectData, {
         headers: {
           Authorization: `${cookies.jwt}`,
         },
       });
-      navigate(`/projects/${response.data.id}/tasks`);
+      console.log("lllllllllll",response.data)
+      if (!projectData){
+        console.log("mee")
+        navigate(`/projects/${response.data.id}/tasks`);
+      }else{
+        console.log("mmmemmmmeme",members)
+        handleEditedProject(response.data)
+      }
+      
     } catch (error) {
+      console.log("kkk",error)
       setError('Error creating project. Please try again.');
     }
   };
@@ -187,11 +216,11 @@ const NewProject = () => {
               type="submit"
               className="bg-green-500 text-white font-medium py-2 px-4 rounded-md hover:bg-green-600"
             >
-              Create Project
+              {projectData? "Update Project" : "Create Project" }
             </button>
             <button
               type="button"
-              onClick={() => navigate('/')}
+              onClick={handleCancelButton}
               className="bg-gray-500 text-white font-medium py-2 px-4 rounded-md hover:bg-gray-600"
             >
               Cancel

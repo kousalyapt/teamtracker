@@ -49,6 +49,31 @@ class ProjectsController < ApplicationController
       rescue ActiveRecord::RecordNotFound
         render json: { error: "Project not found" }, status: 404
       end
+
+    def update
+      @project = Project.find(params[:id])
+      if @project.update(project_params.except(:member_emails))
+        puts "rrrrrrrrrrrrrrrrrr"
+        puts params[:project][:member_emails]
+        if params[:project][:member_emails].present?
+          puts "projecttttttt"
+          puts @project
+          add_members_to_project(@project, params[:project][:member_emails])
+        end
+        render json: @project, status: :created
+      else
+        render json: @project.errors, status: :unprocessable_entity
+      end
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: "Project not found" }, status: :not_found
+    end
+
+    def destroy
+      @project = Project.find(params[:id])
+      @project.destroy
+      head :no_content
+    end
+
     private
   
     def project_params
@@ -56,6 +81,7 @@ class ProjectsController < ApplicationController
     end
   
     def add_members_to_project(project, member_emails)
+      project.members.clear
       member_emails.each do |email|
         user = User.find_by(email: email)
         if user
