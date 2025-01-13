@@ -9,4 +9,6 @@ class User < ApplicationRecord
   has_many :project_members
   has_many :member_projects, through: :project_members, source: :project
   has_many :tasks, foreign_key: :assigned_to_id
+  has_many :activities, dependent: :destroy
+  has_many :notifications, dependent: :destroy
 end
