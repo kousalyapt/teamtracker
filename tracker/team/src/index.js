@@ -13,6 +13,7 @@ import MainLayout from './components/MainLayout';
 import Label from './components/Label'
 import TaskDetails from './components/TaskDetails';
 import AllTasks from './components/AllTasks';
+import Notifications from './components/Notifications';
 
 // const router = createBrowserRouter([
 //   {
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
       {
         path: "/all_task",
         element: <AllTasks/>
+      },
+      {
+        path: "/notifications",
+        element: <Notifications/>
       }
     ]
   },

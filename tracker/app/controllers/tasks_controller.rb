@@ -78,6 +78,11 @@ class TasksController < ApplicationController
       end
 
       if @task.save
+        Notification.create(
+        user_id: @task.assigned_to_id, 
+        message: "You have been assigned a new task: #{@task.title}",
+        read: false
+      )
         if params[:label_ids].present?
           labels = Label.where(name: params[:label_ids])
           @task.labels << labels 
@@ -89,7 +94,22 @@ class TasksController < ApplicationController
     end
   
     def update
+      previous_assigned_to_id = @task.assigned_to_id
       if @task.update(task_params)
+        if previous_assigned_to_id != @task.assigned_to_id && @task.assigned_to_id.present?
+          Notification.create(
+        user_id: @task.assigned_to_id,
+        message: "You have been assigned the task: #{@task.title}",
+        read: false
+      )
+      
+      # Create a notification for the previous assignee (optional)
+      Notification.create(
+        user_id: previous_assigned_to_id,
+        message: "You were unassigned from the task: #{@task.title}",
+        read: false
+      )
+    end
         if params[:label_ids].present?
           labels = Label.where(name: params[:label_ids])
           @task.labels = labels 

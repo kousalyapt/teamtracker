@@ -31,6 +31,13 @@ Rails.application.routes.draw do
   end
   resources :labels, only: [:index, :create, :destroy]
 
+  resources :notifications, only: [:index] do
+    member do
+      patch :mark_as_read
+    end
+  end
+  
+
 
   # Assuming the endpoint is within the Dashboard controller
   get '/projects', to: 'projects#index'
