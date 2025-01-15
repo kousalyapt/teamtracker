@@ -94,26 +94,28 @@ class TasksController < ApplicationController
     end
   
     def update
+      previous_title = @task.title
+      previous_description  =@task.description
+      previous_estimated_time = @task.estimated_time
+      previous_due_date = @task.due_date
+      previous_labels = @task.labels.map(&:name)
       previous_assigned_to_id = @task.assigned_to_id
+      puts "hhhhhhhhhhhhhh"
+      puts @task.labels.map(&:name)
+
       if @task.update(task_params)
-        if previous_assigned_to_id != @task.assigned_to_id && @task.assigned_to_id.present?
-          Notification.create(
-        user_id: @task.assigned_to_id,
-        message: "You have been assigned the task: #{@task.title}",
-        read: false
-      )
-      
-      # Create a notification for the previous assignee (optional)
-      Notification.create(
-        user_id: previous_assigned_to_id,
-        message: "You were unassigned from the task: #{@task.title}",
-        read: false
-      )
-    end
+        notify_assigned_user(previous_assigned_to_id)
+        notify_due_date_change(previous_due_date)
+        
+        notify_title_change(previous_title)
+        notify_description_change(previous_description)
+        notify_estimated_time_change(previous_estimated_time)
+
         if params[:label_ids].present?
           labels = Label.where(name: params[:label_ids])
           @task.labels = labels 
         end
+        notify_label_change(previous_labels)
         
     
         render json: @task
@@ -128,6 +130,89 @@ class TasksController < ApplicationController
     end
   
     private
+
+    def notify_assigned_user(previous_assigned_to_id)
+      if previous_assigned_to_id != @task.assigned_to_id && @task.assigned_to_id.present?
+        Notification.create(
+          user_id: @task.assigned_to_id,
+          message: "You have been assigned the task: #{@task.title}",
+          read: false
+        )
+    
+    # Create a notification for the previous assignee (optional)
+        Notification.create(
+          user_id: previous_assigned_to_id,
+          message: "You were unassigned from the task: #{@task.title}",
+          read: false
+        )
+      end
+    end
+
+    def notify_title_change(previous_title)
+      if previous_title != @task.title
+        Notification.create(
+          user_id: @task.assigned_to_id,
+          message: "The Title for the task '#{previous_title}' has been changed to #{@task.title}",
+          read: false
+        )
+      end
+    end
+
+    def notify_description_change(previous_description)
+      if previous_description != @task.description
+        Notification.create(
+          user_id: @task.assigned_to_id,
+          message: "The description for the task '#{@task.title}' has been changed.",
+          read: false
+        )
+      end
+    end
+
+    def notify_estimated_time_change(previous_estimated_time)
+      if previous_estimated_time != @task.estimated_time
+        Notification.create(
+          user_id: @task.assigned_to_id,
+          message: "The Estimated time for the task '#{@task.title}' has been changed to #{@task.estimated_time}.",
+          read: false
+        )
+      end
+    end
+
+    def notify_due_date_change(previous_due_date)
+      if previous_due_date != @task.due_date
+        Notification.create(
+          user_id: @task.assigned_to_id,
+          message: "The due date for the task '#{@task.title}' has been changed to #{@task.due_date}",
+          read: false
+        )
+      end
+    end
+
+    def notify_label_change(previous_labels)
+      new_labels = @task.labels.map(&:name)
+puts previous_labels
+puts "and"
+puts new_labels
+      if previous_labels != new_labels
+        Notification.create(
+          user_id: @task.assigned_to_id,
+          message: "Label for the task '#{@task.title}' has been changed to #{new_labels.join()}",
+          read: false
+        )
+      end
+      
+    
+      # unless added_labels.empty? && removed_labels.empty?
+      #   message = "Labels for the task '#{@task.title}' have been updated."
+      #   message += " Added: #{added_labels.join(', ')}" unless added_labels.empty?
+      #   message += " Removed: #{removed_labels.join(', ')}" unless removed_labels.empty?
+      #   Notification.create(
+      #     user_id: @task.assigned_to_id,
+      #     message: message,
+      #     read: false
+      #   )
+      # end
+    end
   
     def set_project
       @project = Project.find(params[:project_id])
