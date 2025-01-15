@@ -1,6 +1,6 @@
 class CommentsController < ApplicationController
     before_action :set_task
-    before_action :set_comment, only: [:update, :destroy]
+    before_action :set_comment, only: [ :destroy]
 
     def index
         @comments = @task.comments.includes(:user).order(created_at: :asc) # Fetch comments with associated users
@@ -23,6 +23,13 @@ class CommentsController < ApplicationController
       @comment.user = current_user  # Set the logged-in user as the creator
       
       if @comment.save
+        if @task.assigned_to_id
+          Notification.create(
+          user_id: @task.assigned_to_id,
+          message: "#{current_user.name} has commented on task #{@task.title}",
+          read: false
+        )
+        end
         render json: { comment: @comment, creator_id: @comment.user.id, creator_name: @comment.user.name }, status: :created
       else
         render json: { errors: @comment.errors.full_messages }, status: :unprocessable_entity
@@ -30,13 +37,13 @@ class CommentsController < ApplicationController
     end
   
     # Update a comment
-    def update
-      if @comment.update(comment_params)
-        render json: { comment: @comment,  creator_id: @comment.user.id, creator_name: @comment.user.name }, status: :ok
-      else
-        render json: { errors: @comment.errors.full_messages }, status: :unprocessable_entity
-      end
-    end
+    # def update
+    #   if @comment.update(comment_params)
+    #     render json: { comment: @comment,  creator_id: @comment.user.id, creator_name: @comment.user.name }, status: :ok
+    #   else
+    #     render json: { errors: @comment.errors.full_messages }, status: :unprocessable_entity
+    #   end
+    # end
   
     # Destroy a comment
     def destroy

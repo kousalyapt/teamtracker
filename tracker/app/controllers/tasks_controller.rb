@@ -4,17 +4,32 @@ class TasksController < ApplicationController
 
     def resolve
       @task.resolve!
+      Notification.create(
+          user_id: @task.assigned_to_id,
+          message: "The task '#{@task.title}' has been resolved",
+          read: false
+        )
       render json: { message: 'Task resolved successfully', task: @task }, status: :ok
     end
   
     # Change the state to closed
     def close
       @task.close!
+      Notification.create(
+          user_id: @task.assigned_to_id,
+          message: "The task '#{@task.title}' has been closed",
+          read: false
+        )
       render json: { message: 'Task closed successfully', task: @task }, status: :ok
     end
 
     def open
       @task.open!
+      Notification.create(
+          user_id: @task.assigned_to_id,
+          message: "The task '#{@task.title}' has been opened",
+          read: false
+        )
       render json: { message: 'Task reopened successfully', task: @task }, status: :ok
     end
   
