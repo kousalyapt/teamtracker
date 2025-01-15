@@ -33,6 +33,21 @@ const Notifications = () => {
     //   });
   }, []);
 
+  const handleDelete = async(id) => {
+    try{
+      await axios .delete(`http://localhost:3000/notifications/${id}`,{
+        headers: {
+          Authorization: `${cookies.jwt}`
+        }
+      })
+      setNotifications(notifications.filter(notification => 
+        notification.id !== id 
+      ));
+    }catch(error){
+      console.error('There was an error marking the notification as read!', error);
+    }
+  }
+
   const markAsRead = async(id) => {
     console.log('Notification ID:', id);
     console.log("Sending token:", cookies.jwt);
@@ -78,7 +93,7 @@ const Notifications = () => {
         <li key={notification.id} className="bg-gray-100 p-4 rounded-lg shadow-sm hover:bg-gray-50 transition duration-200">
             <div className='flex justify-content gap-120'>
             <p className="text-lg font-medium text-gray-900">{notification.message}</p>
-            <button>X</button>
+            <button onClick={() => handleDelete(notification.id)}>X</button>
             </div>
           
           <p className="text-sm text-gray-500">Status: {notification.read ? 'Read' : 'Unread'}</p>

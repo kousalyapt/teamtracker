@@ -21,6 +21,12 @@ class NotificationsController < ApplicationController
       head :ok
     end
 
+    def destroy
+      @notification = current_user.notifications.find(params[:id])
+      @notification.destroy
+      head :no_content
+    end
+
     private
 
     def notification_params
