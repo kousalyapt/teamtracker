@@ -108,7 +108,8 @@ class ProjectsController < ApplicationController
             Notification.create(
               user_id: user.id,
               message: "You have been added to the project: #{project.title}",
-              read: false
+              read: false,
+              link: "/projects/#{project.id}/tasks"
             )
           end
         else
@@ -136,7 +137,9 @@ members_to_remove.each do |user|
   Notification.create(
     user_id: user.id,
     message: "You have been removed from the project: #{project.title}",
-    read: false
+    read: false,
+    link: "/notifications"
+    
   )
   project.members.delete(user)
 end
