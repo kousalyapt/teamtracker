@@ -32,6 +32,19 @@ class CommentsController < ApplicationController
           link: "/projects/#{@project.id}/tasks"
         )
         end
+        @project_members.each do |member|
+          if member == current_user
+            Activity.create(
+              user: member,
+              message: "You commented on the task '#{@task.title}' in Project #{@project.title}"
+            )
+          else
+            Activity.create(
+              user: member,
+              message: "#{current_user.name} commented on the task '#{@task.title}' in Project #{@project.title}"
+            )
+          end
+        end
         render json: { comment: @comment, creator_id: @comment.user.id, creator_name: @comment.user.name }, status: :created
       else
         render json: { errors: @comment.errors.full_messages }, status: :unprocessable_entity
@@ -63,6 +76,11 @@ class CommentsController < ApplicationController
 
     def set_project
       @project = Project.find(params[:project_id])
+      @project_members = @project.members
+creator = User.find(@project.user_id)
+
+# Add creator to the project members if not already included
+@project_members = @project_members << creator unless @project_members.include?(creator)
     end
   
   

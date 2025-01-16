@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
+import Activities from './Activities';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]); 
@@ -57,7 +58,7 @@ const Projects = () => {
       <div className="hidden lg:block lg:w-1/4 px-4">
         <div className="bg-gray-50 shadow-md p-4">
           <div className="text-lg font-bold text-gray-800 mb-2">Activities</div>
-          <div className="text-gray-500">No recent activities</div>
+          <Activities/>
         </div>
       </div>
       <div className="flex-1"></div>

@@ -25,8 +25,10 @@ class ProjectsController < ApplicationController
       @project = current_user.projects.new(project_params.except(:member_emails))
   
       if @project.save
+        create_activity_for_project_action(current_user, "create", @project)
         if params[:project][:member_emails].present?
           add_members_to_project(@project, params[:project][:member_emails])
+          create_activity_for_project_members_action(current_user, "added to", @project)
         end
         render json: @project, status: :created
       else
@@ -53,6 +55,7 @@ class ProjectsController < ApplicationController
     def update
       @project = Project.find(params[:id])
       if @project.update(project_params.except(:member_emails))
+        
         old_members = @project.members.to_a
         puts "qqqqqqqqqqq"
         old_members.each do |mem|
@@ -75,6 +78,7 @@ class ProjectsController < ApplicationController
 
     def destroy
       @project = Project.find(params[:id])
+      create_activity_for_project_action(current_user, "delete", @project)
       @project.destroy
       head :no_content
     end
@@ -111,6 +115,10 @@ class ProjectsController < ApplicationController
               read: false,
               link: "/projects/#{project.id}/tasks"
             )
+            
+
+            
+
           end
         else
           Rails.logger.warn("User with email #{email} not found")
@@ -159,5 +167,56 @@ end
         puts "kkkkkkkkkkkkkk"
         puts project.members
     end
+
+    def create_activity_for_project_action(user,action, project)
+      project_members = project.members
+      puts "hhhhhhhhhi"
+      puts project_members
+      puts "biiiiiiiiiiii"
+creator = User.find(project.user_id)
+
+# Add creator to the project members if not already included
+project_members = project_members << creator unless project_members.include?(creator)
+project_members.each do |member|
+  if member == user
+    Activity.create(
+        user: member,
+        message: "You #{action}d the project '#{project.title}'"
+      )
+
+  else
+    Activity.create(
+        user: member,
+        message: "#{user.name} #{action}d the project '#{project.title}'"
+      )
+  end
+    end
+end
+
+def create_activity_for_project_members_action(user, action, project)
+  project_members = project.members
+
+
+# Add creator to the project members if not already included
+
+project_members.each do |member|
+  project_members.each do |mem|
+    if mem == member
+      Activity.create(
+          user: member,
+          message: "You #{action}d the project '#{project.title}'"
+        )
+  
+    else
+      Activity.create(
+          user: member,
+          message: "#{user.name} #{action}d the project '#{project.title}'"
+        )
+    end
+  end
+  
+    end
+end
+      
   end
   
