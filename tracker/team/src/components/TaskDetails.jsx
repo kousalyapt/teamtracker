@@ -180,7 +180,7 @@ console.log("newcommenttttttttttttttt",newComment)
 
     const handleResolve = async () => {
         try {
-            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/resolve`,
+            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/resolve`,{},
                 {
                     headers: { Authorization: `${cookies.jwt}` },
                 }
@@ -197,7 +197,7 @@ console.log("newcommenttttttttttttttt",newComment)
 
     const handleClose = async () => {
         try {
-            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/close`,
+            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/close`,{},
                 {
                     headers: { Authorization: `${cookies.jwt}` },
                 }
@@ -214,7 +214,7 @@ console.log("newcommenttttttttttttttt",newComment)
 
     const handleOpen = async () => {
         try {
-            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/open`,
+            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/open`,{},
                 {
                     headers: { Authorization: `${cookies.jwt}` },
                 }

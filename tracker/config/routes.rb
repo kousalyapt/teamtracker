@@ -37,6 +37,9 @@ Rails.application.routes.draw do
       delete :destroy
     end
   end
+
+  resources :activities, only: [:index]
+
   
 
 

@@ -1,21 +1,28 @@
 class TasksController < ApplicationController
-    before_action :set_project, only: [:create, :index, :show, :resolve, :close, :open, :update]
+  before_action :authenticate_user!
+    before_action :set_project, only: [:create, :index, :show, :resolve, :close, :open, :update, :destroy]
     before_action :set_task, only: [:update, :destroy, :add_label, :show, :resolve, :close, :open]
 
     def resolve
       @task.resolve!
+      puts "yooo"
+      puts current_user
+      create_activity_for_task_action(current_user, "resolve", @task, @project, @project_members)
       Notification.create(
           user_id: @task.assigned_to_id,
           message: "The task '#{@task.title}' has been resolved",
           read: false,
           link: "/projects/#{@project.id}/tasks"
         )
+
+      
       render json: { message: 'Task resolved successfully', task: @task }, status: :ok
     end
   
     # Change the state to closed
     def close
       @task.close!
+      create_activity_for_task_action(current_user, "close", @task, @project, @project_members)
       Notification.create(
           user_id: @task.assigned_to_id,
           message: "The task '#{@task.title}' has been closed",
@@ -27,6 +34,7 @@ class TasksController < ApplicationController
 
     def open
       @task.open!
+      create_activity_for_task_action(current_user, "reopen", @task, @project, @project_members)
       Notification.create(
           user_id: @task.assigned_to_id,
           message: "The task '#{@task.title}' has been opened",
@@ -96,6 +104,45 @@ class TasksController < ApplicationController
       end
 
       if @task.save
+
+          # Assuming the task belongs to a project
+        # project_members = @project.members 
+        # creator = User.find(@project.user_id)
+        
+        # Activity.create(
+        #     user: creator,    # Activity logged by the current user
+        #     # action: "created",    # Action description
+        #     # record_type: "Task",  # Type of record (Task)
+        #     # record_id: @task.id  ,
+        #     message: "#{current_user.name} created the task '#{@task.title}' in Project '#{@project.title}'"  # ID of the created task
+        #   )  # All users who are members of the project
+# puts "ooooooooo"
+# puts @task.project
+# puts project.title
+# puts "Project Members: #{project_members.map(&:name).join(', ')}"
+        # @project_members.each do |member|
+        #   # Activity.create(
+        #   #   user: member,    # Activity logged by the current user
+        #   #   # action: "created",    # Action description
+        #   #   # record_type: "Task",  # Type of record (Task)
+        #   #   # record_id: @task.id ,
+        #   #   message: "#{current_user.name} created the task '#{@task.title}' in Project #{@project.title}"  # ID of the created task
+        #   # )
+          # if member == current_user
+          #   Activity.create(
+          #     user: member,
+          #     message: "You created the task '#{@task.title}' in Project #{@project.title}"
+          #   )
+          # else
+          #   Activity.create(
+          #     user: member,
+          #     message: "#{current_user.name} created the task '#{@task.title}' in Project #{@project.title}"
+          #   )
+          # end
+        # end
+
+        create_activity_for_task_action(current_user, "create", @task, @project, @project_members)
+
         Notification.create(
         user_id: @task.assigned_to_id, 
         message: "You have been assigned a new task: #{@task.title}",
@@ -129,6 +176,7 @@ class TasksController < ApplicationController
         notify_title_change(previous_title)
         notify_description_change(previous_description)
         notify_estimated_time_change(previous_estimated_time)
+        create_activity_for_task_action(current_user, "update", @task, @project, @project_members)
 
         if params[:label_ids].present?
           labels = Label.where(name: params[:label_ids])
@@ -144,6 +192,8 @@ class TasksController < ApplicationController
     end
   
     def destroy
+      
+      create_activity_for_task_action(current_user, "delete", @task, @project, @project_members)
       @task.destroy
       head :no_content
     end
@@ -242,6 +292,11 @@ puts new_labels
   
     def set_project
       @project = Project.find(params[:project_id])
+      @project_members = @project.members
+creator = User.find(@project.user_id)
+
+# Add creator to the project members if not already included
+@project_members = @project_members << creator unless @project_members.include?(creator)
     end
   
     def set_task
@@ -254,6 +309,34 @@ puts new_labels
 
     def comment_params
       params.require(:comment).permit(:content)
+    end
+
+    def create_activity_for_task_action(user, action, task, project, project_members)
+      puts "lllllllll"
+      puts user
+      puts project_members
+      message = case action
+                when "create"
+                  "#{user.name} created the task '#{task.title}' in Project '#{project.title}'"
+                when "update"
+                  "#{user.name} updated the task '#{task.title}' in Project '#{project.title}'"
+                when "resolve"
+                  "#{user.name} resolved the task '#{task.title}' in Project '#{project.title}'"
+                when "close"
+                  "#{user.name} closed the task '#{task.title}' in Project '#{project.title}'"
+                when "reopen"
+                  "#{user.name} reopened the task '#{task.title}' in Project '#{project.title}'"
+                when "delete"
+                  "#{user.name} deleted the task '#{task.title}' in Project '#{project.title}'"
+                end
+    
+      # Create the activity for each project member
+      project_members.each do |member|
+        Activity.create(
+          user: member,
+          message: (member == user ? "You #{action} the task '#{task.title}' in Project '#{project.title}'" : message)
+        )
+      end
     end
   end
   
