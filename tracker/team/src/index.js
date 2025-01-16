@@ -14,6 +14,7 @@ import Label from './components/Label'
 import TaskDetails from './components/TaskDetails';
 import AllTasks from './components/AllTasks';
 import Notifications from './components/Notifications';
+import { NotificationProvider } from './components/NotificationContext';
 
 // const router = createBrowserRouter([
 //   {
@@ -87,7 +88,9 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <CookiesProvider defaultSetOptions={{ path: '/'}}>
-      <RouterProvider router={router} />
+      <NotificationProvider>
+        <RouterProvider router={router} />
+      </NotificationProvider>
     </CookiesProvider>
   </React.StrictMode>
 );

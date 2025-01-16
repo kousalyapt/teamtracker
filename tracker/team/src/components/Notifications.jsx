@@ -1,37 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
+import { useNotifications } from './NotificationContext';
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState([]);
+ // const [notifications, setNotifications] = useState([]);
   const [cookies] = useCookies(['jwt']); 
-  
+  const { notifications, setNotifications } = useNotifications();
 
-  useEffect(() => {
-    const fetchNotifications = async() => {
-        try{
-            console.log("Sending tokensss:", cookies.jwt);
-            const response = await axios.get('http://localhost:3000/notifications',{
-                headers: {Authorization: `${cookies.jwt}`}
-            })
-            //console.log(JSON.stringify(response))
-            setNotifications(response.data)
-        }catch(error){
-            console.error('There was an error fetching notifications!', error);
-        }
-    }
+  // useEffect(() => {
+  //   const fetchNotifications = async() => {
+  //       try{
+  //           console.log("Sending tokensss:", cookies.jwt);
+  //           const response = await axios.get('http://localhost:3000/notifications',{
+  //               headers: {Authorization: `${cookies.jwt}`}
+  //           })
+  //           //console.log(JSON.stringify(response))
+  //           setNotifications(response.data)
+  //       }catch(error){
+  //           console.error('There was an error fetching notifications!', error);
+  //       }
+  //   }
 
-    fetchNotifications();
-    // const response = await axios.get('http://localhost:3000/notifications')
-    // axios.get('http://localhost:3000/notifications')
-    //   .then(response => {
-    //     console.log(JSON.stringify(response))
-    //     setNotifications(response.data);
-    //   })
-    //   .catch(error => {
-    //     console.error('There was an error fetching notifications!', error);
-    //   });
-  }, []);
+  //   fetchNotifications();
+  //   // const response = await axios.get('http://localhost:3000/notifications')
+  //   // axios.get('http://localhost:3000/notifications')
+  //   //   .then(response => {
+  //   //     console.log(JSON.stringify(response))
+  //   //     setNotifications(response.data);
+  //   //   })
+  //   //   .catch(error => {
+  //   //     console.error('There was an error fetching notifications!', error);
+  //   //   });
+  // }, []);
 
   const handleDelete = async(id) => {
     try{
@@ -92,7 +93,9 @@ const Notifications = () => {
       {notifications.map((notification) => (
         <li key={notification.id} className="bg-gray-100 p-4 rounded-lg shadow-sm hover:bg-gray-50 transition duration-200">
             <div className='flex justify-content gap-120'>
-            <p className="text-lg font-medium text-gray-900">{notification.message}</p>
+            <a href={notification.link}>
+      <p>{notification.message}</p>
+    </a>
             <button onClick={() => handleDelete(notification.id)}>X</button>
             </div>
           

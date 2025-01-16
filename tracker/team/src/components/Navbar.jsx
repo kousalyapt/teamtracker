@@ -4,6 +4,7 @@ import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { logoutApi } from '../apis/logoutApi';
+import { useNotifications } from './NotificationContext';
 
 function Navbar() {
   const [cookies, setCookie, removeCookie] = useCookies(['jwt']);
@@ -11,7 +12,10 @@ function Navbar() {
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
   const [projects, setProjects] = useState([]); 
   const [error, setError] = useState('');
+  //const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
+  const { notifications } = useNotifications();
+
 
   useEffect(() => {
     if (cookies.jwt) {
@@ -44,7 +48,21 @@ function Navbar() {
         }
       };
 
+      // const fetchNotifications = async () => {
+      //   try {
+      //     const headers = { Authorization: `${cookies.jwt}` };
+      //     const response = await axios.get('/notifications', { headers }); // Assuming the endpoint for notifications
+      //     console.log(JSON.stringify(response.data))
+      //     if (response.data) {
+      //       setNotifications(response.data);
+      //     }
+      //   } catch (error) {
+      //     setError('Failed to load notifications. Please try again later.');
+      //   }
+      // };
+
       fetchProjects();
+      //fetchNotifications();
     }
   }, [cookies.jwt]);
 
@@ -105,7 +123,17 @@ function Navbar() {
 
         <div className="flex items-center space-x-4">
           <div className="relative">
-            <Link to="/notifications" className="hover:text-indigo-400">Notifications</Link>
+          <Link
+              to="/notifications"
+              className={`hover:text-indigo-400 ${notifications.some(notification => notification.read === false) 
+                ? 'text-red-500' : ''}`}
+            >
+              Notifications
+            </Link>
+            {notifications.some(notification => notification.read === false) 
+&& (
+              <div className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></div>
+            )}
           </div>
 
           <div className="relative">

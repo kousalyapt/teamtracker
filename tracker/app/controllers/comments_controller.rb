@@ -1,4 +1,5 @@
 class CommentsController < ApplicationController
+  before_action :set_project, only: [:create ]
     before_action :set_task
     before_action :set_comment, only: [ :destroy]
 
@@ -23,11 +24,12 @@ class CommentsController < ApplicationController
       @comment.user = current_user  # Set the logged-in user as the creator
       
       if @comment.save
-        if @task.assigned_to_id
+        if @task.assigned_to_id && current_user.id != @task.assigned_to_id 
           Notification.create(
           user_id: @task.assigned_to_id,
           message: "#{current_user.name} has commented on task #{@task.title}",
-          read: false
+          read: false,
+          link: "/projects/#{@project.id}/tasks"
         )
         end
         render json: { comment: @comment, creator_id: @comment.user.id, creator_name: @comment.user.name }, status: :created
@@ -58,6 +60,11 @@ class CommentsController < ApplicationController
     def set_task
       @task = Task.find(params[:task_id])  # Find the task based on task_id
     end
+
+    def set_project
+      @project = Project.find(params[:project_id])
+    end
+  
   
     def set_comment
       @comment = @task.comments.find(params[:id])  # Find the comment by its ID under the task
