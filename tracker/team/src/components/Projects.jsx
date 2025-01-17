@@ -55,8 +55,8 @@ const Projects = () => {
   return (
     <div className="container mx-auto p-4">
     <div className="flex flex-col lg:flex-row">
-      <div className="hidden lg:block lg:w-1/4 px-4">
-        <div className="bg-gray-50 shadow-md p-4">
+      <div className="hidden lg:block lg:w-1/2 px-4">
+        <div>
           <div className="text-lg font-bold text-gray-800 mb-2">Activities</div>
           <Activities/>
         </div>

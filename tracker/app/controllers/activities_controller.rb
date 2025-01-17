@@ -15,11 +15,11 @@ class ActivitiesController < ApplicationController
         render json: @activities
     end
 
-    # def destroy
-    #     @activity = current_user.activities.find(params[:id])
-    #     @activity.destroy
-    #     head :no_content
-    #   end
+    def destroy
+        @activity = current_user.activities.find(params[:id])
+        @activity.destroy
+        head :no_content
+    end
   
     private
   
