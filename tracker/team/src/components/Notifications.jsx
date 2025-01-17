@@ -92,7 +92,7 @@ const Notifications = () => {
     <ul className="space-y-4">
       {notifications.map((notification) => (
         <li key={notification.id} className="bg-gray-100 p-4 rounded-lg shadow-sm hover:bg-gray-50 transition duration-200">
-            <div className='flex justify-content gap-120'>
+            <div className='flex justify-between items-center'>
             <a href={notification.link}>
       <p>{notification.message}</p>
     </a>

@@ -11,6 +11,8 @@ import { jwtDecode } from 'jwt-decode';
 import NewTaskForm from './NewTaskForm';
 import ProjectTasks from './ProjectTasks';
 import { DateTime } from 'luxon';
+import { useNotifications } from './NotificationContext';
+
 
 const TaskDetails = ({ task, projectId, titleUpdate , setShowTaskDetails, fetchTasks}) => {
     const [comment, setComment] = useState("");
@@ -23,6 +25,7 @@ const TaskDetails = ({ task, projectId, titleUpdate , setShowTaskDetails, fetchT
     const [assignedToName, setAssignedToName] = useState(null);
     const [taskId, setTaskId] = useState(JSON.stringify(task.id))
     const [taskCreatedAt, setTaskCreatedAt] = useState(JSON.stringify(task.created_at)?.replace(/^"|"$/g, ''))
+    const { notifications, setNotifications } = useNotifications();
     console.log(`taskidis ${JSON.stringify(task.created_at)?.trim()}`)
     
     const navigate = useNavigate();
