@@ -25,10 +25,11 @@ class ProjectsController < ApplicationController
       @project = current_user.projects.new(project_params.except(:member_emails))
   
       if @project.save
-        create_activity_for_project_action(current_user, "create", @project)
+        
         if params[:project][:member_emails].present?
-          add_members_to_project(@project, params[:project][:member_emails])
-          create_activity_for_project_members_action(current_user, "added to", @project)
+          add_members_to_project(@project, params[:project][:member_emails],false)
+          create_activity_for_project_action(current_user, "create", @project)
+          create_activity_for_project_members_action(current_user, "added", @project)
         end
         render json: @project, status: :created
       else
@@ -48,12 +49,14 @@ class ProjectsController < ApplicationController
         @project = Project.find(params[:id])
     
         render json: @project
-      rescue ActiveRecord::RecordNotFound
+    rescue ActiveRecord::RecordNotFound
         render json: { error: "Project not found" }, status: 404
-      end
+    end
 
     def update
       @project = Project.find(params[:id])
+      previous_title = @project.title
+      previous_description  =@project.description
       if @project.update(project_params.except(:member_emails))
         
         old_members = @project.members.to_a
@@ -66,8 +69,10 @@ class ProjectsController < ApplicationController
         if params[:project][:member_emails].present?
           puts "projecttttttt"
           puts @project
-          add_members_to_project(@project, params[:project][:member_emails], old_members)
+          add_members_to_project(@project, params[:project][:member_emails], old_members, true)
         end
+        notify_title_change(@project, previous_title, current_user)
+        notify_description_change(@project, previous_description, current_user)
         render json: @project, status: :created
       else
         render json: @project.errors, status: :unprocessable_entity
@@ -89,7 +94,7 @@ class ProjectsController < ApplicationController
       params.require(:project).permit(:title, :description, member_emails: [])
     end
   
-    def add_members_to_project(project, member_emails, old_members = [])
+    def add_members_to_project(project, member_emails, old_members = [], flag)
       # project.members.clear
       new_members = []
       member_emails.each do |email|
@@ -109,12 +114,17 @@ class ProjectsController < ApplicationController
             project.members << user
             new_members << user
             # Send notification to new member
+            
             Notification.create(
               user_id: user.id,
               message: "You have been added to the project: #{project.title}",
               read: false,
               link: "/projects/#{project.id}/tasks"
             )
+            if flag == true
+              create_activity_for_update_members(project,user,"add")
+
+            end
             
 
             
@@ -141,16 +151,21 @@ class ProjectsController < ApplicationController
       # end
 
       members_to_remove = project.members - User.where(email: member_emails)
-members_to_remove.each do |user|
-  Notification.create(
-    user_id: user.id,
-    message: "You have been removed from the project: #{project.title}",
-    read: false,
-    link: "/notifications"
+      members_to_remove.each do |user|
+        Notification.create(
+          user_id: user.id,
+          message: "You have been removed from the project: #{project.title}",
+          read: false,
+          link: "/notifications"
     
-  )
-  project.members.delete(user)
-end
+        )
+        if flag == true
+          create_activity_for_update_members(project,user,"remove")
+
+        end
+        
+        project.members.delete(user)
+      end
       
         # (old_members - member_emails).each do |removed_member|
         #   # Send notification to removed member
@@ -173,50 +188,123 @@ end
       puts "hhhhhhhhhi"
       puts project_members
       puts "biiiiiiiiiiii"
-creator = User.find(project.user_id)
+      creator = User.find(project.user_id)
+
+# # Add creator to the project members if not already included
+      project_members = project_members << creator unless project_members.include?(creator)
+      project_members.each do |member|
+        if member == user
+          Activity.create(
+              user: member,
+              message: "You #{action}d the project '#{project.title}'"
+            )
+
+        else
+          Activity.create(
+              user: member,
+              message: "#{user.name} #{action}d the project '#{project.title}'"
+            )
+        end
+      end
+    end
+
+    def create_activity_for_project_members_action(user, action, project)
+      project_members = project.members
+      creator = User.find(project.user_id)
+      final_members = project_members.filter { |member| member.id != creator.id }
+      puts "los"
+      final_members.each {|mem| puts mem.name}
+      puts "its"
+      puts creator.name
+      puts "gain"
+      final_members.each do |member|
+          Activity.create(
+              user: creator,
+              message: "#{member.name} #{action}d to the project '#{project.title}'"
+            )
+      end
 
 # Add creator to the project members if not already included
-project_members = project_members << creator unless project_members.include?(creator)
-project_members.each do |member|
-  if member == user
-    Activity.create(
-        user: member,
-        message: "You #{action}d the project '#{project.title}'"
-      )
 
-  else
-    Activity.create(
-        user: member,
-        message: "#{user.name} #{action}d the project '#{project.title}'"
-      )
-  end
-    end
-end
-
-def create_activity_for_project_members_action(user, action, project)
-  project_members = project.members
-
-
-# Add creator to the project members if not already included
-
-project_members.each do |member|
-  project_members.each do |mem|
-    if mem == member
-      Activity.create(
-          user: member,
-          message: "You #{action}d the project '#{project.title}'"
-        )
+      final_members.each do |member|
+        final_members.each do |mem|
+          if mem == member
+            Activity.create(
+                user: member,
+                message: "You #{action}d to the project '#{project.title}'"
+              )
+        
+          else
+            Activity.create(
+                user: member,
+                message: "#{mem.name} #{action}d the project '#{project.title}'"
+              )
+          end
+        end
   
-    else
-      Activity.create(
-          user: member,
-          message: "#{user.name} #{action}d the project '#{project.title}'"
-        )
+      end
     end
-  end
-  
+
+    def create_activity_for_update_members(project, user, action)
+      project_members = project.members
+      project_members.each do |member|
+        if user == member
+          Activity.create(
+              user: member,
+              message: "You #{action}d the project '#{project.title}'"
+            )
+        else
+          Activity.create(
+              user: member,
+              message: "#{user.name} #{action}d the project '#{project.title}'"
+            )
+        end
+        
+      end
+      
     end
-end
+
+    def notify_title_change(project, previous_title, user)
+      if previous_title != project.title
+        project_members = project.members
+        project_members.each do |member|
+          if user == member
+            Activity.create(
+                user: member,
+                message: "The Title for the project '#{previous_title}' has been changed to #{project.title} by You"
+              )
+          else
+            Activity.create(
+                user: member,
+                message: "The Title for the project '#{previous_title}' has been changed to #{project.title} by #{user.name}"
+              )
+          end
+          
+        end
+        
+      end
+    end
+
+    def notify_description_change(project, previous_description, user)
+      if previous_description != project.description
+        project_members = project.members
+        project_members.each do |member|
+          if user == member
+            Activity.create(
+                user: member,
+                message: "The description for the project '#{project.title}' has been changed by You"
+              )
+          else
+            Activity.create(
+                user: member,
+                message: "The description for the project '#{project.title}' has been changed by #{user.name}"
+              )
+          end
+          
+        end
+        
+      end
+    end
       
   end
   
