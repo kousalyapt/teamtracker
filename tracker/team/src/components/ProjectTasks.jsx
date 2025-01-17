@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef,useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
@@ -37,6 +37,9 @@ const ProjectTasks = () => {
   const [isEditMode, setIsEditMode] = useState(false)
   const [editProject, setEditProject] = useState(null)
   const [editProjectMembers, setEditProjectMembers] = useState(null)
+  const [chatMessages, setChatMessages] = useState([]);
+const [newMessage, setNewMessage] = useState('');
+
   console.log("projdetailsssssssssssssssss",project)
 
   // const handleTaskClick = (taskId) => {
@@ -66,6 +69,21 @@ const ProjectTasks = () => {
     fetchProjectMembers();
   }, [id, cookies.jwt , isEditMode]);
 
+  useEffect(() => {
+    if (selectedTab === 'team_wall') {
+      axios.get(`http://localhost:3000/projects/${id}/chat_messages`, {
+        headers: { Authorization: `${cookies.jwt}` },
+      })
+      .then(response => setChatMessages(response.data))
+      .catch(error => console.error('Error fetching chat messages:', error));
+    }
+  }, [selectedTab, id, cookies.jwt]);
+  
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
 
 
   useEffect(() => {
@@ -252,6 +270,20 @@ const ProjectTasks = () => {
     setShowNewTaskForm(false)
     setShowTaskDetails(null)
   }
+
+  const handleSendMessage = () => {
+    if (!newMessage.trim()) return;
+  
+    axios.post(`http://localhost:3000/projects/${id}/chat_messages`, 
+      { content: newMessage },
+      { headers: { Authorization: `${cookies.jwt}` } }
+    )
+    .then(response => setChatMessages([...chatMessages, response.data]))
+    .catch(error => console.error('Error sending message:', error));
+  
+    setNewMessage('');
+  };
+  
 
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev)
@@ -598,14 +630,44 @@ const ProjectTasks = () => {
       )}
 
       {selectedTab === 'team_wall' && (
-        <div className="space-y-4 bg-white p-4">
-          <h3 className="text-lg font-bold text-gray-800">Team Wall</h3>
-          <div className="text-center text-gray-600">
-            <p className="font-semibold">No posts on the Team Wall yet.</p>
-          </div>
-        </div>
+        // <div className="space-y-4 bg-white p-4">
+        //   <h3 className="text-lg font-bold text-gray-800">Team Wall</h3>
+        //   <div className="text-center text-gray-600">
+        //     <p className="font-semibold">No posts on the Team Wall yet.</p>
+        //   </div>
+        // </div>
+        <div  >
+        <div className="space-y-4 bg-white p-4 ">
+  <div className="h-80 border rounded p-2 overflow-y-scroll">
+    {chatMessages.map((message) => (
+      <div key={message.id} className="mb-2">
+        <strong>{message.user.name}:</strong>
+        <span className="ml-2">{message.content}</span>
+      </div>
+    ))}
+    <div ref={messagesEndRef} />
+  </div>
+  <div className="mt-2 flex ">
+    <input
+      type="text"
+      className="flex-grow border rounded p-2"
+      placeholder="Type your message..."
+      value={newMessage}
+      onChange={(e) => setNewMessage(e.target.value)}
+    />
+    <button
+      onClick={handleSendMessage}
+      className="ml-2 bg-blue-500 text-white px-4 py-2 rounded "
+    >
+      Send
+    </button>
+  </div>
+</div>
+</div>
+
       )}
     </div>
+    
   );
 };
 

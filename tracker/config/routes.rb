@@ -23,6 +23,10 @@ Rails.application.routes.draw do
       get :members
     end
   end
+  resources :projects do
+    resources :chat_messages, only: [:index, :create]
+  end
+  
 
   resources :tasks do
     collection do

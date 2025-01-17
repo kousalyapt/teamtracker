@@ -7,7 +7,9 @@ import Activities from './Activities';
 const Projects = () => {
   const [projects, setProjects] = useState([]); 
   const [searchQuery, setSearchQuery] = useState(''); 
-  const [cookies] = useCookies(['jwt']); 
+  const [cookies] = useCookies(['jwt']);
+  
+  console.log("fin",projects)
 
   useEffect(() => {
     const headers = {
@@ -35,7 +37,12 @@ const Projects = () => {
                 }))
               : [];
       
-            const allProjects = [...createdProjects, ...memberProjects];
+              const allProjects = [...createdProjects, ...memberProjects].reduce((uniqueProjects, project) => {
+                if (!uniqueProjects.some(existingProject => existingProject.id === project.id)) {
+                  uniqueProjects.push(project);
+                }
+                return uniqueProjects;
+              }, []);
         
             setProjects(allProjects);
                     
