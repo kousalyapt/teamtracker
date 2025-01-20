@@ -11,6 +11,8 @@ import { jwtDecode } from 'jwt-decode';
 import NewTaskForm from './NewTaskForm';
 import TaskDetails from './TaskDetails';
 import NewProject from './NewProject';
+import { Link, Outlet } from 'react-router-dom';
+
 
 
 
@@ -39,6 +41,7 @@ const ProjectTasks = () => {
   const [editProjectMembers, setEditProjectMembers] = useState(null)
   const [chatMessages, setChatMessages] = useState([]);
 const [newMessage, setNewMessage] = useState('');
+
 
   console.log("projdetailsssssssssssssssss",project)
 
@@ -302,6 +305,11 @@ const [newMessage, setNewMessage] = useState('');
     
   }
 
+  const handleTaskClick = (task) => {
+    setShowTaskDetails(task)
+    navigate(`/projects/${id}/tasks/${task.id}`);
+  }
+
   const handleDeleteProject = async() => {
     try{
       await axios.delete(`http://localhost:3000/projects/${id}`, {
@@ -329,6 +337,14 @@ const [newMessage, setNewMessage] = useState('');
     );
   }
 
+  const contextValue = {
+    
+    titleUpdate: handleTitleUpdate,
+    setShowTaskDetails,
+    fetchTasks,
+    task: showTaskDetails 
+  
+  };
 
   return (
     <div>
@@ -455,17 +471,9 @@ const [newMessage, setNewMessage] = useState('');
               {!showNewTaskForm ? 'New Task' : 'Cancel'}
 
             </button>
-            {/* {showTaskDetails && !showNewTaskForm && <>
-                    <button className="bg-blue-500 text-white py-2 px-4 rounded-lg mb-2 hover:bg-blue-600 max-h-10">
-                        Edit
-                    </button>
-                    <button className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 max-h-10">
-                        Delete
-                    </button>
-                </>} */}
           </div>
 
-
+          {/* <TaskProvider value={{task: {showTaskDetails}, projectId:{id}, titleUpdate: handleTitleUpdate, setShowTaskDetails:{setShowTaskDetails}, fetchTasks:{fetchTasks}}}> */}
           {selectedTab === 'tasks' && (
             <div className=" bg-white p-4">
               {showNewTaskForm ? (
@@ -475,7 +483,8 @@ const [newMessage, setNewMessage] = useState('');
                   onTaskCreated={handleTaskCreated}
                 />
               ) : showTaskDetails ? (
-                <TaskDetails task={showTaskDetails} projectId={id} titleUpdate={handleTitleUpdate} setShowTaskDetails={setShowTaskDetails} fetchTasks={fetchTasks} />
+                // <TaskDetails task={showTaskDetails} projectId={id} titleUpdate={handleTitleUpdate} setShowTaskDetails={setShowTaskDetails} fetchTasks={fetchTasks} />
+                <Outlet context={[showTaskDetails,id,handleTitleUpdate,setShowTaskDetails,fetchTasks]}/>
               ) : filteredTasks.length === 0 ? (
                 <div className="text-center bg-gray-50 w-[1000px] h-[300px] mx-auto p-4 border-2 border-gray-40">
                   <p className="font-semibold">No tasks found!</p>
@@ -576,13 +585,14 @@ const [newMessage, setNewMessage] = useState('');
                   </div>
 
                   <ul className="space-y-4 mt-0">
+                  
                     <div className=" bg-gray-50 w-[1000px] mx-auto ">
                       {filteredTasks.map((task) => (
                         <li key={task.id} className="p-4 bg-white border-2 border-gray-40">
                           <div key={task.id} className="task-item">
                             <h3
                               className="task-title cursor-pointer"
-                              onClick={() => setShowTaskDetails(task)}
+                              onClick={() => handleTaskClick(task)}
 
                             >
                               {task.title}
@@ -621,11 +631,13 @@ const [newMessage, setNewMessage] = useState('');
                         </li>
                       ))}
                     </div>
+                    
                   </ul>
                 </>
               )}
             </div>
           )}
+          {/* </TaskProvider> */}
         </div>
       )}
 
