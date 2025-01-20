@@ -15,6 +15,7 @@ import TaskDetails from './components/TaskDetails';
 import AllTasks from './components/AllTasks';
 import Notifications from './components/Notifications';
 import { NotificationProvider } from './components/NotificationContext';
+import Profile from './components/Profile';
 
 // const router = createBrowserRouter([
 //   {
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
       {
         path: "/notifications",
         element: <Notifications/>
+      },
+      {
+        path: "/profile",
+        element: <Profile/>
       }
     ]
   },
