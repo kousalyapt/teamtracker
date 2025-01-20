@@ -62,6 +62,26 @@ class TasksController < ApplicationController
     rescue ActiveRecord::RecordNotFound
       render json: { error: 'User not found' }, status: :not_found
     end
+
+    def all_tasks
+      user = current_user  # Using the current user for the tasks
+    
+    # Fetch tasks from all the projects the user is a member of
+    tasks = Task.joins(:project)
+                .where(projects: { id: user.projects.ids })
+                .includes(:project, :labels) # Eager load associated records to optimize queries
+
+    tasks_with_project_info = tasks.map do |task|
+      task.as_json(include: [:labels]).merge(
+        project_title: task.project.title,
+        project_id: task.project.id
+      )
+    end
+
+    render json: { tasks: tasks_with_project_info }, status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'User not found' }, status: :not_found
+    end
       
     def show
       render json: @task.as_json(include: :labels).merge(creator_name: @task.creator&.name || 'Unknown')

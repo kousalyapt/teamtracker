@@ -3,6 +3,7 @@ import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate, Outlet } from 'react-router-dom';
 import Navbar from './Navbar'; 
+import Footer from './Footer';
 
 function MainLayout() {
 
@@ -54,7 +55,7 @@ function MainLayout() {
       <div className="flex-grow overflow-auto bg-white-100 ">
         <Outlet />
       </div>
-
+<Footer/>
 
     </div>
   );
