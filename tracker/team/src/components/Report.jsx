@@ -9,7 +9,11 @@ const Report = () => {
   const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState({});
-  const [expandedProject, setExpandedProject] = useState(null); 
+  const [expandedProject, setExpandedProject] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(''); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;  // Set the number of projects per page
+
 
   const getStatusCount = (project, status) =>
     tasks.filter((task) => task.project_title === project && task.state === status).length;
@@ -73,34 +77,92 @@ const Report = () => {
     setExpandedProject(expandedProject === project ? null : project);
   };
 
+  const filteredProjects = projects.filter((project) =>
+    project.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastProject = currentPage * itemsPerPage;
+  const indexOfFirstProject = indexOfLastProject - itemsPerPage;
+  const currentProjects = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
+
+  const totalPages = Math.ceil(projects.length / itemsPerPage);
+
+
   return (
     <div className="p-8 space-y-4">
       <h1 className="text-3xl font-bold pl-48 mb-6">Project Task Reports</h1>
       <div className="p-6 bg-white shadow-md rounded-lg max-w-4xl mx-auto">
-      {projects.map((project) => (
-        <div key={project} className="border-b pb-4">
-          <h2
-            className="text-xl font-semibold cursor-pointer hover:text-blue-600"
-            onClick={() => toggleProject(project)}
-          >
-            {project}
-          </h2>
-          {expandedProject === project && (
-            <div className="ml-4 mt-2">
-              <p>Total Tasks: {tasks.filter((task) => task.project_title === project).length}</p>
-              <p className="text-green-600">Resolved: {getStatusCount(project, 'resolved')}</p>
-              <p className="text-yellow-500">Opened: {getStatusCount(project, 'opened')}</p>
-              <p className="text-gray-600">Closed: {getStatusCount(project, 'closed')}</p>
-              <button
-                onClick={() => generatePDF(project)}
-                className="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-              >
-                Download PDF Report
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
+      <div className="my-4 flex justify-center">
+            <input
+              type="text"
+              placeholder="Search projects..."
+              className="w-1/2 mx-auto border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-green-400 focus:outline-none "
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          {currentProjects.length > 0 ? (
+        currentProjects.map((project) => (
+          <div key={project} className="border-b pb-4">
+            <h2
+              className="text-xl font-semibold cursor-pointer hover:text-blue-600"
+              onClick={() => toggleProject(project)}
+            >
+              {project}
+            </h2>
+            {expandedProject === project && (
+              <div className="ml-4 mt-2">
+                <p>Total Tasks: {tasks.filter((task) => task.project_title === project).length}</p>
+                <p className="text-green-600">Resolved: {getStatusCount(project, 'resolved')}</p>
+                <p className="text-yellow-500">Opened: {getStatusCount(project, 'opened')}</p>
+                <p className="text-gray-600">Closed: {getStatusCount(project, 'closed')}</p>
+                <button
+                  onClick={() => generatePDF(project)}
+                  className="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
+                >
+                  Download PDF Report
+                </button>
+              </div>
+            )}
+          </div>
+        ))):(
+          <div className="text-gray-500 text-center py-4">No projects found</div>
+        )}
+      
+      <div className="flex justify-center mt-4 ">
+      {currentPage > 1 && (
+      <button
+        onClick={() => handlePageChange(currentPage - 1)}
+        className="px-4 py-2 mx-2 text-gray-500 hover:text-black"
+      >
+        &lt;
+      </button>
+    )}
+    {[...Array(totalPages)].map((_, index) => (
+      <button
+        key={index}
+        onClick={() => handlePageChange(index + 1)}
+        className={`px-4 py-2 mx-1 text-gray-500 hover:text-black ${
+          currentPage === index + 1 ? 'font-bold underline' : ''
+        }`}
+      >
+        {index + 1}
+      </button>
+    ))}
+    {currentPage < totalPages && (
+      <button
+        onClick={() => handlePageChange(currentPage + 1)}
+        className="px-4 py-2 mx-2 text-gray-500 hover:text-black"
+      >
+        &gt;
+      </button>
+    )}
+      </div>
       </div>
     </div>
   );
