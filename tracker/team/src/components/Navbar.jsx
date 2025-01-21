@@ -16,55 +16,99 @@ function Navbar() {
   const navigate = useNavigate();
   const { notifications } = useNotifications();
 
-
   useEffect(() => {
-    if (cookies.jwt) {
-      const fetchProjects = async () => {
-        try {
-          const headers = { Authorization: `${cookies.jwt}` };
-          const response = await axios.get('/projects', { headers });
+    const headers = {
+      Authorization: `${cookies.jwt}` 
+    };
 
-          if (response.data) {
+    axios
+      .get('/projects', { headers })
+      .then((response) => {
+        console.log(response)
+        if (response.data) {
             const createdProjects = Array.isArray(response.data.projects_created)
               ? response.data.projects_created.map((project) => ({
                   id: project.id,
                   title: project.title,
-                  type: 'created',
+                  type: 'created', 
                 }))
               : [];
-
+          
             const memberProjects = Array.isArray(response.data.projects_as_member)
               ? response.data.projects_as_member.map((project) => ({
                   id: project.id,
                   title: project.title,
-                  type: 'member',
+                  type: 'member', 
                 }))
               : [];
-
-            setProjects([...createdProjects, ...memberProjects]);
-          }
-        } catch (error) {
-          setError('Failed to load projects. Please try again later.');
+      
+              const allProjects = [...createdProjects, ...memberProjects].reduce((uniqueProjects, project) => {
+                if (!uniqueProjects.some(existingProject => existingProject.id === project.id)) {
+                  uniqueProjects.push(project);
+                }
+                return uniqueProjects;
+              }, []);
+        
+            setProjects(allProjects);
+                    
+        } else {
+          console.error('Invalid response format', response.data);
         }
-      };
+      })
+      .catch((error) => {
+        console.error('Error fetching projects:', error);
+      });
+  }, [cookies.jwt]); 
 
-      // const fetchNotifications = async () => {
-      //   try {
-      //     const headers = { Authorization: `${cookies.jwt}` };
-      //     const response = await axios.get('/notifications', { headers }); // Assuming the endpoint for notifications
-      //     console.log(JSON.stringify(response.data))
-      //     if (response.data) {
-      //       setNotifications(response.data);
-      //     }
-      //   } catch (error) {
-      //     setError('Failed to load notifications. Please try again later.');
-      //   }
-      // };
 
-      fetchProjects();
-      //fetchNotifications();
-    }
-  }, [cookies.jwt]);
+  // useEffect(() => {
+  //   if (cookies.jwt) {
+  //     const fetchProjects = async () => {
+  //       try {
+  //         const headers = { Authorization: `${cookies.jwt}` };
+  //         const response = await axios.get('/projects', { headers });
+
+  //         if (response.data) {
+  //           const createdProjects = Array.isArray(response.data.projects_created)
+  //             ? response.data.projects_created.map((project) => ({
+  //                 id: project.id,
+  //                 title: project.title,
+  //                 type: 'created',
+  //               }))
+  //             : [];
+
+  //           const memberProjects = Array.isArray(response.data.projects_as_member)
+  //             ? response.data.projects_as_member.map((project) => ({
+  //                 id: project.id,
+  //                 title: project.title,
+  //                 type: 'member',
+  //               }))
+  //             : [];
+
+  //           setProjects([...createdProjects, ...memberProjects]);
+  //         }
+  //       } catch (error) {
+  //         setError('Failed to load projects. Please try again later.');
+  //       }
+  //     };
+
+  //     // const fetchNotifications = async () => {
+  //     //   try {
+  //     //     const headers = { Authorization: `${cookies.jwt}` };
+  //     //     const response = await axios.get('/notifications', { headers }); // Assuming the endpoint for notifications
+  //     //     console.log(JSON.stringify(response.data))
+  //     //     if (response.data) {
+  //     //       setNotifications(response.data);
+  //     //     }
+  //     //   } catch (error) {
+  //     //     setError('Failed to load notifications. Please try again later.');
+  //     //   }
+  //     // };
+
+  //     fetchProjects();
+  //     //fetchNotifications();
+  //   }
+  // }, [cookies.jwt]);
 
   const toggleProfileDropdown = () => {
     setIsProfileOpen(!isProfileOpen);
@@ -118,7 +162,6 @@ function Navbar() {
           </div>
           
           <Link to="/projects_reports" className="hover:text-indigo-400">Report</Link>
-          <Link to="/messages" className="hover:text-indigo-400">Team Wall</Link>
         </div>
 
         <div className="flex items-center space-x-4">
