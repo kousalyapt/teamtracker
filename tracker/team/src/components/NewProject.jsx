@@ -70,8 +70,8 @@ console.log("mmmmmmmmmmm",handleEditedProject)
   };
 
   const handleCancelButton = () => {
-    console.log(`the url is    /projects/${projectData.projectData.id}/tasks`)
-    if (projectData.projectData) {
+    
+    if (projectData?.projectData ) {
       handleEditedProject()
     }else{
       navigate('/')
