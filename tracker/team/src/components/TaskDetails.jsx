@@ -12,9 +12,20 @@ import NewTaskForm from './NewTaskForm';
 import ProjectTasks from './ProjectTasks';
 import { DateTime } from 'luxon';
 import { useNotifications } from './NotificationContext';
+import { useOutletContext } from "react-router-dom";
 
+// { projectId, titleUpdate, setShowTaskDetails, fetchTasks, task }
 
-const TaskDetails = ({ task, projectId, titleUpdate , setShowTaskDetails, fetchTasks}) => {
+const TaskDetails = () => {
+    // const { id } = useParams();
+    // const projectId = id
+    // const {  titleUpdate, setShowTaskDetails, fetchTasks, task } = useTask();
+    const [showTaskDetails,id,handleTitleUpdate,setShowTaskDetails,fetchTasks] = useOutletContext();
+    const task = showTaskDetails
+    const projectId = id
+    const titleUpdate = handleTitleUpdate
+    console.log("Task details received: ", task); 
+    console.log("pidd",projectId)
     const [comment, setComment] = useState("");
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(false);
