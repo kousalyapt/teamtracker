@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react';
 
 function Footer() {
+
   return (
-    <div>Footer</div>
-  )
+    <div className='text-right relative'>
+      #Sedin Technologies
+    </div>
+  );
 }
 
-export default Footer
+export default Footer;

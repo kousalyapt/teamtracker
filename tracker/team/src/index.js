@@ -16,6 +16,8 @@ import AllTasks from './components/AllTasks';
 import Notifications from './components/Notifications';
 import { NotificationProvider } from './components/NotificationContext';
 import Profile from './components/Profile';
+import Report from './components/Report';
+
 
 // const router = createBrowserRouter([
 //   {
@@ -55,7 +57,13 @@ const router = createBrowserRouter([
       },
       {
         path: "projects/:id/tasks",
-        element: <ProjectTasks />
+        element: <ProjectTasks />,
+        children: [
+          {
+            path: ":taskId",
+            element: <TaskDetails/>
+          }
+        ]
       },
       {
         path: "/projects/:id/labels",
@@ -76,6 +84,10 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <Profile/>
+      },
+      {
+        path: "/projects_reports",
+        element: <Report/>
       }
     ]
   },
@@ -94,7 +106,9 @@ root.render(
   <React.StrictMode>
     <CookiesProvider defaultSetOptions={{ path: '/'}}>
       <NotificationProvider>
+        
         <RouterProvider router={router} />
+        
       </NotificationProvider>
     </CookiesProvider>
   </React.StrictMode>
