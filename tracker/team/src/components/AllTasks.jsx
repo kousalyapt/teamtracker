@@ -303,6 +303,9 @@ const AllTasks = () => {
   const [availableLabels, setAvailableLabels] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [showDateRangeDropdown, setShowDateRangeDropdown] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;  // Set the number of projects per page
+    
   
 
   useEffect(() => {
@@ -412,6 +415,18 @@ const AllTasks = () => {
     setShowDateRangeDropdown(false);
     setFilter('date_range');
   };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastTask = currentPage * itemsPerPage;
+  const indexOfFirstTask = indexOfLastTask - itemsPerPage;
+  const currentTasks = filteredTasks.slice(indexOfFirstTask, indexOfLastTask);
+
+  const totalPages = Math.ceil(filteredTasks.length / itemsPerPage);
+
+
 
   return (
     <div className="container mx-auto p-4">
@@ -534,8 +549,8 @@ const AllTasks = () => {
 
         {/* Task List */}
         <div>
-          {filteredTasks.length > 0 ? (
-            filteredTasks.map((task) => (
+          {currentTasks.length > 0 ? (
+            currentTasks.map((task) => (
               <div
                 key={task.id}
                 className="bg-white shadow-sm rounded-lg p-4 mb-4 hover:shadow-md transition-all"
@@ -556,6 +571,37 @@ const AllTasks = () => {
             <div className="text-center text-gray-500">No tasks available</div>
           )}
         </div>
+        {totalPages > 1 && (
+  <div className="flex justify-center mt-4 ">
+    {currentPage > 1 && (
+      <button
+        onClick={() => handlePageChange(currentPage - 1)}
+        className="px-4 py-2 mx-2 text-gray-500 hover:text-black"
+      >
+        &lt;
+      </button>
+    )}
+    {[...Array(totalPages)].map((_, index) => (
+      <button
+        key={index}
+        onClick={() => handlePageChange(index + 1)}
+        className={`px-4 py-2 mx-1 text-gray-500 hover:text-black ${
+          currentPage === index + 1 ? 'font-bold underline' : ''
+        }`}
+      >
+        {index + 1}
+      </button>
+    ))}
+    {currentPage < totalPages && (
+      <button
+        onClick={() => handlePageChange(currentPage + 1)}
+        className="px-4 py-2 mx-2 text-gray-500 hover:text-black"
+      >
+        &gt;
+      </button>
+    )}
+  </div>
+)}
       </div>
     </div>
   );

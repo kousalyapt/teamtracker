@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import Activities from './Activities';
+import ReactPaginate from 'react-paginate';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]); 
   const [searchQuery, setSearchQuery] = useState(''); 
   const [cookies] = useCookies(['jwt']);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;  // Set the number of projects per page
   
   console.log("fin",projects)
 
@@ -55,9 +58,22 @@ const Projects = () => {
       });
   }, [cookies.jwt]); 
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Calculate total pages
+  
+
   const filteredProjects = projects.filter((project) =>
     project.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const indexOfLastProject = currentPage * itemsPerPage;
+  const indexOfFirstProject = indexOfLastProject - itemsPerPage;
+  const currentProjects = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
+
+  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
 
   return (
     <div className="container mx-auto p-4">
@@ -70,7 +86,7 @@ const Projects = () => {
       </div>
       <div className="flex-1"></div>
       <div className="w-full lg:w-1/4 px-4">
-        <div className="bg-gray-50 shadow-md p-6">
+        <div className="bg-gray-50 shadow-md p-6  ">
           <div className="flex justify-between items-center border-b pb-4">
             <div className="text-lg font-bold text-gray-800">Your Projects</div>
             <Link to="/projects/new">
@@ -93,8 +109,8 @@ const Projects = () => {
             />
           </div>
           <div className="mt-0">
-            {filteredProjects.length > 0 ? (
-              filteredProjects.map((project) => (
+            {currentProjects.length > 0 ? (
+              currentProjects.map((project) => (
                 <div
                   key={project.id}
                   className="py-1 border-b last:border-b-0 text-gray-800 hover:bg-gray-100 rounded-md"
@@ -111,6 +127,39 @@ const Projects = () => {
               <div className="text-gray-500 text-center py-4">No projects found</div>
             )}
           </div>
+          {totalPages > 1 && (
+  <div className="flex justify-center mt-4 ">
+    {currentPage > 1 && (
+      <button
+        onClick={() => handlePageChange(currentPage - 1)}
+        className="px-4 py-2 mx-2 text-gray-500 hover:text-black"
+      >
+        &lt;
+      </button>
+    )}
+    {[...Array(totalPages)].map((_, index) => (
+      <button
+        key={index}
+        onClick={() => handlePageChange(index + 1)}
+        className={`px-4 py-2 mx-1 text-gray-500 hover:text-black ${
+          currentPage === index + 1 ? 'font-bold underline' : ''
+        }`}
+      >
+        {index + 1}
+      </button>
+    ))}
+    {currentPage < totalPages && (
+      <button
+        onClick={() => handlePageChange(currentPage + 1)}
+        className="px-4 py-2 mx-2 text-gray-500 hover:text-black"
+      >
+        &gt;
+      </button>
+    )}
+  </div>
+)}
+
+
         </div>
       </div>
     </div>
