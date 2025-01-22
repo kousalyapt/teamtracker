@@ -29,7 +29,8 @@ class CommentsController < ApplicationController
           user_id: @task.assigned_to_id,
           message: "#{current_user.name} has commented on task #{@task.title}",
           read: false,
-          link: "/projects/#{@project.id}/tasks"
+          link: "/projects/#{@project.id}/tasks/#{@task.id}",
+          task_id: @task.id
         )
         end
         @project_members.each do |member|

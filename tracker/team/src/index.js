@@ -17,6 +17,7 @@ import Notifications from './components/Notifications';
 import { NotificationProvider } from './components/NotificationContext';
 import Profile from './components/Profile';
 import Report from './components/Report';
+import { ShowTaskDetailsProvider } from './components/ShowTaskDetailsContext';
 
 
 // const router = createBrowserRouter([
@@ -69,10 +70,10 @@ const router = createBrowserRouter([
         path: "/projects/:id/labels",
         element: <Label />
       },
-      {
-        path: "/projects/:projectId/tasks/:taskId",
-        element: <TaskDetails />
-      },
+      // {
+      //   path: "/projects/:projectId/tasks/:taskId",
+      //   element: <TaskDetails />
+      // },
       {
         path: "/all_task",
         element: <AllTasks/>
@@ -104,6 +105,7 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <ShowTaskDetailsProvider>
     <CookiesProvider defaultSetOptions={{ path: '/'}}>
       <NotificationProvider>
         
@@ -111,6 +113,7 @@ root.render(
         
       </NotificationProvider>
     </CookiesProvider>
+    </ShowTaskDetailsProvider>
   </React.StrictMode>
 );
 
