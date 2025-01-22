@@ -365,7 +365,9 @@ creator = User.find(@project.user_id)
       project_members.each do |member|
         Activity.create(
           user: member,
-          message: (member == user ? "You #{action} the task '#{task.title}' in Project '#{project.title}'" : message)
+          message: (member == user ? "You #{action} the task '#{task.title}' in Project '#{project.title}'" : message),
+          link: "/projects/#{project.id}/tasks/#{task.id}",
+          task_id: task.id
         )
       end
     end

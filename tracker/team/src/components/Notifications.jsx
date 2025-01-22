@@ -7,38 +7,10 @@ import { useNavigate } from 'react-router-dom';
 
 
 const Notifications = () => {
- // const [notifications, setNotifications] = useState([]);
   const [cookies] = useCookies(['jwt']); 
   const { notifications, setNotifications } = useNotifications();
   const { setShowTaskDetails } = useShowTaskDetails();
   const navigate = useNavigate()
-
-  // useEffect(() => {
-  //   const fetchNotifications = async() => {
-  //       try{
-  //           console.log("Sending tokensss:", cookies.jwt);
-  //           const response = await axios.get('http://localhost:3000/notifications',{
-  //               headers: {Authorization: `${cookies.jwt}`}
-  //           })
-  //           //console.log(JSON.stringify(response))
-  //           setNotifications(response.data)
-  //       }catch(error){
-  //           console.error('There was an error fetching notifications!', error);
-  //       }
-  //   }
-
-  //   fetchNotifications();
-  //   // const response = await axios.get('http://localhost:3000/notifications')
-  //   // axios.get('http://localhost:3000/notifications')
-  //   //   .then(response => {
-  //   //     console.log(JSON.stringify(response))
-  //   //     setNotifications(response.data);
-  //   //   })
-  //   //   .catch(error => {
-  //   //     console.error('There was an error fetching notifications!', error);
-  //   //   });
-  // }, []);
-
   const handleDelete = async(id) => {
     try{
       await axios .delete(`http://localhost:3000/notifications/${id}`,{
@@ -56,7 +28,6 @@ const Notifications = () => {
 
   const handleClick = async(notification) => {
     if (notification.task_id) {
-      // Fetch task details by ID or pass notification.task if it's preloaded
       try{
         
         const response = await axios .get(`http://localhost:3000/${notification.link}`,{
@@ -76,6 +47,8 @@ const Notifications = () => {
       
       
       
+    }else{
+      setShowTaskDetails(null);
     }
     navigate(notification.link);
   }
@@ -86,17 +59,14 @@ const Notifications = () => {
     try{
         const response = await axios.patch(
             `http://localhost:3000/notifications/${id}/mark_as_read`, 
-            {}, // Empty body
+            {}, 
             {
                 headers: {
-                    Authorization: `${cookies.jwt}` // Correct Authorization format with Bearer token
+                    Authorization: `${cookies.jwt}` 
                 }
             }
         );
-        // console.log(`http://localhost:3000/notifications/${id}/mark_as_read`)
-        // await axios.patch(`http://localhost:3000/notifications/${id}/mark_as_read`,{},{
-        //     headers: {Authorization: `Bearer ${cookies.jwt}`}
-        // })
+       
         console.log(JSON.stringify(response))
         setNotifications(notifications.map(notification => 
             notification.id === id ? { ...notification, read: true } : notification
@@ -104,17 +74,7 @@ const Notifications = () => {
     }catch(error){
         console.error('There was an error marking the notification as read!', error);
     }
-    // axios.patch(`http://localhost:3000/notifications/${id}/mark_as_read`,{
-    //     headers: {Authorization: `${cookies.jwt}`}
-    // })
-    //   .then(response => {
-    //     setNotifications(notifications.map(notification => 
-    //       notification.id === id ? { ...notification, read: true } : notification
-    //     ));
-    //   })
-    //   .catch(error => {
-    //     console.error('There was an error marking the notification as read!', error);
-    //   });
+   
   };
 
   return (

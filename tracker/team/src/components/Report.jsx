@@ -4,6 +4,7 @@ import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { useNavigate } from 'react-router-dom';
+import { useShowTaskDetails } from './ShowTaskDetailsContext';
 
 const Report = () => {
   const [cookies] = useCookies(['jwt']);
@@ -13,6 +14,7 @@ const Report = () => {
   const [expandedProject, setExpandedProject] = useState(null);
   const [searchQuery, setSearchQuery] = useState(''); 
   const [currentPage, setCurrentPage] = useState(1);
+  const { setShowTaskDetails } = useShowTaskDetails();
   const navigate = useNavigate()
   const itemsPerPage = 6;  
 
@@ -88,6 +90,7 @@ const Report = () => {
   );
 
   const handleProjectClick = (project) => {
+    setShowTaskDetails(null)
     navigate(`/projects/${project.id}/tasks`)
   }
 
@@ -126,7 +129,7 @@ const Report = () => {
               {project.title}
             </h2>
             {expandedProject === project && (
-              <div className="ml-4 mt-2" onClick={()=> handleProjectClick(project)}>
+              <div className="ml-4 mt-2 cursor-pointer" onClick={()=> handleProjectClick(project)}>
                 <p>Total Tasks: {tasks.filter((task) => task.project_title === project.title).length}</p>
                 <p className="text-green-600">Resolved: {getStatusCount(project, 'resolved')}</p>
                 <p className="text-yellow-500">Opened: {getStatusCount(project, 'opened')}</p>
