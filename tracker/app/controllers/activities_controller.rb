@@ -10,6 +10,18 @@ class ActivitiesController < ApplicationController
     #     end
     # end
 
+    def create
+        @activity = Activity.new(activity_params)
+        if params[:task_id].present?
+          @activity.task = Task.find(params[:task_id])
+        end
+        if @activity.save
+          render json: @activity, status: :created
+        else
+          render json: { errors: @activity.errors.full_messages }, status: :unprocessable_entity
+        end
+    end
+
     def index
         @activities = current_user.activities.order(created_at: :desc)
         render json: @activities
@@ -23,7 +35,7 @@ class ActivitiesController < ApplicationController
   
     private
   
-    # def activity_params
-    #     params.require(:activity).permit(:user, :message)
-    # end
+    def activity_params
+        params.require(:activity).permit(:user, :message, :task_id, :link)
+    end
 end

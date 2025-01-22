@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
+import { useShowTaskDetails } from './ShowTaskDetailsContext';
 import axios from 'axios';
 
 const NewProject = ({projectData, projectMembers, handleEditedProject}) => {
   const [cookies] = useCookies(['jwt']);
   const navigate = useNavigate();
-
+const { setShowTaskDetails } = useShowTaskDetails();
   const [title, setTitle] = useState(projectData ? projectData.title : '');
   const [description, setDescription] = useState(projectData ? projectData.description : '');
   const [memberInput, setMemberInput] = useState('');
@@ -70,9 +71,10 @@ console.log("mmmmmmmmmmm",handleEditedProject)
   };
 
   const handleCancelButton = () => {
+    console.log("jjug",projectData)
     
-    if (projectData?.projectData ) {
-      handleEditedProject()
+    if (projectData ) {
+      handleEditedProject(projectData)
     }else{
       navigate('/')
     }
@@ -112,6 +114,7 @@ console.log("mmmmmmmmmmm",handleEditedProject)
       console.log("lllllllllll",response.data)
       if (!projectData){
         console.log("mee")
+        setShowTaskDetails(null)
         navigate(`/projects/${response.data.id}/tasks`);
       }else{
         console.log("mmmemmmmeme",members)

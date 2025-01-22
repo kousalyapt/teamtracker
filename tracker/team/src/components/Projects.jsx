@@ -4,13 +4,15 @@ import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import Activities from './Activities';
 import ReactPaginate from 'react-paginate';
+import { useShowTaskDetails } from './ShowTaskDetailsContext';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]); 
   const [searchQuery, setSearchQuery] = useState(''); 
   const [cookies] = useCookies(['jwt']);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;  // Set the number of projects per page
+  const { setShowTaskDetails } = useShowTaskDetails();
+  const itemsPerPage = 6;  
   
   console.log("fin",projects)
 
@@ -57,6 +59,10 @@ const Projects = () => {
         console.error('Error fetching projects:', error);
       });
   }, [cookies.jwt]); 
+
+  const handleTitleClick = () => {
+    setShowTaskDetails(null)
+  }
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -118,6 +124,7 @@ const Projects = () => {
                   <Link
                     to={`/projects/${project.id}/tasks`}
                     className="text-blue-500 hover:underline"
+                    onClick = {()=> {handleTitleClick()}}
                   >
                     {project.title}
                   </Link>

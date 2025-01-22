@@ -196,13 +196,15 @@ class ProjectsController < ApplicationController
         if member == user
           Activity.create(
               user: member,
-              message: "You #{action}d the project '#{project.title}'"
+              message: "You #{action}d the project '#{project.title}'",
+              link: "/projects/#{project.id}/tasks"
             )
 
         else
           Activity.create(
               user: member,
-              message: "#{user.name} #{action}d the project '#{project.title}'"
+              message: "#{user.name} #{action}d the project '#{project.title}'",
+              link: "/projects/#{project.id}/tasks"
             )
         end
       end
@@ -220,7 +222,8 @@ class ProjectsController < ApplicationController
       final_members.each do |member|
           Activity.create(
               user: creator,
-              message: "#{member.name} #{action}d to the project '#{project.title}'"
+              message: "#{member.name} #{action}d to the project '#{project.title}'",
+              link: "/projects/#{project.id}/tasks"
             )
       end
 
@@ -231,13 +234,15 @@ class ProjectsController < ApplicationController
           if mem == member
             Activity.create(
                 user: member,
-                message: "You #{action}d to the project '#{project.title}'"
+                message: "You #{action}d to the project '#{project.title}'",
+                link: "/projects/#{project.id}/tasks"
               )
         
           else
             Activity.create(
                 user: member,
-                message: "#{mem.name} #{action}d the project '#{project.title}'"
+                message: "#{mem.name} #{action}d the project '#{project.title}'",
+                link: "/projects/#{project.id}/tasks"
               )
           end
         end
@@ -251,12 +256,14 @@ class ProjectsController < ApplicationController
         if user == member
           Activity.create(
               user: member,
-              message: "You #{action}d the project '#{project.title}'"
+              message: "You #{action}d the project '#{project.title}'",
+              link: "/projects/#{project.id}/tasks"
             )
         else
           Activity.create(
               user: member,
-              message: "#{user.name} #{action}d the project '#{project.title}'"
+              message: "#{user.name} #{action}d the project '#{project.title}'",
+              link: "/projects/#{project.id}/tasks"
             )
         end
         
@@ -271,12 +278,14 @@ class ProjectsController < ApplicationController
           if user == member
             Activity.create(
                 user: member,
-                message: "The Title for the project '#{previous_title}' has been changed to #{project.title} by You"
+                message: "The Title for the project '#{previous_title}' has been changed to #{project.title} by You",
+                link: "/projects/#{project.id}/tasks"
               )
           else
             Activity.create(
                 user: member,
-                message: "The Title for the project '#{previous_title}' has been changed to #{project.title} by #{user.name}"
+                message: "The Title for the project '#{previous_title}' has been changed to #{project.title} by #{user.name}",
+                link: "/projects/#{project.id}/tasks"
               )
           end
           
@@ -292,12 +301,14 @@ class ProjectsController < ApplicationController
           if user == member
             Activity.create(
                 user: member,
-                message: "The description for the project '#{project.title}' has been changed by You"
+                message: "The description for the project '#{project.title}' has been changed by You",
+                link: "/projects/#{project.id}/tasks"
               )
           else
             Activity.create(
                 user: member,
-                message: "The description for the project '#{project.title}' has been changed by #{user.name}"
+                message: "The description for the project '#{project.title}' has been changed by #{user.name}",
+                link: "/projects/#{project.id}/tasks"
               )
           end
           

@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { logoutApi } from '../apis/logoutApi';
 import { useNotifications } from './NotificationContext';
+import { useShowTaskDetails } from './ShowTaskDetailsContext';
+
 
 function Navbar() {
   const [cookies, setCookie, removeCookie] = useCookies(['jwt']);
@@ -15,6 +17,7 @@ function Navbar() {
   //const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
   const { notifications } = useNotifications();
+  const { setShowTaskDetails } = useShowTaskDetails();
 
   useEffect(() => {
     const headers = {
@@ -118,6 +121,11 @@ function Navbar() {
     setIsProjectsOpen(!isProjectsOpen); 
   };
 
+  const handleTitleClick = () => {
+    setShowTaskDetails(null)
+  }
+
+
   const handleLogout = async () => {
     const [result, error] = await logoutApi(cookies.jwt);
     if (error !== '') {
@@ -150,6 +158,8 @@ function Navbar() {
                       key={project.id}
                       to={`/projects/${project.id}/tasks`}
                       className="block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100"
+                      onClick={()=> handleTitleClick()}
+
                     >
                       {project.title}
                     </Link>

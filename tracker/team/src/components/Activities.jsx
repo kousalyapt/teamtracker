@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
+import { useShowTaskDetails } from './ShowTaskDetailsContext';
+import { useNavigate } from 'react-router-dom';
+
 
 const Activities = () =>  {
   const [activities, setActivities] = useState([]);
   const [cookies] = useCookies(['jwt']); 
+  const { setShowTaskDetails } = useShowTaskDetails();
+  const navigate = useNavigate()
   console.log("act",activities)
   useEffect(() => {
     const fetchActivities = async () => {
@@ -38,6 +43,34 @@ const Activities = () =>  {
     }
   }
 
+  const handleClick = async(activity) => {
+    if (activity.task_id) {
+      // Fetch task details by ID or pass notification.task if it's preloaded
+      try{
+        
+        const response = await axios .get(`http://localhost:3000/${activity.link}`,{
+          headers: {
+            Authorization: `${cookies.jwt}`
+          }
+        })
+        console.log("hello al")
+        console.log(JSON.stringify(response.data))
+        console.log("bye al")
+        setShowTaskDetails(response.data);
+      }catch(error){
+        console.log(error)
+      }
+      
+      console.log(JSON.stringify(activity))
+      
+      
+      
+    }else{
+      setShowTaskDetails(null)
+    }
+    navigate(activity.link);
+  }
+
   return (
     <div>
         {activities.length === 0 ? (
@@ -45,8 +78,8 @@ const Activities = () =>  {
       ) : (
       <ul className="space-y-4 w-100">
         {activities.map(activity => (
-          <li key={activity.id} className="bg-gray-100 p-4 rounded-lg shadow-sm hover:bg-gray-50 transition duration-200 flex gap-4">
-            <p>{activity.message} at {new Date(activity.created_at).toLocaleString()}</p>
+          <li key={activity.id} className="bg-gray-100 p-4 rounded-lg shadow-sm hover:bg-gray-50 transition duration-200 flex gap-4" >
+            <p className="cursor-pointer"onClick={() => handleClick(activity)}>{activity.message} at {new Date(activity.created_at).toLocaleString()}</p>
            
             <button onClick={() => handleDeleteActivity(activity.id)} >❎</button>
           </li>

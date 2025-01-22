@@ -240,7 +240,7 @@ const ProjectTasks = () => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
         task.id === updatedTask.id
-          ? { ...task, title: updatedTask.title } // Update only the title or other fields as needed
+          ? { ...task, title: updatedTask.title } 
           : task
       )
     );
@@ -294,7 +294,8 @@ const ProjectTasks = () => {
     setShowDropdown((prev) => !prev)
   }
 
-  const handleEditProject = () => {
+  const handleEditProject = (proj) => {
+    setProject(proj)
     setIsEditMode(true)
     setSelectedTab("editProject")
 
@@ -363,7 +364,7 @@ const ProjectTasks = () => {
             </button>
             {showDropdown && (
               <div className="absolute bg-white shadow-md rounded border mt-2 z-10">
-                <button onClick={handleEditProject} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                <button onClick={()=>handleEditProject(project)} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
                   Edit
                 </button>
                 <button onClick={handleDeleteProject} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
