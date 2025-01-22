@@ -24,9 +24,20 @@ class NotificationsController < ApplicationController
       head :ok
     end
 
+    def mark_all_as_read
+      @notifications = current_user.notifications
+      @notifications.update_all(read: true)
+      head :ok
+    end
+
     def destroy
       @notification = current_user.notifications.find(params[:id])
       @notification.destroy
+      head :no_content
+    end
+
+    def destroy_all
+      current_user.notifications.destroy_all
       head :no_content
     end
 

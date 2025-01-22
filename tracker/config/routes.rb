@@ -36,14 +36,18 @@ Rails.application.routes.draw do
     end
   end
   resources :labels, only: [:index, :create, :destroy]
+  delete '/notifications/delete_all', to: 'notifications#destroy_all'
+
 
   resources :notifications, only: [:index] do
     member do
       patch :mark_as_read
       delete :destroy
+      
     end
   end
-
+  patch '/notifications/mark_all_as_read', to: 'notifications#mark_all_as_read'
+  
   resources :activities, only: [:index, :destroy]
 
   
