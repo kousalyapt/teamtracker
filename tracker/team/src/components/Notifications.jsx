@@ -77,9 +77,55 @@ const Notifications = () => {
    
   };
 
+  const handleMarkAllAsRead = async() => {
+    try{
+      await axios.patch(`http://localhost:3000/notifications/mark_all_as_read`,
+        {},
+        {
+          headers: {
+            Authorization: `${cookies.jwt}`
+          }
+    }
+      )
+      setNotifications(notifications.map(notification => 
+        ({...notification, read: true})
+      ));
+    }catch(error){
+      console.log(error)
+    }
+  }
+
+  const handleDeleteAll = async() => {
+    try{
+      await axios.delete(`http://localhost:3000/notifications/delete_all`,
+        
+        {
+          headers: {
+            Authorization: `${cookies.jwt}`
+          }
+        }
+      )
+      setNotifications([])
+    }catch(error){
+      console.log(error)
+    }
+  }
+
   return (
     <div className="p-6 bg-white shadow-md rounded-lg max-w-4xl mx-auto">
-    <h3 className="text-2xl font-semibold text-gray-800 mb-4">Notifications</h3>
+      <div className='flex justify-between'>
+        
+        <h3 className="text-2xl font-semibold text-gray-800 mb-4">Notifications</h3>
+        {notifications.length>0 && 
+        <div>
+        <button className='mr-4' onClick={()=>handleMarkAllAsRead()}>Mark all as read</button>
+        <button onClick={()=> handleDeleteAll()}>Clear all</button>
+        </div>
+        }
+        
+      </div>
+      {notifications.length == 0 && 
+      <p>No notifications yet</p>}
     <ul className="space-y-4">
       {notifications.map((notification) => (
         <li key={notification.id} className="bg-gray-100 p-4 rounded-lg shadow-sm hover:bg-gray-50 transition duration-200">
