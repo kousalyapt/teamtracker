@@ -12,7 +12,8 @@ class TasksController < ApplicationController
           user_id: @task.assigned_to_id,
           message: "The task '#{@task.title}' has been resolved",
           read: false,
-          link: "/projects/#{@project.id}/tasks"
+          link: "/projects/#{@project.id}/tasks/#{@task.id}",
+          task_id: @task.id
         )
 
       
@@ -27,7 +28,8 @@ class TasksController < ApplicationController
           user_id: @task.assigned_to_id,
           message: "The task '#{@task.title}' has been closed",
           read: false,
-          link: "/projects/#{@project.id}/tasks/"
+          link: "/projects/#{@project.id}/tasks/#{@task.id}",
+          task_id: @task.id
         )
       render json: { message: 'Task closed successfully', task: @task }, status: :ok
     end
@@ -39,7 +41,8 @@ class TasksController < ApplicationController
           user_id: @task.assigned_to_id,
           message: "The task '#{@task.title}' has been opened",
           read: false,
-          link: "/projects/#{@project.id}/tasks"
+          link: "/projects/#{@project.id}/tasks/#{@task.id}",
+          task_id: @task.id
         )
       render json: { message: 'Task reopened successfully', task: @task }, status: :ok
     end
@@ -167,7 +170,8 @@ class TasksController < ApplicationController
         user_id: @task.assigned_to_id, 
         message: "You have been assigned a new task: #{@task.title}",
         read: false,
-        link: "/projects/#{@project.id}/tasks"
+        link: "/projects/#{@project.id}/tasks/#{@task.id}",
+        task_id: @task.id
       )
         if params[:label_ids].present?
           labels = Label.where(name: params[:label_ids])
@@ -226,7 +230,8 @@ class TasksController < ApplicationController
           user_id: @task.assigned_to_id,
           message: "You have been assigned the task: #{@task.title}",
           read: false,
-          link: "/projects/#{@project.id}/tasks"
+          link: "/projects/#{@project.id}/tasks/#{@task.id}",
+          task_id: @task.id
         )
     
     # Create a notification for the previous assignee (optional)
@@ -234,7 +239,8 @@ class TasksController < ApplicationController
           user_id: previous_assigned_to_id,
           message: "You were unassigned from the task: #{@task.title}",
           read: false,
-          link: "/projects/#{@project.id}/tasks"
+          link: "/projects/#{@project.id}/tasks/#{@task.id}",
+          task_id: @task.id
         )
       end
     end
@@ -245,7 +251,8 @@ class TasksController < ApplicationController
           user_id: @task.assigned_to_id,
           message: "The Title for the task '#{previous_title}' has been changed to #{@task.title}",
           read: false,
-          link: "/projects/#{@project.id}/tasks"
+          link: "/projects/#{@project.id}/tasks/#{@task.id}",
+          task_id: @task.id
         )
       end
     end
@@ -256,7 +263,8 @@ class TasksController < ApplicationController
           user_id: @task.assigned_to_id,
           message: "The description for the task '#{@task.title}' has been changed.",
           read: false,
-          link: "/projects/#{@project.id}/tasks"
+          link: "/projects/#{@project.id}/tasks/#{@task.id}",
+          task_id: @task.id
         )
       end
     end
@@ -267,7 +275,8 @@ class TasksController < ApplicationController
           user_id: @task.assigned_to_id,
           message: "The Estimated time for the task '#{@task.title}' has been changed to #{@task.estimated_time}.",
           read: false,
-          link: "/projects/#{@project.id}/tasks"
+          link: "/projects/#{@project.id}/tasks/#{@task.id}",
+          task_id: @task.id
         )
       end
     end
@@ -278,7 +287,8 @@ class TasksController < ApplicationController
           user_id: @task.assigned_to_id,
           message: "The due date for the task '#{@task.title}' has been changed to #{@task.due_date}",
           read: false,
-          link: "/projects/#{@project.id}/tasks"
+          link: "/projects/#{@project.id}/tasks/#{@task.id}",
+          task_id: @task.id
         )
       end
     end
@@ -293,7 +303,8 @@ puts new_labels
           user_id: @task.assigned_to_id,
           message: "Label for the task '#{@task.title}' has been changed to #{new_labels.join()}",
           read: false,
-          link: "/projects/#{@project.id}/tasks"
+          link: "/projects/#{@project.id}/tasks/#{@task.id}",
+          task_id: @task.id
         )
       end
       

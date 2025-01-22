@@ -1,4 +1,4 @@
-import React, { useRef,useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
@@ -12,6 +12,7 @@ import NewTaskForm from './NewTaskForm';
 import TaskDetails from './TaskDetails';
 import NewProject from './NewProject';
 import { Link, Outlet } from 'react-router-dom';
+import { useShowTaskDetails } from './ShowTaskDetailsContext';
 
 
 
@@ -34,16 +35,17 @@ const ProjectTasks = () => {
   const [showDateRangeDropdown, setShowDateRangeDropdown] = useState(false);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [showTaskDetails, setShowTaskDetails] = useState(null);
+  // const [showTaskDetails, setShowTaskDetails] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [editProject, setEditProject] = useState(null)
   const [editProjectMembers, setEditProjectMembers] = useState(null)
   const [chatMessages, setChatMessages] = useState([]);
-const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState('');
+  const { showTaskDetails, setShowTaskDetails } = useShowTaskDetails();
 
 
-  console.log("projdetailsssssssssssssssss",project)
+  console.log("projdetailsssssssssssssssss", project)
 
   // const handleTaskClick = (taskId) => {
   //   const taskDetails = tasks.find(task => task.id === taskId);
@@ -51,7 +53,7 @@ const [newMessage, setNewMessage] = useState('');
   // };
 
 
-//console.log("iiiiiiiiiiiiii",projectMembers)
+  //console.log("iiiiiiiiiiiiii",projectMembers)
 
   useEffect(() => {
     const fetchProjectMembers = async () => {
@@ -70,18 +72,18 @@ const [newMessage, setNewMessage] = useState('');
     };
     console.log(`projmem ${projectMembers.class}`)
     fetchProjectMembers();
-  }, [id, cookies.jwt , isEditMode]);
+  }, [id, cookies.jwt, isEditMode]);
 
   useEffect(() => {
     if (selectedTab === 'team_wall') {
       axios.get(`http://localhost:3000/projects/${id}/chat_messages`, {
         headers: { Authorization: `${cookies.jwt}` },
       })
-      .then(response => setChatMessages(response.data))
-      .catch(error => console.error('Error fetching chat messages:', error));
+        .then(response => setChatMessages(response.data))
+        .catch(error => console.error('Error fetching chat messages:', error));
     }
   }, [selectedTab, id, cookies.jwt]);
-  
+
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -126,7 +128,7 @@ const [newMessage, setNewMessage] = useState('');
       setLoading(false);
     }
   };
-  
+
 
 
   useEffect(() => {
@@ -276,17 +278,17 @@ const [newMessage, setNewMessage] = useState('');
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
-  
-    axios.post(`http://localhost:3000/projects/${id}/chat_messages`, 
+
+    axios.post(`http://localhost:3000/projects/${id}/chat_messages`,
       { content: newMessage },
       { headers: { Authorization: `${cookies.jwt}` } }
     )
-    .then(response => setChatMessages([...chatMessages, response.data]))
-    .catch(error => console.error('Error sending message:', error));
-  
+      .then(response => setChatMessages([...chatMessages, response.data]))
+      .catch(error => console.error('Error sending message:', error));
+
     setNewMessage('');
   };
-  
+
 
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev)
@@ -295,14 +297,14 @@ const [newMessage, setNewMessage] = useState('');
   const handleEditProject = () => {
     setIsEditMode(true)
     setSelectedTab("editProject")
-    
+
 
   }
   const handleEditedProject = (updatedProject) => {
     setProject(updatedProject)
     setIsEditMode(false)
     setSelectedTab("tasks")
-    
+
   }
 
   const handleTaskClick = (task) => {
@@ -310,15 +312,16 @@ const [newMessage, setNewMessage] = useState('');
     navigate(`/projects/${id}/tasks/${task.id}`);
   }
 
-  const handleDeleteProject = async() => {
-    try{
+  const handleDeleteProject = async () => {
+    try {
       await axios.delete(`http://localhost:3000/projects/${id}`, {
-      headers: { Authorization: `${cookies.jwt}`}})
-    }catch(error){
+        headers: { Authorization: `${cookies.jwt}` }
+      })
+    } catch (error) {
       console.error("Error deleting Project:", error);
     }
     navigate('/')
-    
+
   }
 
   if (loading) {
@@ -329,49 +332,49 @@ const [newMessage, setNewMessage] = useState('');
     return (
       <NewProject
         projectData={project}
-        projectMembers = {projectMembers}
-        setIsEditMode = {setIsEditMode}
-        setSelectedTab = {setSelectedTab}
-        handleEditedProject = {handleEditedProject}
+        projectMembers={projectMembers}
+        setIsEditMode={setIsEditMode}
+        setSelectedTab={setSelectedTab}
+        handleEditedProject={handleEditedProject}
       />
     );
   }
 
   const contextValue = {
-    
+
     titleUpdate: handleTitleUpdate,
     setShowTaskDetails,
     fetchTasks,
-    task: showTaskDetails 
-  
+    task: showTaskDetails
+
   };
 
   return (
     <div>
-      
+
 
 
       <div className="rounded-lg p-6 bg-gray-50 ">
         <div className='flex justify-between '>
-        <h2 className="text-xl font-semibold text-gray-800 ml-24">{project?.title || 'Project Title'}</h2>
-        <div className="relative pl-160">
-                    <button onClick={toggleDropdown} className="bg-gray-200 p-2 rounded ">
-                        More Options
-                    </button>
-                    {showDropdown && (
-                        <div className="absolute bg-white shadow-md rounded border mt-2 z-10">
-                            <button onClick={handleEditProject} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-                                Edit
-                            </button>
-                            <button onClick={handleDeleteProject} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-                                Delete
-                            </button>
-                        </div>
-                    )}
-                </div>
+          <h2 className="text-xl font-semibold text-gray-800 ml-24">{project?.title || 'Project Title'}</h2>
+          <div className="relative pl-160">
+            <button onClick={toggleDropdown} className="bg-gray-200 p-2 rounded ">
+              More Options
+            </button>
+            {showDropdown && (
+              <div className="absolute bg-white shadow-md rounded border mt-2 z-10">
+                <button onClick={handleEditProject} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                  Edit
+                </button>
+                <button onClick={handleDeleteProject} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
 
         </div>
-        
+
         <p className="text-gray-600 mt-2 ml-24">{project?.description || 'Project Description'}</p>
       </div>
 
@@ -484,7 +487,7 @@ const [newMessage, setNewMessage] = useState('');
                 />
               ) : showTaskDetails ? (
                 // <TaskDetails task={showTaskDetails} projectId={id} titleUpdate={handleTitleUpdate} setShowTaskDetails={setShowTaskDetails} fetchTasks={fetchTasks} />
-                <Outlet context={[showTaskDetails,id,handleTitleUpdate,setShowTaskDetails,fetchTasks]}/>
+                <Outlet context={[showTaskDetails, id, handleTitleUpdate, setShowTaskDetails, fetchTasks]} />
               ) : filteredTasks.length === 0 ? (
                 <div className="text-center bg-gray-50 w-[1000px] h-[300px] mx-auto p-4 border-2 border-gray-40">
                   <p className="font-semibold">No tasks found!</p>
@@ -585,7 +588,7 @@ const [newMessage, setNewMessage] = useState('');
                   </div>
 
                   <ul className="space-y-4 mt-0">
-                  
+
                     <div className=" bg-gray-50 w-[1000px] mx-auto ">
                       {filteredTasks.map((task) => (
                         <li key={task.id} className="p-4 bg-white border-2 border-gray-40">
@@ -631,7 +634,7 @@ const [newMessage, setNewMessage] = useState('');
                         </li>
                       ))}
                     </div>
-                    
+
                   </ul>
                 </>
               )}
@@ -649,37 +652,37 @@ const [newMessage, setNewMessage] = useState('');
         //   </div>
         // </div>
         <div  >
-        <div className="space-y-4 bg-white p-4 ">
-  <div className="h-80 border rounded p-2 overflow-y-scroll">
-    {chatMessages.map((message) => (
-      <div key={message.id} className="mb-2">
-        <strong>{message.user.name}:</strong>
-        <span className="ml-2">{message.content}</span>
-      </div>
-    ))}
-    <div ref={messagesEndRef} />
-  </div>
-  <div className="mt-2 flex ">
-    <input
-      type="text"
-      className="flex-grow border rounded p-2"
-      placeholder="Type your message..."
-      value={newMessage}
-      onChange={(e) => setNewMessage(e.target.value)}
-    />
-    <button
-      onClick={handleSendMessage}
-      className="ml-2 bg-blue-500 text-white px-4 py-2 rounded "
-    >
-      Send
-    </button>
-  </div>
-</div>
-</div>
+          <div className="space-y-4 bg-white p-4 ">
+            <div className="h-80 border rounded p-2 overflow-y-scroll">
+              {chatMessages.map((message) => (
+                <div key={message.id} className="mb-2">
+                  <strong>{message.user.name}:</strong>
+                  <span className="ml-2">{message.content}</span>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+            <div className="mt-2 flex ">
+              <input
+                type="text"
+                className="flex-grow border rounded p-2"
+                placeholder="Type your message..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+              />
+              <button
+                onClick={handleSendMessage}
+                className="ml-2 bg-blue-500 text-white px-4 py-2 rounded "
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
 
       )}
     </div>
-    
+
   );
 };
 

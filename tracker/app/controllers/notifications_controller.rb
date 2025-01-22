@@ -3,6 +3,9 @@ class NotificationsController < ApplicationController
 
     def create
         @notification = Notification.new(notification_params)
+        if params[:task_id].present?
+          @notification.task = Task.find(params[:task_id])
+        end
         if @notification.save
           render json: @notification, status: :created
         else
@@ -30,7 +33,7 @@ class NotificationsController < ApplicationController
     private
 
     def notification_params
-        params.require(:notification).permit(:user_id, :message, :read, :link)
+        params.require(:notification).permit(:user_id, :message, :read, :link, :task_id)
     end
 end
   

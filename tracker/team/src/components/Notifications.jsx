@@ -2,11 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { useNotifications } from './NotificationContext';
+import { useShowTaskDetails } from './ShowTaskDetailsContext';
+import { useNavigate } from 'react-router-dom';
+
 
 const Notifications = () => {
  // const [notifications, setNotifications] = useState([]);
   const [cookies] = useCookies(['jwt']); 
   const { notifications, setNotifications } = useNotifications();
+  const { setShowTaskDetails } = useShowTaskDetails();
+  const navigate = useNavigate()
 
   // useEffect(() => {
   //   const fetchNotifications = async() => {
@@ -47,6 +52,32 @@ const Notifications = () => {
     }catch(error){
       console.error('There was an error marking the notification as read!', error);
     }
+  }
+
+  const handleClick = async(notification) => {
+    if (notification.task_id) {
+      // Fetch task details by ID or pass notification.task if it's preloaded
+      try{
+        
+        const response = await axios .get(`http://localhost:3000/${notification.link}`,{
+          headers: {
+            Authorization: `${cookies.jwt}`
+          }
+        })
+        console.log("hello al")
+        console.log(JSON.stringify(response.data))
+        console.log("bye al")
+        setShowTaskDetails(response.data);
+      }catch(error){
+        console.log(error)
+      }
+      
+      console.log(JSON.stringify(notification))
+      
+      
+      
+    }
+    navigate(notification.link);
   }
 
   const markAsRead = async(id) => {
@@ -93,8 +124,8 @@ const Notifications = () => {
       {notifications.map((notification) => (
         <li key={notification.id} className="bg-gray-100 p-4 rounded-lg shadow-sm hover:bg-gray-50 transition duration-200">
             <div className='flex justify-between items-center'>
-            <a href={notification.link}>
-      <p>{notification.message}</p>
+            <a onClick={() => handleClick(notification)}>
+      <p className='cursor-pointer'>{notification.message}</p>
     </a>
             <button onClick={() => handleDelete(notification.id)}>X</button>
             </div>
