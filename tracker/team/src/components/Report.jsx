@@ -3,6 +3,7 @@ import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { useNavigate } from 'react-router-dom';
 
 const Report = () => {
   const [cookies] = useCookies(['jwt']);
@@ -12,11 +13,12 @@ const Report = () => {
   const [expandedProject, setExpandedProject] = useState(null);
   const [searchQuery, setSearchQuery] = useState(''); 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;  // Set the number of projects per page
+  const navigate = useNavigate()
+  const itemsPerPage = 6;  
 
 
   const getStatusCount = (project, status) =>
-    tasks.filter((task) => task.project_title === project && task.state === status).length;
+    tasks.filter((task) => task.project_title === project.title && task.state === status).length;
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -40,7 +42,11 @@ const Report = () => {
         if (!acc.some((p) => p.id === project.id)) acc.push(project);
         return acc;
       }, []);
-      setProjects(uniqueProjects.map((project) => project.title));
+      console.log("kou")
+      console.log(uniqueProjects)
+      console.log("salya")
+      // setProjects(uniqueProjects.map((project) => project.title));
+      setProjects(uniqueProjects);
     }).catch((error) => console.error('Error fetching projects:', error));
   }, [cookies.jwt]);
 
@@ -58,7 +64,7 @@ const Report = () => {
   }, [cookies.jwt]);
 
   const generatePDF = (project) => {
-    const projectTasks = tasks.filter((task) => task.project_title === project);
+    const projectTasks = tasks.filter((task) => task.project_title === project.title);
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text(`${project} - Task Report`, 10, 10);
@@ -78,8 +84,12 @@ const Report = () => {
   };
 
   const filteredProjects = projects.filter((project) =>
-    project.toLowerCase().includes(searchQuery.toLowerCase())
+    project.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleProjectClick = (project) => {
+    navigate(`/projects/${project.id}/tasks`)
+  }
 
 
   const handlePageChange = (pageNumber) => {
@@ -108,16 +118,16 @@ const Report = () => {
           </div>
           {currentProjects.length > 0 ? (
         currentProjects.map((project) => (
-          <div key={project} className="border-b pb-4">
+          <div key={project.id} className="border-b pb-4">
             <h2
               className="text-xl font-semibold cursor-pointer hover:text-blue-600"
               onClick={() => toggleProject(project)}
             >
-              {project}
+              {project.title}
             </h2>
             {expandedProject === project && (
-              <div className="ml-4 mt-2">
-                <p>Total Tasks: {tasks.filter((task) => task.project_title === project).length}</p>
+              <div className="ml-4 mt-2" onClick={()=> handleProjectClick(project)}>
+                <p>Total Tasks: {tasks.filter((task) => task.project_title === project.title).length}</p>
                 <p className="text-green-600">Resolved: {getStatusCount(project, 'resolved')}</p>
                 <p className="text-yellow-500">Opened: {getStatusCount(project, 'opened')}</p>
                 <p className="text-gray-600">Closed: {getStatusCount(project, 'closed')}</p>
