@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { useShowTaskDetails } from './ShowTaskDetailsContext';
+import { useNavigate } from 'react-router-dom';
 
 const AllTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -15,6 +17,8 @@ const AllTasks = () => {
   const [showDateRangeDropdown, setShowDateRangeDropdown] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;  // Set the number of projects per page
+    const { setShowTaskDetails } = useShowTaskDetails();
+      const navigate = useNavigate()
     
   
 
@@ -125,6 +129,11 @@ const AllTasks = () => {
     setShowDateRangeDropdown(false);
     setFilter('date_range');
   };
+
+  const handleTitleClick = (task) => {
+ setShowTaskDetails(task);
+ navigate(`/projects/${task.project_id}/tasks/${task.id}`)
+  }
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -263,10 +272,11 @@ const AllTasks = () => {
             currentTasks.map((task) => (
               <div
                 key={task.id}
-                className="bg-white shadow-sm rounded-lg p-4 mb-4 hover:shadow-md transition-all"
+                className="bg-white shadow-sm rounded-lg p-4 mb-4 hover:shadow-md transition-all cursor-pointer"
+                onClick={()=> handleTitleClick(task)}
               >
                 <div className="flex justify-between mb-2">
-                  <h3 className="text-lg font-semibold text-gray-800">{task.title}</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 " >{task.title}</h3>
                   <span
                     className={`text-sm rounded-md px-3 py-1 ${task.state === 'opened' ? 'bg-yellow-300' : task.state === 'resolved' ? 'bg-green-300' : 'bg-gray-300'}`}
                   >
