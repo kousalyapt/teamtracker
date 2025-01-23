@@ -71,8 +71,30 @@ const Activities = () =>  {
     navigate(activity.link);
   }
 
+  const handleClearButton = async() => {
+    try{
+      await axios.delete(`http://localhost:3000/activities/delete_all`,
+      
+    {
+      headers: {
+        Authorization: `${cookies.jwt}`
+      }
+    })
+    setActivities([])
+    }catch(error){
+      console.log(error)
+    }
+  }
+
   return (
     <div>
+      <div className='flex'>
+      <div className="text-lg font-bold text-gray-800 mb-2">Activities</div>
+      {activities.length > 0 &&
+      <button className='mb-2 ml-64 cursor:pointer' onClick={()=> handleClearButton()}>Clear all</button>
+      }
+      
+      </div>
         {activities.length === 0 ? (
         <p>No recent activities</p>
       ) : (

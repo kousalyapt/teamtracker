@@ -86,7 +86,7 @@ const Projects = () => {
     <div className="flex flex-col lg:flex-row">
       <div className="hidden lg:block lg:w-1/2 px-4">
         <div>
-          <div className="text-lg font-bold text-gray-800 mb-2">Activities</div>
+          
           <Activities/>
         </div>
       </div>

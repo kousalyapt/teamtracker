@@ -47,7 +47,8 @@ Rails.application.routes.draw do
     end
   end
   patch '/notifications/mark_all_as_read', to: 'notifications#mark_all_as_read'
-  
+
+  delete '/activities/delete_all', to: 'activities#delete_all'
   resources :activities, only: [:index, :destroy]
 
   
