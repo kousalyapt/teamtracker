@@ -32,6 +32,11 @@ class ActivitiesController < ApplicationController
         @activity.destroy
         head :no_content
     end
+
+    def delete_all
+        current_user.activities.destroy_all
+        head :no_content
+    end
   
     private
   
