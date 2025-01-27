@@ -23,6 +23,7 @@ class ActivitiesController < ApplicationController
     end
 
     def index
+        current_user.activities.where("created_at < ?", 2.days.ago).destroy_all
         @activities = current_user.activities.order(created_at: :desc)
         render json: @activities
     end

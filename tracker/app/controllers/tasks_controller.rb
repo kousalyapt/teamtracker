@@ -361,7 +361,6 @@ creator = User.find(@project.user_id)
                   "#{user.name} deleted the task '#{task.title}' in Project '#{project.title}'"
                 end
     
-      # Create the activity for each project member
       project_members.each do |member|
         Activity.create(
           user: member,
