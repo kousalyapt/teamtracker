@@ -28,6 +28,13 @@ Rails.application.routes.draw do
   resources :projects do
     resources :chat_messages, only: [:index, :create]
   end
+
+  resources :projects do
+    post 'invite_members', on: :member
+    
+  end
+
+  
   
 
   resources :tasks do

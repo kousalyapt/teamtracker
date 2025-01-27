@@ -12,6 +12,34 @@ Rails.application.configure do
   # Show full error reports.
   config.consider_all_requests_local = true
 
+
+#   config.action_mailer.delivery_method = :smtp
+
+# config.action_mailer.smtp_settings = {
+#   address: 'smtp.gmail.com',
+#   port: 587,
+#   domain: 'gmail.com',
+#   user_name: 'kousalyagowtham3@gmail.com',
+#   password: 'cxvc aykb qttk aikk',
+#   authentication: 'plain',
+#   enable_starttls_auto: true
+# }
+
+config.action_mailer.delivery_method = :smtp
+config.action_mailer.smtp_settings = {
+  user_name: 'apikey', # This is a fixed value for SendGrid
+  password: ENV['SENDGRID_API_KEY'], # Store your API key in an environment variable
+  domain: 'localhost', # Replace with your domain in production
+  address: 'smtp.sendgrid.net',
+  port: 587,
+  authentication: :plain,
+  enable_starttls_auto: true
+}
+
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+
+
+
   # Enable server timing.
   config.server_timing = true
 

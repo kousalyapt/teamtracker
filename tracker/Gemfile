@@ -51,3 +51,6 @@ gem 'rack-cors'
 gem 'pg'
 gem "devise", "~> 4.9"
 gem 'devise-jwt'
+gem 'sendgrid-ruby'
+gem 'dotenv-rails'
+

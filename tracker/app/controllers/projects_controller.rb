@@ -36,6 +36,37 @@ class ProjectsController < ApplicationController
         render json: @project.errors, status: :unprocessable_entity
       end
     end
+
+    def invite_members
+      emails = params[:emails]
+      project = Project.find(params[:id])
+      invite_link = "http://localhost:3000/projects/#{project.id}/accept_invite"
+    
+      emails.each do |email|
+        InvitationMailer.invite_member(email, project.title, invite_link).deliver_now
+      end
+    
+      render json: { message: 'Invites sent successfully' }, status: :ok
+    rescue StandardError => e
+      render json: { error: e.message }, status: :unprocessable_entity
+    end
+
+    # def invite_members
+    #   recipient_email = params[:email]
+    #   subject = "You're Invited!"
+    #   content = "Hello! You've been invited to join our platform."
+  
+    #   response = InvitationMailer.new.invite_member(recipient_email, subject, content)
+  
+    #   if response.status_code == "202" # Status 202 means email sent successfully
+    #     flash[:notice] = "Email sent successfully!"
+    #   else
+    #     flash[:alert] = "Failed to send email. Please try again."
+    #   end
+  
+    #   redirect_to root_path
+    # end
+    
   
     def index
       @user = current_user # Get the current user

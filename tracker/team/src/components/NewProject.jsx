@@ -16,6 +16,7 @@ const { setShowTaskDetails } = useShowTaskDetails();
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [inviteEmails, setInviteEmails] = useState([]);
 console.log("gggggggggggggg",projectData)
 console.log("hhhhhhhhhh",projectMembers)
 console.log("mmmmmmmmmmm",handleEditedProject)
@@ -60,14 +61,18 @@ console.log("mmmmmmmmmmm",handleEditedProject)
 
   const handleMemberSelect = (email) => {
     if (!members.includes(email)) {
-      setMembers([...members, email]); // Add the selected member to the list
+      setMembers([...members, email]); 
     }
     setMemberInput('');
     setIsDropdownVisible(false);
   };
 
   const removeMember = (email) => {
-    setMembers(members.filter(member => member !== email)); // Remove the selected member
+    setMembers(members.filter(member => member !== email)); 
+  };
+
+  const handleInviteEmailChange = (e) => {
+    setInviteEmails(e.target.value.split(',').map(email => email.trim()));
   };
 
   const handleCancelButton = () => {
@@ -93,7 +98,7 @@ console.log("mmmmmmmmmmm",handleEditedProject)
       project: {
         title,
         description,
-        member_emails: members, // Use the members array directly
+        member_emails: members, 
       },
     };
     console.log("xxxxxxxxxxxxx",newProjectData)
@@ -105,7 +110,7 @@ console.log("mmmmmmmmmmm",handleEditedProject)
           Authorization: `${cookies.jwt}`,
         },
       })
-      // navigate(`/projects/${response.data.id}/tasks`)
+      
       :await axios.post('/projects', newProjectData, {
         headers: {
           Authorization: `${cookies.jwt}`,
@@ -126,6 +131,39 @@ console.log("mmmmmmmmmmm",handleEditedProject)
       setError('Error creating project. Please try again.');
     }
   };
+
+  
+  const sendInvites = async () => {
+    if (inviteEmails.length === 0) {
+      alert('Please enter at least one email.');
+      return;
+    }
+
+    const invalidEmails = inviteEmails.filter(email => !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email));
+  if (invalidEmails.length > 0) {
+    alert(`Invalid email(s): ${invalidEmails.join(', ')}`);
+    return;
+  }
+
+  
+    try {
+      await axios.post(
+        `/projects/${projectData.id}/invite_members`,
+        { emails: inviteEmails },
+        {
+          headers: {
+            Authorization: `${cookies.jwt}`,
+          },
+        }
+      );
+      alert('Invites sent successfully.');
+      setInviteEmails([]); 
+    } catch (error) {
+      console.error('Error sending invites:', error);
+      alert('Failed to send invites. Please try again.');
+    }
+  };
+  
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -213,6 +251,36 @@ console.log("mmmmmmmmmmm",handleEditedProject)
               </ul>
             </div>
           )}
+          {/* <div>
+            <span className='text-gray-700 font-medium'>Not a registered user? </span>
+            <button>Invite members</button>
+           
+          </div> */}
+
+<div className="mb-4">
+  <label htmlFor="inviteEmails" className="block text-gray-700 font-medium mb-2">
+    Invite Members
+  </label>
+  
+  <input
+    type="text"
+    id="inviteEmails"
+    placeholder="Enter emails separated by commas"
+    value={inviteEmails.join(',')}
+    onChange={handleInviteEmailChange}
+    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+  />
+  <button
+  type="button"
+  onClick={sendInvites}
+  className="bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600"
+>
+  Send Invites
+</button>
+
+
+</div>
+
 
           <div className="flex justify-end space-x-4">
             <button

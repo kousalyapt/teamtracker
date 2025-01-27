@@ -102,6 +102,9 @@ GEM
       devise (~> 4.0)
       warden-jwt_auth (~> 0.10)
     dotenv (3.1.4)
+    dotenv-rails (3.1.4)
+      dotenv (= 3.1.4)
+      railties (>= 6.1)
     drb (2.2.1)
     dry-auto_inject (1.0.1)
       dry-core (~> 1.0)
@@ -273,7 +276,10 @@ GEM
       rubocop-performance
       rubocop-rails
     ruby-progressbar (1.13.0)
+    ruby_http_client (3.5.5)
     securerandom (0.3.2)
+    sendgrid-ruby (6.7.0)
+      ruby_http_client (~> 3.4)
     solid_cable (3.0.2)
       actioncable (>= 7.2)
       activejob (>= 7.2)
@@ -353,12 +359,14 @@ DEPENDENCIES
   debug
   devise (~> 4.9)
   devise-jwt
+  dotenv-rails
   kamal
   pg
   puma (>= 5.0)
   rack-cors
   rails (~> 8.0.0)
   rubocop-rails-omakase
+  sendgrid-ruby
   solid_cable
   solid_cache
   solid_queue
