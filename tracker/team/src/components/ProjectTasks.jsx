@@ -623,7 +623,6 @@ const ProjectTasks = () => {
                       Clear Filters</button>
           </div>
 <div className="bg-gray-100 w-[1000px] mx-auto border-2 mb-0 flex justify-between items-center p-4 rounded-lg shadow-md">
-
   <div className="flex space-x-4">
     <button
       className="text-gray-800 hover:bg-gray-200 px-4 py-2"
