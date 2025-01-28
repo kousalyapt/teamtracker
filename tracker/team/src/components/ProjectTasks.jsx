@@ -45,6 +45,8 @@ const ProjectTasks = () => {
   const [newMessage, setNewMessage] = useState('');
   const { showTaskDetails, setShowTaskDetails } = useShowTaskDetails();
   const [selectedAssignee, setSelectedAssignee] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [inviteEmails, setInviteEmails] = useState([]);
 
 
   console.log("projdetailsssssssssssssssss", project)
@@ -178,62 +180,7 @@ const ProjectTasks = () => {
     console.log('Tasks:', tasks);
   }, [tasks]);
 
-  // useEffect(() => {
-  //   let filtered = []
-  //   filtered = tasks.filter((task) => {
-  //     const dueDate = new Date(task.due_date);
-
-  //     const today = new Date();
-
-  //     const isToday = dueDate.toDateString() === today.toDateString();
-
-  //     const userId = cookies.userId;
-
-
-  //     if (filter.startsWith('label_')) {
-  //       const labelId = parseInt(filter.split('_')[1], 10);
-  //       return task.labels.some((label) => label.id === labelId);
-  //     }
-
-  //     if (filter.startsWith('assignee_')) {
-  //       const assigneeId = parseInt(filter.split('_')[1], 10);
-  //       return task.assigned_to_id === assigneeId;
-  //     }
-  //     if (filter == 'date_range') {
-  //       console.log(`datarange ${task}`)
-
-  //       const dueDate = new Date(task.due_date);
-  //       return dueDate >= new Date(fromDate) && dueDate <= new Date(toDate);
-
-  //     }
-
-  //     if (filter === 'opened') {
-  //       return task.state === 'opened';
-  //     }
-
-  //     if (filter === 'resolved') {
-  //       return task.state === 'resolved';
-  //     }
-
-  //     if (filter === 'closed') {
-  //       return task.state === 'closed';
-  //     }
-
-  //     if (filter === 'all') {
-  //       return true;
-  //     }
-  //     if (filter === 'assigned_for_you') {
-  //       return task.assigned_to_id === userId;
-  //     }
-  //     if (filter === 'your_tasks_for_today') {
-  //       return task.assigned_to_id === userId && isToday;
-  //     }
-  //     return task;
-  //   });
-
-  //   setFilteredTasks(filtered);
-  // }, [filter, tasks, fromDate, toDate, cookies.userId]);
-
+  
 
   useEffect(() => {
       let filtered = tasks;
@@ -395,7 +342,7 @@ const ProjectTasks = () => {
     setActiveFilters([]);
     setFromDate('');
     setToDate('');
-    setFilteredTasks(tasks); // Reset to all tasks
+    setFilteredTasks(tasks); 
   };
 
   const handleApplyDateFilter = () => {
@@ -427,6 +374,44 @@ const ProjectTasks = () => {
     setFilter('assigned_for_you');
     setShowFilterDropdown(false);
   }
+
+  const togglePopup = () => setIsOpen(!isOpen);
+
+  const handleInviteEmailChange = (e) => {
+    setInviteEmails(e.target.value.split(',').map(email => email.trim()));
+  };
+
+  const sendInvites = async () => {
+    if (inviteEmails.length === 0) {
+      alert('Please enter at least one email.');
+      return;
+    }
+
+    const invalidEmails = inviteEmails.filter(email => !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email));
+  if (invalidEmails.length > 0) {
+    alert(`Invalid email(s): ${invalidEmails.join(', ')}`);
+    return;
+  }
+
+  
+    try {
+      await axios.post(
+        `/projects/${id}/invite_members`,
+        { emails: inviteEmails },
+        {
+          headers: {
+            Authorization: `${cookies.jwt}`,
+          },
+        }
+      );
+      alert('Invites sent successfully.');
+      setInviteEmails([]); 
+    } catch (error) {
+      console.error('Error sending invites:', error);
+      alert('Failed to send invites. Please try again.');
+    }
+  };
+  
 
 
   if (loading) {
@@ -462,7 +447,50 @@ const ProjectTasks = () => {
       <div className="rounded-lg p-6 bg-gray-50 ">
         <div className='flex justify-between '>
           <h2 className="text-xl font-semibold text-gray-800 ml-24">{project?.title || 'Project Title'}</h2>
+          
           <div className="relative pl-160">
+          <button className='font-medium mr-4' onClick={togglePopup}>Invite people</button>
+          {isOpen && (
+  <>
+    
+    <div className="fixed inset-0 bg-black opacity-50 z-10" ></div>
+    
+
+    
+    <div className="fixed inset-0 flex justify-center items-center z-20">
+      
+      <div className="bg-white  rounded-lg shadow-lg max-w-md w-full">
+      <h1 className='text-right cursor-pointer' onClick={togglePopup}>❎</h1>
+      <div className='p-6'>
+      
+        <div className="mb-4">
+          
+          <label htmlFor="inviteEmails" className="block text-gray-700 font-medium mb-2">
+            Invite Members
+          </label>
+          
+          <input
+            type="text"
+            id="inviteEmails"
+            placeholder="Enter emails separated by commas"
+            value={inviteEmails.join(',')}
+            onChange={handleInviteEmailChange}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+          />
+          <button
+            type="button"
+            onClick={sendInvites}
+            className="bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600 mt-4"
+          >
+            Send Invites
+          </button>
+        </div>
+        </div>
+      </div>
+    </div>
+  </>
+)}
+
             <button onClick={toggleDropdown} className="bg-gray-200 p-2 rounded ">
               More Options
             </button>
@@ -499,16 +527,6 @@ const ProjectTasks = () => {
         </button>
       </div>
 
-      {/* {selectedTab === 'editProject' && (
-  <NewProject
-    projectData={project} 
-    onSubmitSuccess={() => {
-      setIsEditMode(false);
-      setSelectedTab('tasks');  // Return to tasks view after successful edit
-    }} 
-  />
-)} */}
-
       {selectedTab === 'tasks' && (
 
         <div className="space-y-4 bg-white p-4">
@@ -518,40 +536,7 @@ const ProjectTasks = () => {
               <>
                 <div className="flex justify-between">
                   <div className="relative">
-                    {/* <button
-                      className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 border-2 rounded-md ml-32"
-                      onClick={toggleFilterDropdown}
-                    >
-                      Filter
-                    </button> */}
-                    {/* <button 
-                    // onClick={() => setFilter('all')}
-                    onClick={handleClearFilters}
-                    >
-                      Clear Filters</button> */}
-
-                    {/* {showFilterDropdown && (
-                      <div className="absolute right-0 w-48 mt-2 bg-white border-2 rounded-md shadow-lg">
-                        <button
-                          className="w-full px-4 py-2 text-left"
-                          onClick={() => { setFilter('assigned_for_you'); setShowFilterDropdown(false); }}
-                        >
-                          Everything assigned for you
-                        </button>
-                        <button
-                          className="w-full px-4 py-2 text-left"
-                          onClick={() => { setFilter('your_tasks_for_today'); setShowFilterDropdown(false); }}
-                        >
-                          Your tasks for today
-                        </button>
-                        <button
-                          className="w-full px-4 py-2 text-left"
-                          onClick={() => { setFilter('all'); setShowFilterDropdown(false); }}
-                        >
-                          Show all tasks
-                        </button>
-                      </div>
-                    )} */}
+                   
                   </div>
 
                 </div>
@@ -598,136 +583,10 @@ const ProjectTasks = () => {
                 // <TaskDetails task={showTaskDetails} projectId={id} titleUpdate={handleTitleUpdate} setShowTaskDetails={setShowTaskDetails} fetchTasks={fetchTasks} />
                 <Outlet context={[showTaskDetails, id, handleTitleUpdate, setShowTaskDetails, fetchTasks]} />
               ) :
-              //  filteredTasks.length === 0 ? (
-              //   <div className="text-center bg-gray-50 w-[1000px] h-[300px] mx-auto p-4 border-2 border-gray-40">
-              //     <p className="font-semibold">No tasks found!</p>
-              //     <p>Try adjusting your filters or create a new task.</p>
-              //   </div>
-              // ) : 
+              
               (
                 <>
-                  {/* <div className="bg-gray-100 w-[1000px] mx-auto border-2 mb-0 flex justify-between items-center p-2">
-
-                    <div className="flex space-x-4">
-                      <button
-                        className=" text-gray px-4 py-1 rounded-md"
-                        onClick={() => setFilter('opened')}>Opened({getStatusCount('opened')})</button>
-                      <button
-                        className="text-gray px-4 py-1 rounded-md"
-                        onClick={() => setFilter('resolved')}>Resolved({getStatusCount('resolved')})</button>
-                      <button
-                        className="text-gray px-4 py-1 rounded-md"
-                        onClick={() => setFilter('closed')}>Closed({getStatusCount('closed')})</button>
-                    </div>
-
-
-                    <div className="flex space-x-4">
-                      <div className="flex justify-between">
-                        <button
-                          className=" hover:bg-gray-200 text-black px-4 py-2 "
-                          onClick={toggleDateRangeDropdown}
-                        >
-                          Filter by Date
-                        </button>
-
-                        {showDateRangeDropdown && (
-                          <div className="absolute mt-2 bg-white border-2 rounded-md shadow-lg z-10">
-                            <div className="p-4">
-                              <label htmlFor="fromDate">From:</label>
-                              <input
-                                type="date"
-                                id="fromDate"
-                                value={fromDate}
-                                onChange={(e) => setFromDate(e.target.value)}
-                                className="border px-2 py-1 rounded-md"
-                              />
-                              <label htmlFor="toDate" className="ml-4">To:</label>
-                              <input
-                                type="date"
-                                id="toDate"
-                                value={toDate}
-                                onChange={(e) => setToDate(e.target.value)}
-                                className="border px-2 py-1 rounded-md"
-                              />
-                              <button
-                                onClick={handleApplyDateFilter}
-                                className="bg-green-500 text-white px-4 py-2 mt-2 rounded-md"
-                              >
-                                Apply
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      <div className="relative">
-                        <button
-                          className="text-gray-800 px-4 py-1 rounded-md"
-                          onClick={toggleLabelDropdown}
-                        >
-                          Label
-                        </button>
-                        {showLabelDropdown && (
-                          <div className="absolute right-0 w-48 mt-2 bg-white border-2 rounded-md shadow-lg z-10">
-                            {availableLabels.map((label) => (
-                              <button
-                                key={label.id}
-                                className="w-full px-4 py-2 text-left text-gray-800 hover:bg-gray-100"
-                                onClick={() => handleLabelFilter(label)}
-                              >
-                                {label.name}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="assignee-filter">
-                        
-                        <select
-                          id="assignee"
-                          onChange={(e) => setFilter(`assignee_${e.target.value}`)}
-                        >
-                          <option value="">Filter by Assignee:</option>
-                          {projectMembers.map(assignee => (
-                            <option key={assignee.id} value={assignee.id}>
-                              {assignee.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <button
-                        className="bg-gray-100 hover:bg-gray-200 text-black px-4 py-2 border-2 rounded-md ml-32"
-                        onClick={toggleFilterDropdown}
-                      >
-                        More Filter
-                      </button>
-
-
-                      {showFilterDropdown && (
-                        <div className="absolute right-0 w-48 mt-2 bg-white border-2 rounded-md shadow-lg">
-                          <button
-                            className="w-full px-4 py-2 text-left"
-                            onClick={() => { setFilter('assigned_for_you'); setShowFilterDropdown(false); }}
-                          >
-                            Everything assigned for you
-                          </button>
-                          <button
-                            className="w-full px-4 py-2 text-left"
-                            onClick={() => { setFilter('your_tasks_for_today'); setShowFilterDropdown(false); }}
-                          >
-                            Your tasks for today
-                          </button>
-                          <button
-                            className="w-full px-4 py-2 text-left"
-                            onClick={() => { setFilter('all'); setShowFilterDropdown(false); }}
-                          >
-                            Show all tasks
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                  </div>*/}
+                 
 
 <div className="flex flex-wrap items-center gap-2 mb-4 ml-32">
             {activeFilters.map((filter, index) => (
@@ -764,7 +623,7 @@ const ProjectTasks = () => {
                       Clear Filters</button>
           </div>
 <div className="bg-gray-100 w-[1000px] mx-auto border-2 mb-0 flex justify-between items-center p-4 rounded-lg shadow-md">
-  {/* Filter Buttons */}
+
   <div className="flex space-x-4">
     <button
       className="text-gray-800 hover:bg-gray-200 px-4 py-2"
@@ -789,9 +648,9 @@ const ProjectTasks = () => {
     </button>
   </div>
 
-  {/* Additional Filters */}
+ 
   <div className="flex items-center relative">
-    {/* Date Filter */}
+    
     <div >
       <button
         className="hover:bg-gray-200 text-black px-4 py-2 "
@@ -799,32 +658,7 @@ const ProjectTasks = () => {
       >
         Filter by Date
       </button>
-      {/* {showDateRangeDropdown && (
-        <div className="absolute mt-2 bg-white border rounded-md shadow-lg z-10 p-4">
-          <label htmlFor="fromDate" className="block mb-2">From:</label>
-          <input
-            type="date"
-            id="fromDate"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="border px-2 py-1 rounded-md w-full"
-          />
-          <label htmlFor="toDate" className="block mt-4 mb-2">To:</label>
-          <input
-            type="date"
-            id="toDate"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="border px-2 py-1 rounded-md w-full"
-          />
-          <button
-            onClick={handleApplyDateFilter}
-            className="bg-green-500 text-white px-4 py-2 mt-4 rounded-md w-full"
-          >
-            Apply
-          </button>
-        </div>
-      )} */}
+     
       {showDateRangeDropdown && (
             <div className="absolute mt-2 bg-gray-50 border border-gray-300 rounded-lg shadow-md p-4 z-10">
               <div className="space-y-2">
@@ -869,19 +703,7 @@ const ProjectTasks = () => {
       >
         Label
       </button>
-      {/* {showLabelDropdown && (
-        <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-lg z-10 w-48">
-          {availableLabels.map((label) => (
-            <button
-              key={label.id}
-              className="block px-4 py-2 text-left text-gray-800 hover:bg-gray-100 w-full"
-              onClick={() => handleLabelFilter(label)}
-            >
-              {label.name}
-            </button>
-          ))}
-        </div>
-      )} */}
+    
       {showLabelDropdown && (
             <div className="absolute bg-white border rounded shadow-lg z-10">
               {availableLabels.map((label) => (
@@ -897,7 +719,7 @@ const ProjectTasks = () => {
           )}
     </div>
 
-    {/* Assignee Filter */}
+   
     <select
       id="assignee"
       // onChange={(e) => setFilter(`assignee_${e.target.value}`)}
@@ -913,7 +735,6 @@ const ProjectTasks = () => {
       ))}
     </select>
 
-    {/* More Filters Dropdown */}
     <div className="relative">
       <button
         className=" hover:bg-gray-200 text-black px-4 py-2 "
@@ -1023,7 +844,7 @@ const ProjectTasks = () => {
               )}
             </div>
           )}
-          {/* </TaskProvider> */}
+        
         </div>
       )}
 

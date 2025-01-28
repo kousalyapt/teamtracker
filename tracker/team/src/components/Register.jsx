@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { validateEmail, validatePassword } from '../utilities/validation'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { registerApi } from '../apis/register'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useCookies } from 'react-cookie'
 
 const initialErrorsState = {
@@ -12,8 +12,10 @@ const initialErrorsState = {
 }
 
 const Register = () => {
+    const { id } = useParams();
     const [cookies, setCookie] = useCookies(['jwt']);
     const navigate = useNavigate()
+    const location = useLocation();
 
     useEffect(() => {
 
@@ -27,6 +29,10 @@ const Register = () => {
     const [password, setPassword] = useState('')
     const [passconf, setPassconf] = useState('')
     const [errors, setErrors] = useState(initialErrorsState)
+    
+
+    
+    console.log("pppppppppppppids",id)
 
     const handleNameChange = (e) => {
         setName(e.target.value)
@@ -77,7 +83,8 @@ const Register = () => {
                 name: name,
                 email: email,
                 password: password,
-                password_confirmation: passconf
+                password_confirmation: passconf,
+                project_id: id || null 
             }
         })
         // console.log("result:",result)

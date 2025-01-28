@@ -5,6 +5,31 @@ class Users::RegistrationsController < Devise::RegistrationsController
   include RackSessionFix
   respond_to :json
 
+  def create
+    super do |user|
+      # If the project_id is present in the params, try to find the project and associate it with the user
+      if params[:user][:project_id].present?
+        project = Project.find_by(id: params[:user][:project_id])
+        if project
+          # Add the user to the project if the project exists
+          project.members << user unless project.members.include?(user)
+          # You can also create any necessary activity or notification here
+          Notification.create(
+            user_id: user.id,
+            message: "You have been added to the project: #{project.title}",
+            read: false
+          )
+        else
+          # Handle case when the project does not exist
+          
+          Rails.logger.error "Project with ID #{params[:user][:project_id]} not found."
+        end
+      end
+    end
+  end
+
+  
+
   def destroy
     current_user.destroy
     render json: { message: 'Account deleted successfully.' }, status: :ok
@@ -35,7 +60,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   protected
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :email, :password, :password_confirmation])
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :email, :password, :password_confirmation,  :project_id])
   #  devise_parameter_sanitizer.permit(:account_update, keys: [:name, :email, :password, :current_password,  :password_confirmation, :current_password])
   end
 end

@@ -99,6 +99,10 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />
+  },
+  {
+    path: "/projects/:id/accept_invite",
+    element: <Register/>
   }
 ]);
 

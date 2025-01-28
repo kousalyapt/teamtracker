@@ -11,4 +11,5 @@ class User < ApplicationRecord
   has_many :tasks, foreign_key: :assigned_to_id
   has_many :activities, dependent: :destroy
   has_many :notifications, dependent: :destroy
+  belongs_to :project, optional: true 
 end

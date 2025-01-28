@@ -16,7 +16,7 @@ const { setShowTaskDetails } = useShowTaskDetails();
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  const [inviteEmails, setInviteEmails] = useState([]);
+  // const [inviteEmails, setInviteEmails] = useState([]);
 console.log("gggggggggggggg",projectData)
 console.log("hhhhhhhhhh",projectMembers)
 console.log("mmmmmmmmmmm",handleEditedProject)
@@ -71,9 +71,9 @@ console.log("mmmmmmmmmmm",handleEditedProject)
     setMembers(members.filter(member => member !== email)); 
   };
 
-  const handleInviteEmailChange = (e) => {
-    setInviteEmails(e.target.value.split(',').map(email => email.trim()));
-  };
+  // const handleInviteEmailChange = (e) => {
+  //   setInviteEmails(e.target.value.split(',').map(email => email.trim()));
+  // };
 
   const handleCancelButton = () => {
     console.log("jjug",projectData)
@@ -133,36 +133,36 @@ console.log("mmmmmmmmmmm",handleEditedProject)
   };
 
   
-  const sendInvites = async () => {
-    if (inviteEmails.length === 0) {
-      alert('Please enter at least one email.');
-      return;
-    }
+  // const sendInvites = async () => {
+  //   if (inviteEmails.length === 0) {
+  //     alert('Please enter at least one email.');
+  //     return;
+  //   }
 
-    const invalidEmails = inviteEmails.filter(email => !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email));
-  if (invalidEmails.length > 0) {
-    alert(`Invalid email(s): ${invalidEmails.join(', ')}`);
-    return;
-  }
+  //   const invalidEmails = inviteEmails.filter(email => !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email));
+  // if (invalidEmails.length > 0) {
+  //   alert(`Invalid email(s): ${invalidEmails.join(', ')}`);
+  //   return;
+  // }
 
   
-    try {
-      await axios.post(
-        `/projects/${projectData.id}/invite_members`,
-        { emails: inviteEmails },
-        {
-          headers: {
-            Authorization: `${cookies.jwt}`,
-          },
-        }
-      );
-      alert('Invites sent successfully.');
-      setInviteEmails([]); 
-    } catch (error) {
-      console.error('Error sending invites:', error);
-      alert('Failed to send invites. Please try again.');
-    }
-  };
+  //   try {
+  //     await axios.post(
+  //       `/projects/${projectData.id}/invite_members`,
+  //       { emails: inviteEmails },
+  //       {
+  //         headers: {
+  //           Authorization: `${cookies.jwt}`,
+  //         },
+  //       }
+  //     );
+  //     alert('Invites sent successfully.');
+  //     setInviteEmails([]); 
+  //   } catch (error) {
+  //     console.error('Error sending invites:', error);
+  //     alert('Failed to send invites. Please try again.');
+  //   }
+  // };
   
 
   return (
@@ -257,7 +257,7 @@ console.log("mmmmmmmmmmm",handleEditedProject)
            
           </div> */}
 
-<div className="mb-4">
+{/* <div className="mb-4">
   <label htmlFor="inviteEmails" className="block text-gray-700 font-medium mb-2">
     Invite Members
   </label>
@@ -279,7 +279,7 @@ console.log("mmmmmmmmmmm",handleEditedProject)
 </button>
 
 
-</div>
+</div> */}
 
 
           <div className="flex justify-end space-x-4">

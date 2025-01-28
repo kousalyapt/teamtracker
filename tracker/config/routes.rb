@@ -23,6 +23,7 @@ Rails.application.routes.draw do
   resources :projects do
     member do
       get :members
+      get :accept_invite
     end
   end
   resources :projects do
