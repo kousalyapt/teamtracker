@@ -148,6 +148,11 @@ const AllTasks = () => {
     navigate(`/projects/${task.project_id}/tasks/${task.id}`);
   };
 
+  const handleLabelClick = (label) => {
+    handleAddFilter({ type: 'label', value: label.name })
+    setShowLabelDropdown(!showLabelDropdown)
+  }
+
   const getStatusCount = (status) => {
     return tasks.filter((task) => task.state === status).length;
   };
@@ -195,24 +200,31 @@ const AllTasks = () => {
 
         {/* Task Filters */}
         <div className="flex space-x-4 mb-4">
+          <div>
           <button
             onClick={() => handleAddFilter({ type: 'state', value: 'opened' })}
-            className="text-sm text-gray-500 hover:text-black"
+            className="text-sm text-gray-500 hover:text-black "
           >
             Opened ({getStatusCount('opened')})
           </button>
+          </div>
+          <div>
           <button
             onClick={() => handleAddFilter({ type: 'state', value: 'resolved' })}
-            className="text-sm text-gray-500 hover:text-black"
+            className="text-sm text-gray-500 hover:text-black "
           >
             Resolved ({getStatusCount('resolved')})
           </button>
+          </div>
+          <div>
           <button
             onClick={() => handleAddFilter({ type: 'state', value: 'closed' })}
-            className="text-sm text-gray-500 hover:text-black"
+            className="text-sm text-gray-500 hover:text-black "
           >
             Closed ({getStatusCount('closed')})
           </button>
+          </div>
+          <div className='relative'>
           <button
             className="text-sm text-gray-500 hover:text-black"
             onClick={() => setShowLabelDropdown(!showLabelDropdown)}
@@ -220,11 +232,11 @@ const AllTasks = () => {
             Labels
           </button>
           {showLabelDropdown && (
-            <div className="absolute bg-white border rounded shadow-lg z-10">
+            <div className="absolute  bg-white border border-gray-300 rounded-md shadow-lg z-10">
               {availableLabels.map((label) => (
                 <button
                   key={label.id}
-                  onClick={() => handleAddFilter({ type: 'label', value: label.name })}
+                  onClick={() => handleLabelClick(label)}
                   className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
                 >
                   {label.name}
@@ -232,6 +244,8 @@ const AllTasks = () => {
               ))}
             </div>
           )}
+          </div>
+          <div className='relative'>
           <button
             className="text-sm text-gray-500 hover:text-black"
             onClick={toggleDateRangeDropdown}
@@ -272,6 +286,7 @@ const AllTasks = () => {
               </div>
             </div>
           )}
+          </div>
 
           <div className="flex flex-wrap gap-2 mb-4">
             {activeFilters.map((filter, index) => (

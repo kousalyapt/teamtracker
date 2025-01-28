@@ -109,6 +109,7 @@ console.log(`tasked ${JSON.stringify(task)}`)
 
     const handleEditTask = () => {
         setShowNewTaskForm(true); // Show the form when Edit is clicked
+        toggleDropdown()
     };
 
     const handleDeleteTask = async () => {
@@ -118,6 +119,7 @@ console.log(`tasked ${JSON.stringify(task)}`)
             });
             setShowTaskDetails(null)
             fetchTasks();
+            toggleDropdown();
         
         } catch (error) {
             console.error("Error deleting task:", error);
@@ -300,17 +302,7 @@ console.log("newcommenttttttttttttttt",newComment)
     ? `Opened ${formatDistanceToNow(new Date(taskCreatedAt))} ago by ${task.creator_name}`
     : 'Invalid date'}  
    
-{/* {console.log("Date object:", new Date(taskCreatedAt))}  // Check this output
-{console.log("Formatted date:",new Date(taskCreatedAt).toISOString())} // Check conversion
 
-{taskCreatedAt && new Date(taskCreatedAt).toString() !== 'Invalid Date'
-  ? `Opened ${formatDistanceToNow(new Date(taskCreatedAt))} ago by ${task.creator_name}`
-  : 'Invalid date'} */}
-  {/* const dt = DateTime.fromISO(taskCreatedAt); */}
-  {/* {console.log(DateTime.fromISO(taskCreatedAt))}
-{DateTime.fromISO(taskCreatedAt).isValid
-  ? `Opened ${DateTime.fromISO(taskCreatedAt).toRelative()} ago by ${task.creator_name}`
-  : 'Invalid date'} */}
 
 </p>
 

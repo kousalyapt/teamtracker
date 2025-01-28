@@ -69,7 +69,7 @@ const Report = () => {
     const projectTasks = tasks.filter((task) => task.project_title === project.title);
     const doc = new jsPDF();
     doc.setFontSize(18);
-    doc.text(`${project} - Task Report`, 10, 10);
+    doc.text(`${project.title} - Task Report`, 10, 10);
     doc.setFontSize(12);
     const tableData = projectTasks.map((task) => [
       task.title,
@@ -78,7 +78,7 @@ const Report = () => {
       task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No due date',
     ]);
     doc.autoTable({ head: [['Title', 'Assigned To', 'State', 'Due Date']], body: tableData });
-    doc.save(`${project}_task_report.pdf`);
+    doc.save(`${project.title}_task_report.pdf`);
   };
 
   const toggleProject = (project) => {

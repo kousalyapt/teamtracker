@@ -127,6 +127,7 @@ function Navbar() {
 
 
   const handleLogout = async () => {
+    toggleProfileDropdown()
     const [result, error] = await logoutApi(cookies.jwt);
     if (error !== '') {
         removeCookie('jwt');
@@ -195,7 +196,7 @@ function Navbar() {
             </button>
             {isProfileOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-10">
-                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100">
+                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100" onClick={toggleProfileDropdown}>
                   Your Profile
                 </Link>
                 <button

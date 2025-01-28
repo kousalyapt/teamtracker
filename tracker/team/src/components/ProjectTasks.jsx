@@ -49,7 +49,7 @@ const ProjectTasks = () => {
   const [inviteEmails, setInviteEmails] = useState([]);
 
 
-  console.log("projdetailsssssssssssssssss", project)
+  console.log("projdetailsssssssssssssssss")
 
   // const handleTaskClick = (taskId) => {
   //   const taskDetails = tasks.find(task => task.id === taskId);
@@ -375,6 +375,11 @@ const ProjectTasks = () => {
     setShowFilterDropdown(false);
   }
 
+  const handleFilterLabelDropdown = (label) => {
+    handleAddFilter({ type: 'label', value: label.name })
+    toggleLabelDropdown();
+  }
+
   const togglePopup = () => setIsOpen(!isOpen);
 
   const handleInviteEmailChange = (e) => {
@@ -491,11 +496,12 @@ const ProjectTasks = () => {
   </>
 )}
 
+
             <button onClick={toggleDropdown} className="bg-gray-200 p-2 rounded ">
               More Options
             </button>
             {showDropdown && (
-              <div className="absolute bg-white shadow-md rounded border mt-2 z-10">
+              <div className="absolute bg-white shadow-md rounded border mt-2 z-10 ml-16">
                 <button onClick={() => handleEditProject(project)} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
                   Edit
                 </button>
@@ -504,6 +510,7 @@ const ProjectTasks = () => {
                 </button>
               </div>
             )}
+            
           </div>
 
         </div>
@@ -708,7 +715,7 @@ const ProjectTasks = () => {
               {availableLabels.map((label) => (
                 <button
                   key={label.id}
-                  onClick={() => handleAddFilter({ type: 'label', value: label.name })}
+                  onClick={() => handleFilterLabelDropdown(label)}
                   className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
                 >
                   {label.name}
