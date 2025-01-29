@@ -18,6 +18,8 @@ import { NotificationProvider } from './components/NotificationContext';
 import Profile from './components/Profile';
 import Report from './components/Report';
 import { ShowTaskDetailsProvider } from './components/ShowTaskDetailsContext';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 
 
 // const router = createBrowserRouter([
@@ -103,6 +105,14 @@ const router = createBrowserRouter([
   {
     path: "/projects/:id/accept_invite",
     element: <Register/>
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword/>
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword/>
   }
 ]);
 

@@ -127,9 +127,12 @@ function Login() {
       </div>
 
       <div>
+        <div className='flex justify-between'>
         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
           Password
         </label>
+        <Link to="/forgot-password" className='block text-sm font-medium text-blue-700'>Forgot Password?</Link>
+        </div>
         <input
           id="password"
           name="password"

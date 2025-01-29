@@ -7,8 +7,10 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   def create
     super do |user|
+      puts "ssssssss"
       # If the project_id is present in the params, try to find the project and associate it with the user
-      if params[:user][:project_id].present?
+      if params[:user][:project_id].present? && params[:user][:project_id].present?
+        puts "rrrrrrrrr"
         project = Project.find_by(id: params[:user][:project_id])
         if project
           # Add the user to the project if the project exists
@@ -21,6 +23,8 @@ class Users::RegistrationsController < Devise::RegistrationsController
           )
         else
           # Handle case when the project does not exist
+          
+          
           
           Rails.logger.error "Project with ID #{params[:user][:project_id]} not found."
         end

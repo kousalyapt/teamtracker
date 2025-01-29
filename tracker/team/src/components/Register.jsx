@@ -78,15 +78,29 @@ const Register = () => {
         if (hasErrors){
             return
         }
-        const [response,error] = await registerApi({
-            user: {
-                name: name,
-                email: email,
-                password: password,
-                password_confirmation: passconf,
-                project_id: id || null 
-            }
-        })
+        // const [response,error] = await registerApi({
+        //     user: {
+        //         name: name,
+        //         email: email,
+        //         password: password,
+        //         password_confirmation: passconf,
+        //         project_id: id || null 
+        //     }
+        // })
+        const userData = {
+            name: name,
+            email: email,
+            password: password,
+            password_confirmation: passconf,
+        };
+    
+        // Only add project_id if it's defined
+        if (id) {
+            userData.project_id = id;
+        }
+    console.log("userdata", userData)
+        const [response, error] = await registerApi({ user: userData });
+    
         // console.log("result:",result)
         // console.log("error:",error)
         if(error!== '' ){
@@ -117,6 +131,11 @@ const Register = () => {
                 <p className=" text-gray-600 mb-8">
                 The best way to design, build, and ship software.
                 </p>
+                {errors.api && (
+      <div className="text-center mb-4 text-red-500 text-sm">
+        {errors.api}
+      </div>
+    )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -141,6 +160,9 @@ const Register = () => {
                     onChange={handleEmailChange}
                     className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />
+                     {errors.email && (
+          <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+        )}
                     <p className="text-xs text-gray-500 mt-1">
                     You will occasionally receive account-related emails. We promise not to share your email with anyone.
                     </p>
@@ -157,6 +179,9 @@ const Register = () => {
                     className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />
                 </div>
+                {errors.password && (
+          <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+        )}
 
                 <div>
                 <label className="block text-gray-700 font-medium">Password Confirmation</label>
@@ -169,6 +194,9 @@ const Register = () => {
                     className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
                 </div>
+                {errors.passConf && (
+          <p className="mt-1 text-sm text-red-500">{errors.passConf}</p>
+        )}
 
                 <div>
                 <button
