@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
+import Cookies from "js-cookie";
 
 const Profile = () => {
   const [cookies] = useCookies(['jwt']);
@@ -9,6 +11,9 @@ const Profile = () => {
   const [email, setEmail] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState('');
+  const [showDialog, setShowDialog] = useState(false);
+  const [sureDialog, setSureDialog] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -42,6 +47,25 @@ const Profile = () => {
       setMessage('Failed to update profile. Please try again.');
     }
   };
+
+  const handleDelete = async() => {
+    try {
+      const decodedToken = jwtDecode(cookies.jwt);
+            console.log('Decoded Token:', decodedToken);
+            const userId = decodedToken.sub;
+    const headers = { Authorization: `${cookies.jwt}` };
+    const response = await axios.delete(`/users`, { headers });
+    Cookies.remove('jwt');
+    navigate("/register")
+    
+  } catch (error) {
+    setMessage('Failed to delete account. Please try again.');
+  }
+  }
+
+  const handleSureDialog = () => {
+    setSureDialog(!sureDialog)
+  } 
 
   return (
     <div className="p-6 bg-white max-w-md mx-auto mt-10 rounded shadow-md">
@@ -78,11 +102,24 @@ const Profile = () => {
           Save
         </button>
       ) : (
-       
+        <div className='flex'>
         <button onClick={() => setIsEditing(true)} className="bg-indigo-500 text-white px-4 py-2 rounded">
           Edit Profile
         </button>
-       
+        <button onClick = {() => handleSureDialog()} className='bg-red-500 text-white px-4 py-2 rounded ml-4'>Delete Account</button>
+        {sureDialog && (
+  <div className="fixed inset-0 bg-black/50 z-10 flex justify-center items-center">
+    <div className="bg-white rounded-lg shadow-lg  w-56 p-6 z-20">
+      <h1 className="text-lg font-semibold mb-4 text-center">Are you sure?</h1>
+      <div className="flex justify-center space-x-4">
+        <button className="px-4 py-2 bg-red-500 text-white rounded cursor-pointer" onClick={handleDelete}>Yes</button>
+        <button className="px-4 py-2 bg-gray-300 rounded cursor-pointer" onClick={() => handleSureDialog()}>No</button>
+      </div>
+    </div>
+  </div>
+)}
+
+        </div>
       )}
     </div>
   );

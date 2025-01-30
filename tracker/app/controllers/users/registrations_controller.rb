@@ -35,9 +35,19 @@ class Users::RegistrationsController < Devise::RegistrationsController
   
 
   def destroy
-    current_user.destroy
+    ActiveRecord::Base.transaction do
+      
+      current_user.project_members.destroy_all
+      current_user.tasks.update_all(assigned_to_id: nil)
+      current_user.destroy!
+    end
+  
     render json: { message: 'Account deleted successfully.' }, status: :ok
+  rescue StandardError => e
+    Rails.logger.error "Error deleting user: #{e.message}"
+    render json: { message: 'Failed to delete account.', error: e.message }, status: :unprocessable_entity
   end
+  
 
   private
 

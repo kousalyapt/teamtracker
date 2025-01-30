@@ -5,11 +5,12 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
-  has_many :projects
-  has_many :project_members
+  has_many :projects, dependent: :nullify
+  has_many :project_members, dependent: :destroy
   has_many :member_projects, through: :project_members, source: :project
-  has_many :tasks, foreign_key: :assigned_to_id
+  has_many :tasks, foreign_key: :assigned_to_id, dependent: :nullify 
   has_many :activities, dependent: :destroy
   has_many :notifications, dependent: :destroy
   belongs_to :project, optional: true 
+  has_many :chat_messages, dependent: :destroy
 end
