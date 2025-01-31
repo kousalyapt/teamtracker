@@ -14,7 +14,7 @@ import NewProject from './NewProject';
 import { Link, Outlet } from 'react-router-dom';
 import { useShowTaskDetails } from './ShowTaskDetailsContext';
 import { MdMoreVert } from "react-icons/md";
-
+import { FcPlus } from "react-icons/fc";
 
 
 
@@ -48,9 +48,56 @@ const ProjectTasks = () => {
   const [selectedAssignee, setSelectedAssignee] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [inviteEmails, setInviteEmails] = useState([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 
   console.log("projdetailsssssssssssssssss")
+
+  useEffect(() => {
+    const jwtToken = cookies.jwt;
+
+    if (!jwtToken) {
+      console.error('No JWT token found.');
+      return;
+    }
+
+    try {
+      const decodedToken = jwtDecode(jwtToken);
+      console.log('Decoded Token:', decodedToken);
+      const userId = decodedToken.sub;
+      setCookies('userId', userId);
+    } catch (error) {
+      console.error('Error decoding JWT:', error);
+    }
+
+
+
+    const headers = { Authorization: `${jwtToken}` };
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        const projectResponse = await axios.get(`http://localhost:3000/projects/${id}`, { headers });
+        setProject(projectResponse.data);
+
+        const tasksResponse = await axios.get(`http://localhost:3000/projects/${id}/tasks`, { headers });
+        setTasks(tasksResponse.data);
+        await fetchTasks();
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id, cookies.jwt]);
+  useEffect(() => {
+    console.log('Tasks:', tasks);
+  }, [tasks]);
+
 
   // const handleTaskClick = (taskId) => {
   //   const taskDetails = tasks.find(task => task.id === taskId);
@@ -107,80 +154,11 @@ const ProjectTasks = () => {
       });
     });
 
+
+    
+
     setAvailableLabels(Array.from(uniqueLabels.values()));
   }, [tasks]);
-
-
-  const toggleLabelDropdown = () => {
-    setShowLabelDropdown(!showLabelDropdown);
-  };
-
-  const handleLabelFilter = (label) => {
-    setFilter(`label_${label.id}`);
-    setShowLabelDropdown(false);
-  };
-
-
-  const fetchTasks = async () => {
-    try {
-      setLoading(true);
-      const headers = { Authorization: `${cookies.jwt}` };
-      const tasksResponse = await axios.get(`http://localhost:3000/projects/${id}/tasks`, { headers });
-      setTasks(tasksResponse.data);
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-
-  useEffect(() => {
-    const jwtToken = cookies.jwt;
-
-    if (!jwtToken) {
-      console.error('No JWT token found.');
-      return;
-    }
-
-    try {
-      const decodedToken = jwtDecode(jwtToken);
-      console.log('Decoded Token:', decodedToken);
-      const userId = decodedToken.sub;
-      setCookies('userId', userId);
-    } catch (error) {
-      console.error('Error decoding JWT:', error);
-    }
-
-
-
-    const headers = { Authorization: `${jwtToken}` };
-
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const projectResponse = await axios.get(`http://localhost:3000/projects/${id}`, { headers });
-        setProject(projectResponse.data);
-
-        const tasksResponse = await axios.get(`http://localhost:3000/projects/${id}/tasks`, { headers });
-        setTasks(tasksResponse.data);
-        await fetchTasks();
-
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id, cookies.jwt]);
-  useEffect(() => {
-    console.log('Tasks:', tasks);
-  }, [tasks]);
-
 
 
   useEffect(() => {
@@ -226,6 +204,37 @@ const ProjectTasks = () => {
 
     setFilteredTasks(filtered);
   }, [activeFilters, tasks]);
+
+
+  const toggleLabelDropdown = () => {
+    setShowLabelDropdown(!showLabelDropdown);
+  };
+
+  const handleLabelFilter = (label) => {
+    setFilter(`label_${label.id}`);
+    setShowLabelDropdown(false);
+  };
+
+
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const headers = { Authorization: `${cookies.jwt}` };
+      const tasksResponse = await axios.get(`http://localhost:3000/projects/${id}/tasks`, { headers });
+      setTasks(tasksResponse.data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+ 
+
+
+  
 
   const toggleDateRangeDropdown = () => {
     setShowDateRangeDropdown(!showDateRangeDropdown);
@@ -290,6 +299,7 @@ const ProjectTasks = () => {
   }
 
   const handleEditProject = (proj) => {
+    toggleDropdown()
     setProject(proj)
     setIsEditMode(true)
     setSelectedTab("editProject")
@@ -309,6 +319,7 @@ const ProjectTasks = () => {
   }
 
   const handleDeleteProject = async () => {
+    toggleDropdown()
     try {
       await axios.delete(`http://localhost:3000/projects/${id}`, {
         headers: { Authorization: `${cookies.jwt}` }
@@ -455,7 +466,13 @@ const ProjectTasks = () => {
           <h2 className="text-xl font-semibold text-gray-800 ml-24">{project?.title || 'Project Title'}</h2>
 
           <div className="flex items-center gap-4">
-            <button className='font-medium mr-4' onClick={togglePopup}>Invite people</button>
+            <div className='flex items-center cursor-pointer' onClick={togglePopup}>
+            <button className='font-medium mr-0 pr-0' >Invite people
+            
+            </button>
+            <span className='text-2xl ml-0 pl-0'><FcPlus/></span>
+            </div>
+
             {isOpen && (
               <>
 
@@ -473,7 +490,9 @@ const ProjectTasks = () => {
 
                         <label htmlFor="inviteEmails" className="block text-gray-700 font-medium mb-2">
                           Invite Members
+                          
                         </label>
+                        
 
                         <input
                           type="text"
@@ -519,8 +538,35 @@ const ProjectTasks = () => {
           </div>
 
         </div>
+        {project.description ?
+                        <p className="text-gray-600 truncate cursor-pointer mt-2 ml-24" onClick={() => setIsDialogOpen(true)} >
+                             {project.description?.split(" ").slice(0, 5).join(" ")}
+                             {project.description?.split(" ").length > 5 && "....."}
+                        </p> : <p className='text-gray-600 mt-2 ml-24'>No description</p>}
 
-        <p className="text-gray-600 mt-2 ml-24">{project?.description || 'Project Description'}</p>
+                        {isDialogOpen && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+                            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                                <h2 className="text-lg font-semibold mb-4">Full Description</h2>
+                                {project.description ?
+                                    <p className="text-gray-700">{project.description}</p>
+                                    : <p className='text-gray-700'>No description</p>
+                                }
+
+                                <div className="flex justify-end mt-4">
+                                    <button
+                                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                                        onClick={() => setIsDialogOpen(false)}
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+
+        {/* <p className="text-gray-600 mt-2 ml-24">{project?.description || 'Project Description'}</p> */}
       </div>
 
 
@@ -808,7 +854,7 @@ const ProjectTasks = () => {
                                   {task.title}
                                 </h3>
                               </div>
-                              <p className="text-gray-600 mt-1">{task.description}</p>
+                              {/* <p className="text-gray-600 mt-1">{task.description}</p> */}
                               <p className="text-gray-600">Opened {formatDistanceToNow(new Date(task.created_at))} ago by {task.creator_name}</p>
                               <div className="mt-2">
                                 {task.labels && task.labels.length > 0 ? (

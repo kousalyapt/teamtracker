@@ -4,6 +4,8 @@ import { useCookies } from 'react-cookie';
 import { useNotifications } from './NotificationContext';
 import { useShowTaskDetails } from './ShowTaskDetailsContext';
 import { useNavigate } from 'react-router-dom';
+import { TiDeleteOutline } from "react-icons/ti";
+
 
 
 const Notifications = () => {
@@ -118,8 +120,8 @@ const Notifications = () => {
         <h3 className="text-2xl font-semibold text-gray-800 mb-4">Notifications</h3>
         {notifications.length>0 && 
         <div>
-        <button className='mr-4' onClick={()=>handleMarkAllAsRead()}>Mark all as read</button>
-        <button onClick={()=> handleDeleteAll()}>Clear all</button>
+        <button className='mr-4 text-green-800' onClick={()=>handleMarkAllAsRead()}>Mark all as read</button>
+        <button onClick={()=> handleDeleteAll()} className='text-red-500'>Clear all</button>
         </div>
         }
         
@@ -133,7 +135,7 @@ const Notifications = () => {
             <a onClick={() => handleClick(notification)}>
       <p className='cursor-pointer'>{notification.message}</p>
     </a>
-            <button onClick={() => handleDelete(notification.id)}>X</button>
+            <button onClick={() => handleDelete(notification.id)} className='text-2xl hover:text-red-500'><TiDeleteOutline/></button>
             </div>
           
           <p className="text-sm text-gray-500">Status: {notification.read ? 'Read' : 'Unread'}</p>

@@ -11,7 +11,7 @@ const { setShowTaskDetails } = useShowTaskDetails();
   const [title, setTitle] = useState(projectData ? projectData.title : '');
   const [description, setDescription] = useState(projectData ? projectData.description : '');
   const [memberInput, setMemberInput] = useState('');
-  const [members, setMembers] = useState(projectMembers ? projectMembers.map((mem) => mem.email):[]); // Now an array
+  const [members, setMembers] = useState(projectMembers ? projectMembers.map((mem) => mem.email):[]); 
   const [error, setError] = useState('');
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -89,7 +89,7 @@ console.log("mmmmmmmmmmm",handleEditedProject)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!title || !description || members.length === 0) {
+    if (!title ) {
       setError('Please fill in all fields');
       return;
     }
@@ -166,17 +166,25 @@ console.log("mmmmmmmmmmm",handleEditedProject)
   
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 ">
       <div className="max-w-2xl mx-auto bg-white shadow-md rounded-lg p-6">
+        {!projectData ? (
+          <>
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Create a New Project</h2>
         <p className="text-gray-600 mb-6">
           A repository contains all the files for your project, including the revision history.
-        </p>
+        </p> 
+        </>
+        ):(
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Update Project</h2>
+        )
+        }
+        
 
         {error && <div className="text-red-500 mb-4">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+          <div className="mb-4 ">
             <label htmlFor="title" className="block text-gray-700 font-medium mb-2">
               Project Name
             </label>

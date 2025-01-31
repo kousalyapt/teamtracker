@@ -8,7 +8,7 @@ import DOMPurify from 'dompurify';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-
+import { Navigate } from 'react-router-dom';
 
 const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpdate, taskId}) => {
     const [title, setTitle] = useState(taskDetails ? taskDetails.title : '');
@@ -23,6 +23,7 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpd
     const [loading, setLoading] = useState(true);
     const [projectMembers, setProjectMembers] = useState([]); 
     const [isLabelInputFocused, setIsLabelInputFocused] = useState(false); 
+    const navigate = useNavigate()
     
     // const [isLabelInputFocused, setIsLabelInputFocused] = useState(false);
   console.log(`taskdetailssssssssssss is ${JSON.stringify(taskDetails)}`)
@@ -30,6 +31,10 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpd
   const handleLabelInputFocus = () => {
     setIsLabelInputFocused(true);
   };
+
+  const handleCancelButton = () => {
+    navigate(`/projects/${projectId}/tasks/${taskId}`)
+  }
 
   const handleLabelInputBlur = () => {
     // Small delay to allow click on dropdown before hiding
@@ -150,7 +155,7 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpd
     }
   
     return (
-      <form className="grid grid-cols-[3fr,1fr] gap-8 ml-40 mr-40" onSubmit={handleSubmit}>
+      <form className="grid grid-cols-[3fr,1fr] gap-16 ml-40 mr-40 mt-8" onSubmit={handleSubmit}>
     <div className="flex flex-col space-y-4 ">
       <div className='border-2 p-2 '>
       <input
@@ -173,6 +178,9 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpd
           >
            {taskDetails ? 'Update Task' : 'Submit New Task'}
           </button>
+          {taskDetails && (
+            <button onClick={handleCancelButton} className="ml-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded mt-16">Cancel</button>
+          )}
         </div>
       </div>
       
@@ -183,6 +191,7 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpd
   <div className="flex flex-col space-y-4 ">
           
   <div className="relative">
+  <label className="text-gray-700 font-medium">Labels</label>
     <input
       type="text"
       className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
@@ -206,8 +215,10 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpd
       </ul>
     )}
   </div>
+  <div>
+  <label className="text-gray-700 font-medium">Assigned To</label>
        <select
-                className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded px-3 pb-2 focus:ring-2 focus:ring-blue-500"
                 value={assignee}
                 onChange={(e) => setAssignee(e.target.value)}
               >
@@ -218,6 +229,9 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpd
                   </option>
                 ))}
               </select>
+              </div>
+              <div>
+              <label className="text-gray-700 font-medium">Estimated Time (Hours)</label>
       <input
         type="number"
         className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
@@ -225,12 +239,16 @@ const NewTaskForm = ({ cookies, projectId, onTaskCreated ,taskDetails, onTaskUpd
         value={estimatedHours}
         onChange={(e) => setEstimatedHours(e.target.value)}
       />
+      </div>
+      <div>
+      <label className="text-gray-700 font-medium">Due Date</label>
       <input
         type="date"
         className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
         value={dueDate}
         onChange={(e) => setDueDate(e.target.value)}
       />
+      </div>
     </div>
   </form>
   

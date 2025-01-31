@@ -14,6 +14,8 @@ import { DateTime } from 'luxon';
 import { useNotifications } from './NotificationContext';
 import { useOutletContext } from "react-router-dom";
 import { MdMoreVert } from "react-icons/md";
+import { MdMoreHoriz } from "react-icons/md";
+
 
 // { projectId, titleUpdate, setShowTaskDetails, fetchTasks, task }
 
@@ -169,6 +171,7 @@ const [editedCommentContent, setEditedCommentContent] = useState("");
     };
 
     const handleTaskUpdate = (updatedTask) => {
+       
         console.log(`taskous ${JSON.stringify(task)}`)
         console.log(`updated task ${JSON.stringify(updatedTask)}`)
         setShowNewTaskForm(false);
@@ -335,17 +338,19 @@ const [editedCommentContent, setEditedCommentContent] = useState("");
                 </p>
 
                 <div className="relative pl-160">
-                    <button onClick={toggleDropdown} className="bg-gray-200 p-2 rounded ">
-                        More Options
+                    <button onClick={toggleDropdown} className=" p-2 rounded text-2xl pl-24">
+                    <MdMoreHoriz />
                     </button>
                     {showDropdown && (
-                        <div className="absolute bg-white shadow-md rounded border mt-2 z-10">
+                        <div className='pl-16'>
+                        <div className="absolute bg-white shadow-md rounded border z-10">
                             <button onClick={handleEditTask} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
                                 Edit
                             </button>
                             <button onClick={handleDeleteTask} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
                                 Delete
                             </button>
+                        </div>
                         </div>
                     )}
                 </div>
@@ -357,7 +362,8 @@ const [editedCommentContent, setEditedCommentContent] = useState("");
                     <p className="text-gray-700 font-medium cursor-pointer" onClick={() => setIsDialogOpen(true)}>Description</p>
                     {task.description ?
                         <p className="text-gray-600 truncate cursor-pointer" onClick={() => setIsDialogOpen(true)} title={task.description}>
-                            {task.description}
+                             {task.description?.split(" ").slice(0, 5).join(" ")}
+                             {task.description?.split(" ").length > 5 && "....."}
                         </p> : <p className='text-gray-600 '>No description</p>}
 
 
