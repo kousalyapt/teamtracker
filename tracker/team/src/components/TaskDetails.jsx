@@ -13,6 +13,7 @@ import ProjectTasks from './ProjectTasks';
 import { DateTime } from 'luxon';
 import { useNotifications } from './NotificationContext';
 import { useOutletContext } from "react-router-dom";
+import { MdMoreVert } from "react-icons/md";
 
 // { projectId, titleUpdate, setShowTaskDetails, fetchTasks, task }
 
@@ -20,12 +21,12 @@ const TaskDetails = () => {
     // const { id } = useParams();
     // const projectId = id
     // const {  titleUpdate, setShowTaskDetails, fetchTasks, task } = useTask();
-    const [showTaskDetails,id,handleTitleUpdate,setShowTaskDetails,fetchTasks] = useOutletContext();
+    const [showTaskDetails, id, handleTitleUpdate, setShowTaskDetails, fetchTasks] = useOutletContext();
     const task = showTaskDetails
     const projectId = id
     const titleUpdate = handleTitleUpdate
-    console.log("Task details received: ", task); 
-    console.log("pidd",projectId)
+    console.log("Task details received: ", task);
+    console.log("pidd", projectId)
     const [comment, setComment] = useState("");
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -38,9 +39,13 @@ const TaskDetails = () => {
     const [taskCreatedAt, setTaskCreatedAt] = useState(JSON.stringify(task.created_at)?.replace(/^"|"$/g, ''))
     const { notifications, setNotifications } = useNotifications();
     console.log(`taskidis ${JSON.stringify(task.created_at)?.trim()}`)
-    
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [commentDropdown, setCommentDropdown] = useState(null)
+    const [editingCommentId, setEditingCommentId] = useState(null);
+const [editedCommentContent, setEditedCommentContent] = useState("");
+
     const navigate = useNavigate();
-console.log(`tasked ${JSON.stringify(task)}`)
+    console.log(`tasked ${JSON.stringify(task)}`)
     useEffect(() => {
         fetchComments();
     }, [task.id]);
@@ -49,7 +54,7 @@ console.log(`tasked ${JSON.stringify(task)}`)
     const { sub } = jwtDecode(cookies.jwt) || {};
     console.log(`sub${sub}`)
 
-    const handleDeleteComment = async (commentId , e) => {
+    const handleDeleteComment = async (commentId, e) => {
         e.preventDefault();
         try {
             console.log(`Deleting comment from URL: http://localhost:3000/projects/${projectId}/tasks/${taskId}/comments/${commentId}`);
@@ -61,25 +66,63 @@ console.log(`tasked ${JSON.stringify(task)}`)
             setComments((prevComments) => prevComments.filter((comment) => comment.id !== commentId));
             await fetchComments();
             setShowTaskDetails(true)
-            
+            setCommentDropdown(false)
+
         } catch (error) {
             console.error("Error deleting comment:", error);
         }
     };
 
+    const handleEditComment = (commentId, content) => {
+        
+        setEditingCommentId(commentId);
+        setEditedCommentContent(content);
+        setCommentDropdown(null); 
+    };
+
+    const handleSaveEditedComment = async ( commentId, e) => {
+        
+        if (e) e.preventDefault();
+        
+        const sanitizedComment = DOMPurify.sanitize(editedCommentContent, { ALLOWED_TAGS: [] });
+        if (sanitizedComment.trim()) {
+            try {
+                const response = await axios.patch(
+                    `http://localhost:3000/projects/${projectId}/tasks/${taskId}/comments/${commentId}`,
+                    {
+                        comment: { content: sanitizedComment },
+                    },
+                    {
+                        headers: { Authorization: `${cookies.jwt}` },
+                    }
+                );
+    
+                setComments(prev => prev.map(comment => 
+                    comment.id === commentId ? { ...comment, ...response.data, id: commentId } : comment
+                ));
+    
+                setEditingCommentId(null);
+                setEditedCommentContent("");
+            } catch (error) {
+                console.error("Error updating comment:", error);
+            }
+        }
+    };
+
+
+    
     useEffect(() => {
-        if (task.assigned_to_id ) {
+        if (task.assigned_to_id) {
             fetchAssignee(task.assigned_to_id);
         }
-    }, [task.assigned_to_id]); // Only re-fetch if assigned_to_id changes
+    }, [task.assigned_to_id]);
 
     const fetchAssignee = async (assignedToId) => {
         try {
             setLoading(true);
-            // Fetch the user by assigned_to_id (adjust the API endpoint accordingly)
             const response = await axios.get(`http://localhost:3000/users/${assignedToId}`);
             console.log(`hieee ${JSON.stringify(response.data)}`)
-            setAssignedToName(response.data.name); // Assuming the user's name is in response.data.name
+            setAssignedToName(response.data.name); 
             setLoading(false);
         } catch (error) {
             console.error("Error fetching assignee:", error);
@@ -87,18 +130,17 @@ console.log(`tasked ${JSON.stringify(task)}`)
         }
     }
 
-    
+
     const fetchComments = async () => {
         try {
             setLoading(true);
             const response = await axios.get(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/comments`, {
                 headers: { Authorization: `${cookies.jwt}` },
             });
-            // setComments(response.data);
             setComments(response.data.map(comment => ({
-    ...comment,
-    created_at: new Date(comment.created_at),
-})));
+                ...comment,
+                created_at: new Date(comment.created_at),
+            })));
             setLoading(false);
         } catch (error) {
             console.error("Error fetching comments:", error);
@@ -108,7 +150,7 @@ console.log(`tasked ${JSON.stringify(task)}`)
 
 
     const handleEditTask = () => {
-        setShowNewTaskForm(true); // Show the form when Edit is clicked
+        setShowNewTaskForm(true); 
         toggleDropdown()
     };
 
@@ -120,7 +162,7 @@ console.log(`tasked ${JSON.stringify(task)}`)
             setShowTaskDetails(null)
             fetchTasks();
             toggleDropdown();
-        
+
         } catch (error) {
             console.error("Error deleting task:", error);
         }
@@ -129,11 +171,11 @@ console.log(`tasked ${JSON.stringify(task)}`)
     const handleTaskUpdate = (updatedTask) => {
         console.log(`taskous ${JSON.stringify(task)}`)
         console.log(`updated task ${JSON.stringify(updatedTask)}`)
-        setShowNewTaskForm(false); // Hide the form after updating
-        setTaskState(updatedTask.state); // Update state if needed
+        setShowNewTaskForm(false);
+        setTaskState(updatedTask.state); 
         titleUpdate(updatedTask);
-        task.title = updatedTask.title;  // Example of updating task title
-        task.description = updatedTask.description;  // Update other fields
+        task.title = updatedTask.title; 
+        task.description = updatedTask.description;  
         task.due_date = updatedTask.due_date;
         task.estimated_time = updatedTask.estimated_time;
         task.labels = updatedTask.labels.map(label => ({
@@ -142,10 +184,10 @@ console.log(`tasked ${JSON.stringify(task)}`)
             color: label.color,
             created_at: label.created_at,
             updated_at: label.updated_at
-          }));
+        }));
         task.assigned_to_id = updatedTask.assigned_to_id;
-      };
-      
+    };
+
 
     const toggleDropdown = () => {
         setShowDropdown((prev) => !prev);
@@ -171,7 +213,7 @@ console.log(`tasked ${JSON.stringify(task)}`)
                     ...response.data,
                     created_at: new Date(response.data.created_at),
                 };
-console.log("newcommenttttttttttttttt",newComment)
+                console.log("newcommenttttttttttttttt", newComment)
                 setComments((prevComments) => [...prevComments, newComment]);
                 setComment('');
                 await fetchComments();
@@ -196,14 +238,13 @@ console.log("newcommenttttttttttttttt",newComment)
 
     const handleResolve = async () => {
         try {
-            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/resolve`,{},
+            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/resolve`, {},
                 {
                     headers: { Authorization: `${cookies.jwt}` },
                 }
             );
             console.log(response)
-
-            //setTaskState(response.data.state); 
+ 
             setTaskState(response.data.task.state);
             console.log(`Task successfully updated to: ${task.state}`);
         } catch (error) {
@@ -213,14 +254,13 @@ console.log("newcommenttttttttttttttt",newComment)
 
     const handleClose = async () => {
         try {
-            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/close`,{},
+            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/close`, {},
                 {
                     headers: { Authorization: `${cookies.jwt}` },
                 }
             );
             console.log(response)
 
-            //setTaskState(response.data.state); 
             setTaskState(response.data.task.state);
             console.log(`Task successfully updated to: ${task.state}`);
         } catch (error) {
@@ -230,14 +270,13 @@ console.log("newcommenttttttttttttttt",newComment)
 
     const handleOpen = async () => {
         try {
-            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/open`,{},
+            const response = await axios.patch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}/open`, {},
                 {
                     headers: { Authorization: `${cookies.jwt}` },
                 }
             );
             console.log(response)
 
-            //setTaskState(response.data.state); 
             setTaskState(response.data.task.state);
             console.log(`Task successfully updated to: ${task.state}`);
         } catch (error) {
@@ -286,25 +325,14 @@ console.log("newcommenttttttttttttttt",newComment)
             <div className='flex space-x-2 ml-16 m-0 p-0'>
 
 
-                <div className='p-1'>
+                <div className='px-1'>
                 </div>
-                <button className='bg-green-500 p-1 rounded '>{taskState}</button>
-                {console.log(`tskcrt ${task.created_at}`)}
-                {/* <p>Opened {formatDistanceToNow(new Date(task.created_at))} ago by {task.creator_name}</p> */}
-                <p>
-                    {console.log("hiethisis",taskCreatedAt)}
-                    {console.log("taskCreatedAt:", taskCreatedAt)}
-{console.log("Parsed Date:", new Date(taskCreatedAt))}
-
-{console.log("Timestamp:", new Date(taskCreatedAt).getTime())}
-
-  {taskCreatedAt && !isNaN(new Date(taskCreatedAt)?.getTime())
-    ? `Opened ${formatDistanceToNow(new Date(taskCreatedAt))} ago by ${task.creator_name}`
-    : 'Invalid date'}  
-   
-
-
-</p>
+                <span className={`px-3 py-2 rounded-full text-sm font-medium ${taskState === 'opened' ? 'bg-green-100 text-green-800' : taskState === 'resolved' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
+                    {taskState}
+                </span>
+                <p className="text-gray-600">
+                    Opened {formatDistanceToNow(new Date(taskCreatedAt))} ago by {task.creator_name}
+                </p>
 
                 <div className="relative pl-160">
                     <button onClick={toggleDropdown} className="bg-gray-200 p-2 rounded ">
@@ -322,142 +350,244 @@ console.log("newcommenttttttttttttttt",newComment)
                     )}
                 </div>
 
+
             </div>
+            {!showNewTaskForm && (
+                <div className="pt-0 mb-0 ml-24 mt-4">
+                    <p className="text-gray-700 font-medium cursor-pointer" onClick={() => setIsDialogOpen(true)}>Description</p>
+                    {task.description ?
+                        <p className="text-gray-600 truncate cursor-pointer" onClick={() => setIsDialogOpen(true)} title={task.description}>
+                            {task.description}
+                        </p> : <p className='text-gray-600 '>No description</p>}
+
+
+
+                    {isDialogOpen && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+                            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                                <h2 className="text-lg font-semibold mb-4">Full Description</h2>
+                                {task.description ?
+                                    <p className="text-gray-700">{task.description}</p>
+                                    : <p className='text-gray-700'>No description</p>
+                                }
+
+                                <div className="flex justify-end mt-4">
+                                    <button
+                                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                                        onClick={() => setIsDialogOpen(false)}
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {showNewTaskForm ? (
                 <NewTaskForm
                     cookies={cookies}
                     projectId={projectId}
-                    taskDetails={task} 
-                    // onCancel={() => setShowNewTaskForm(false)} 
-                    //onTaskUpdate={() => setShowNewTaskForm(false)}
-                    // onCancel={() => setShowNewTaskForm(false)}
+                    taskDetails={task}
                     onTaskUpdate={handleTaskUpdate}
-                    taskId = {taskId}
+                    taskId={taskId}
                 />
             ) : (
 
-            <form className="grid grid-cols-[3fr,1fr] gap-8 ml-40 mr-40 mt-8">
-                <div className="flex flex-col space-y-4 ">
-
-                    <div className="flex flex-col space-y-4 ">
+                <form className="grid grid-cols-[3fr,1fr] gap-8 ml-28 mr-40">
+                    <div className="flex flex-col space-y-6">
                         <div className="mt-8">
-                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Comments {comments.length}</h3>
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Comments ({comments.length})</h3>
                             <div className="space-y-4">
+                                {console.log("hello")}
                                 {loading ? (
-                                    <p>Loading comments...</p>
+                                    <p className="text-gray-500">Loading comments...</p>
                                 ) : comments.length > 0 ? (
                                     comments.map((comment) => {
-                                        console.log(`commentcreated at ${comment.created_at}`)
                                         const createdAt = new Date(comment.created_at);
                                         const validCreatedAt = !isNaN(createdAt);
                                         const displayDate = validCreatedAt ? createdAt : new Date(comment.comment?.created_at || Date.now());
-
-                                        const content = comment.content || comment.comment.content
+                                        const content = comment.content || comment.comment.content;
+                                        const isSender = comment.creator_id == sub;
+                                    
                                         return (
-                                            <div key={comment.id} className="p-4 border rounded bg-gray-50">
-                                                <p>
-                                                    <strong>{comment.creator_name}</strong>: {content}
-                                                </p>
-                                                <p className="text-sm text-gray-500">
-                                                    {formatDistanceToNow(displayDate)} ago
-                                                </p>
-                                                {console.log('Comment ID:', comment.id)}
-                                                {console.log(`subid${sub}cretorid${comment.creator_id}`)}
-                                                {comment.id && comment.creator_id == sub && (
-                                            <button 
-                                                onClick={(e) => handleDeleteComment(comment.id, e)}
-                                                className="text-red-500 hover:text-red-700 mt-2"
-                                            >
-                                                Delete
-                                            </button>
-                                        )}
-                                                
+                                            <div key={comment.id} className="flex items-start justify-start">
+                                                <div>
+                                                    <p className="font-medium">{comment.creator_name}</p>
+                                                    {editingCommentId === comment.id ? (
+                                                        <div className="flex flex-col space-y-2">
+                                                            <ReactQuill
+                                                                value={editedCommentContent}
+                                                                onChange={(value) => setEditedCommentContent(value)}
+                                                                className="bg-white rounded-lg"
+                                                                modules={{
+                                                                    toolbar: [
+                                                                        [{ header: [1, 2, false] }],
+                                                                        ["bold", "italic", "underline", "strike"],
+                                                                        [{ list: "ordered" }, { list: "bullet" }],
+                                                                        ["link"],
+                                                                        ["clean"],
+                                                                    ],
+                                                                }}
+                                                                formats={[
+                                                                    "header",
+                                                                    "bold",
+                                                                    "italic",
+                                                                    "underline",
+                                                                    "strike",
+                                                                    "list",
+                                                                    "bullet",
+                                                                    "link",
+                                                                ]}
+                                                            />
+                                                            <div className="flex justify-end space-x-2">
+                                                                <button
+                                                                    onClick={(e) => handleSaveEditedComment(comment.id, e)}
+                                                                    className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-md text-sm"
+                                                                >
+                                                                    Save
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setEditingCommentId(null)}
+                                                                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded-md text-sm"
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex justify-between mt-0 max-w-xs p-1 rounded-lg shadow-md bg-gray-200 text-black">
+                                                            <div className='mt-2 px-1'>
+                                                                <p>{content}</p>
+                                                            </div>
+                                                            {isSender && (
+                                                                <div className='relative'>
+                                                                    <MdMoreVert className="ml-4 text-gray-600 text-xl cursor-pointer hover:text-gray-800" onClick={() => setCommentDropdown(commentDropdown === comment.id ? null : comment.id)} />
+                                                                    {commentDropdown === comment.id && (
+                                                                        <div className="absolute bg-white shadow-md rounded border mt-2 z-10">
+                                                                            <button onClick={() => handleEditComment(comment.id, content)} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                                                                                Edit
+                                                                            </button>
+                                                                            <button onClick={(e) => handleDeleteComment(comment.id, e)} className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                                                                                Delete
+                                                                            </button>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                    <p className="text-xs text-gray-500 mt-2">
+                                                        {formatDistanceToNow(displayDate)} ago
+                                                    </p>
+                                                </div>
                                             </div>
                                         );
                                     })
                                 ) : (
-                                    <p>No comments available.</p>
+                                    <p className="text-gray-500">No comments available.</p>
                                 )}
                             </div>
-
-
-
-
                         </div>
-                        <div className='border-2 p-2 '>
+
+                        {/* Comment Input Section */}
+                        <div className="border rounded-lg p-4 bg-white shadow-sm">
                             <ReactQuill
                                 value={comment}
                                 onChange={(value) => setComment(value)}
-                                className="bg-white rounded h-40"
+                                className="bg-white rounded-lg"
+                                placeholder="Add a comment..."
+                                modules={{
+                                    toolbar: [
+                                        [{ header: [1, 2, false] }],
+                                        ["bold", "italic", "underline", "strike"],
+                                        [{ list: "ordered" }, { list: "bullet" }],
+                                        ["link"],
+                                        ["clean"],
+                                    ],
+                                }}
+                                formats={[
+                                    "header",
+                                    "bold",
+                                    "italic",
+                                    "underline",
+                                    "strike",
+                                    "list",
+                                    "bullet",
+                                    "link",
+                                ]}
                             />
-                            <div className="flex justify-end space-x-2">
+                            <div className="flex justify-end space-x-3 mt-4">
                                 <button
                                     type="button"
                                     onClick={handleActionButtonClick}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mt-16"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200"
                                 >
                                     {getActionButtonLabel()}
-
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handleCommentSubmit}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mt-16"
+                                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200"
                                 >
                                     Comment
                                 </button>
                             </div>
                         </div>
                     </div>
-                </div>
 
 
+                    <div className="flex flex-col space-y-4 pt-0 mt-0 ml-4">
+                        <div >
+                            <label className="text-gray-700 font-medium">Labels</label>
+                            <input
+                                type="text"
+                                className="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                placeholder="Labels"
+                                value={Array.isArray(task.labels) && task.labels.length > 0 ?
+                                    task.labels.map(label => label.name).join(", ")
+                                    : "No labels available"}
+                                readOnly
+                            />
+                        </div>
 
-                <div className="flex flex-col space-y-4 ">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                            placeholder="Labels"
-                            value={Array.isArray(task.labels) && task.labels.length > 0 ? (
-                                task.labels.map((label, index) => (
+                        <div>
+                            <label className="text-gray-700 font-medium">Assigned To</label>
+                            <input
+                                type="text"
+                                className="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                placeholder="Assignee"
+                                value={assignedToName || "No Assignee"}
+                                readOnly
+                            />
+                        </div>
 
-                                    label.name
+                        <div>
+                            <label className="text-gray-700 font-medium">Estimated Time (Hours)</label>
+                            <input
+                                type="number"
+                                className="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                placeholder="Estimated Hours"
+                                value={task.estimated_time || ""}
+                                readOnly
+                            />
+                        </div>
 
-                                ))
-                            ) : ("No labels available")}
-                        />
-
+                        <div>
+                            <label className="text-gray-700 font-medium">Due Date</label>
+                            <input
+                                type="date"
+                                className="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                value={task.due_date || ""}
+                                readOnly
+                            />
+                        </div>
                     </div>
 
-                        <input
-                            type="text"
-                            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                            placeholder="Assignee"
-                            value={assignedToName ? assignedToName : "No Assignee"}  
-                            readOnly
-                        />
+                </form>
 
-                    
-
-                    <input
-                        type="number"
-                        className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                        placeholder="Estimated Hours"
-                        value={task.estimated_time}
-
-                    />
-                    <input
-                        type="date"
-                        className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                        value={task.due_date}
-
-                    />
-                </div>
-            </form>
-
-                        )}                   
+            )}
         </div>
     );
 };

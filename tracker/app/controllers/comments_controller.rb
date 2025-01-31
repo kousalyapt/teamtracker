@@ -1,7 +1,7 @@
 class CommentsController < ApplicationController
   before_action :set_project, only: [:create ]
     before_action :set_task
-    before_action :set_comment, only: [ :destroy]
+    before_action :set_comment, only: [ :destroy, :update]
 
     def index
         @comments = @task.comments.includes(:user).order(created_at: :asc) # Fetch comments with associated users
@@ -56,14 +56,14 @@ class CommentsController < ApplicationController
       end
     end
   
-    # Update a comment
-    # def update
-    #   if @comment.update(comment_params)
-    #     render json: { comment: @comment,  creator_id: @comment.user.id, creator_name: @comment.user.name }, status: :ok
-    #   else
-    #     render json: { errors: @comment.errors.full_messages }, status: :unprocessable_entity
-    #   end
-    # end
+    #Update a comment
+    def update
+      if @comment.update(comment_params)
+        render json: { comment: @comment,  creator_id: @comment.user.id, creator_name: @comment.user.name }, status: :ok
+      else
+        render json: { errors: @comment.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
   
     # Destroy a comment
     def destroy
