@@ -12,6 +12,10 @@ Rails.application.configure do
   # Show full error reports.
   config.consider_all_requests_local = true
 
+  config.action_cable.mount_path = "/cable"
+config.action_cable.allowed_request_origins = ["http://localhost:3001", "http://localhost:3000"]
+
+
 
 #   config.action_mailer.delivery_method = :smtp
 

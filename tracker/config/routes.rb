@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+
+ 
   devise_for :users, controllers: {
       sessions: 'users/sessions',
       registrations: 'users/registrations',
@@ -9,6 +11,8 @@ Rails.application.routes.draw do
     get 'tasks', to: 'tasks#user_tasks'
     
   end
+
+  mount ActionCable.server => '/cable' 
   get 'all_tasks', to: 'tasks#all_tasks'
   resources :projects do
     resources :tasks, only: [:index, :create, :update, :destroy, :show] do
@@ -48,7 +52,7 @@ Rails.application.routes.draw do
   delete '/notifications/delete_all', to: 'notifications#destroy_all'
 
 
-  resources :notifications, only: [:index] do
+  resources :notifications, only: [:create, :index] do
     member do
       patch :mark_as_read
       delete :destroy
@@ -56,7 +60,7 @@ Rails.application.routes.draw do
     end
   end
   patch '/notifications/mark_all_as_read', to: 'notifications#mark_all_as_read'
-
+   get '/notify',to: 'notifications#testing'
   delete '/activities/delete_all', to: 'activities#delete_all'
   resources :activities, only: [:index, :destroy]
 

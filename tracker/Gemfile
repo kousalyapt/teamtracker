@@ -54,3 +54,4 @@ gem 'devise-jwt'
 gem 'sendgrid-ruby'
 gem 'dotenv-rails'
 
+gem 'actioncable'

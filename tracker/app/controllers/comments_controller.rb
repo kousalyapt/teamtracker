@@ -4,7 +4,7 @@ class CommentsController < ApplicationController
     before_action :set_comment, only: [ :destroy, :update]
 
     def index
-        @comments = @task.comments.includes(:user).order(created_at: :asc) # Fetch comments with associated users
+        @comments = @task.comments.includes(:user).order(created_at: :asc) 
         render json: @comments.map { |comment| 
           {
             id: comment.id,

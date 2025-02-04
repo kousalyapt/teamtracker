@@ -15,7 +15,7 @@ class TasksController < ApplicationController
           link: "/projects/#{@project.id}/tasks/#{@task.id}",
           task_id: @task.id
         )
-
+       
       
       render json: { message: 'Task resolved successfully', task: @task }, status: :ok
     end
@@ -31,6 +31,7 @@ class TasksController < ApplicationController
           link: "/projects/#{@project.id}/tasks/#{@task.id}",
           task_id: @task.id
         )
+        
       render json: { message: 'Task closed successfully', task: @task }, status: :ok
     end
 
@@ -44,6 +45,8 @@ class TasksController < ApplicationController
           link: "/projects/#{@project.id}/tasks/#{@task.id}",
           task_id: @task.id
         )
+       
+
       render json: { message: 'Task reopened successfully', task: @task }, status: :ok
     end
   
@@ -216,7 +219,13 @@ class TasksController < ApplicationController
     end
   
     def destroy
-      
+      Notification.create(
+        user_id: @task.assigned_to_id,
+        message: "The task: #{@task.title} has been deleted",
+        read: false,
+        link: "/projects/#{@project.id}/tasks/#{@task.id}",
+        task_id: @task.id
+      )
       create_activity_for_task_action(current_user, "delete", @task, @project, @project_members)
       @task.destroy
       head :no_content

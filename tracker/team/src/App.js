@@ -3,6 +3,7 @@ import axios from 'axios';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Projects from './components/Projects';
+import Notify from './components/Notify';
 
 function App() {
   
@@ -10,6 +11,7 @@ function App() {
   return (
     <> 
       <Projects/>
+       {/* <Notify/> */}
     </>
   );
 }

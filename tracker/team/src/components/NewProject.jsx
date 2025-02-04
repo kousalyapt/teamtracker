@@ -89,7 +89,7 @@ console.log("mmmmmmmmmmm",handleEditedProject)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!title ) {
+    if (!title || !description ) {
       setError('Please fill in all fields');
       return;
     }

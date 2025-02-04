@@ -16,6 +16,9 @@ module Tracker
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
+    config.action_cable.url = '/cable'
+    config.action_cable.allowed_request_origins = ['http://localhost:3000', /http:\/\/[^\/]+#{Rails.application.config.action_cable.url}/]
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
@@ -30,5 +33,6 @@ module Tracker
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+    config.action_cable.mount_path='/cable'
   end
 end

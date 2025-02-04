@@ -73,7 +73,7 @@ const Activities = () => {
         <h2 className="text-xl font-semibold text-gray-800">Recent Activities</h2>
         {activities.length > 0 && (
           <button
-            className="text-sm  text-red-500 px-4 py-2 rounded-md hover:text-red-800 hover:text-white transition-all duration-200"
+            className="text-sm  text-red-500 px-4 py-2 rounded-md hover:text-red-800  transition-all duration-200"
             onClick={handleClearButton}
           >
             Clear All

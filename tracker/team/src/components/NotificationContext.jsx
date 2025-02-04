@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
+import { createConsumer } from '@rails/actioncable';
+import { jwtDecode } from 'jwt-decode';
 
 const NotificationContext = createContext();
 
@@ -9,6 +11,32 @@ export function NotificationProvider({ children }) {
   const [cookies] = useCookies(['jwt']);
 
   useEffect(() => {
+    if (!cookies.jwt) return;
+
+   
+    const cable = createConsumer(`ws://localhost:3000/cable?token=${cookies.jwt}`);
+    const decodedToken = jwtDecode(cookies.jwt);
+    const userId = decodedToken.sub;
+
+   
+    const channel = cable.subscriptions.create(
+      { channel: 'NotificationChannel', user_id: userId },
+      {
+        connected() {
+          console.log("✅ Connected to NotificationChannel for user:", userId);
+        },
+        disconnected() {
+          console.log("❌ Disconnected from NotificationChannel");
+        },
+        received(data) {
+          console.log("Received Data:", data);
+          if (data && data.notification) {
+            setNotifications((prevNotifications) => [data.notification, ...prevNotifications]);
+          }
+        },
+      }
+    );
+
     const fetchNotifications = async () => {
       try {
         const headers = { Authorization: `${cookies.jwt}` };
@@ -17,12 +45,16 @@ export function NotificationProvider({ children }) {
           setNotifications(response.data);
         }
       } catch (error) {
-        console.error('Failed to fetch notifications.');
+        console.error('Failed to fetch notifications:', error);
       }
     };
-    if (cookies.jwt) {
-      fetchNotifications();
-    }
+
+    fetchNotifications();
+
+    // Cleanup function to unsubscribe from the channel when the component unmounts
+    return () => {
+      channel.unsubscribe();
+    };
   }, [cookies.jwt]);
 
   return (
@@ -31,7 +63,6 @@ export function NotificationProvider({ children }) {
     </NotificationContext.Provider>
   );
 }
-
 
 export function useNotifications() {
   return useContext(NotificationContext);

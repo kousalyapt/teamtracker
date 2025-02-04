@@ -13,6 +13,8 @@ const Notifications = () => {
   const { notifications, setNotifications } = useNotifications();
   const { setShowTaskDetails } = useShowTaskDetails();
   const navigate = useNavigate()
+
+  console.log("ntf",notifications)
   const handleDelete = async(id) => {
     try{
       await axios .delete(`http://localhost:3000/notifications/${id}`,{
@@ -112,7 +114,7 @@ const Notifications = () => {
       console.log(error)
     }
   }
-
+  
   return (
     <div className="p-6 bg-white shadow-md rounded-lg max-w-4xl mx-auto">
       <div className='flex justify-between'>
@@ -156,3 +158,64 @@ const Notifications = () => {
 };
 
 export default Notifications;
+
+
+
+// import React, { useEffect } from 'react';
+// import axios from 'axios';
+// import { useCookies } from 'react-cookie';
+// import { useNotifications } from './NotificationContext';
+// import { useNavigate } from 'react-router-dom';
+// import { TiDeleteOutline } from "react-icons/ti";
+
+// const Notifications = () => {
+//   const [cookies] = useCookies(['jwt']);
+//   const { notifications, setNotifications } = useNotifications();
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     const fetchNotifications = async () => {
+//       try {
+//         const response = await axios.get('http://localhost:3000/notifications', {
+//           headers: { Authorization: `${cookies.jwt}` },
+//         });
+//         setNotifications(response.data);
+//       } catch (error) {
+//         console.error('Error fetching notifications:', error);
+//       }
+//     };
+//     fetchNotifications();
+//   }, [cookies.jwt, setNotifications]);
+
+//   const handleDelete = async (id) => {
+//     try {
+//       await axios.delete(`http://localhost:3000/notifications/${id}`, {
+//         headers: { Authorization: `${cookies.jwt}` },
+//       });
+//       setNotifications(notifications.filter((n) => n.id !== id));
+//     } catch (error) {
+//       console.error('Error deleting notification:', error);
+//     }
+//   };
+
+//   return (
+//     <div className="p-6 bg-white shadow-md rounded-lg max-w-4xl mx-auto">
+//       <h3 className="text-2xl font-semibold text-gray-800 mb-4">Notifications</h3>
+//       <ul className="space-y-4">
+//         {notifications.map((notification) => (
+//           <li key={notification.id} className="bg-gray-100 p-4 rounded-lg shadow-sm hover:bg-gray-50 transition duration-200">
+//             <div className="flex justify-between items-center">
+//               <p>{notification.message}</p>
+//               <button onClick={() => handleDelete(notification.id)} className="text-2xl hover:text-red-500">
+//                 <TiDeleteOutline />
+//               </button>
+//             </div>
+//             <p className="text-sm text-gray-500">{notification.read ? 'Read' : 'Unread'}</p>
+//           </li>
+//         ))}
+//       </ul>
+//     </div>
+//   );
+// };
+
+// export default Notifications;
