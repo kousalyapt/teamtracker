@@ -15,6 +15,8 @@ import { Link, Outlet } from 'react-router-dom';
 import { useShowTaskDetails } from './ShowTaskDetailsContext';
 import { MdMoreVert } from "react-icons/md";
 import { FcPlus } from "react-icons/fc";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -400,13 +402,15 @@ const ProjectTasks = () => {
 
   const sendInvites = async () => {
     if (inviteEmails.length === 0) {
-      alert('Please enter at least one email.');
+      // alert('Please enter at least one email.');
+      toast.error('Please enter at least one email.');
       return;
     }
 
     const invalidEmails = inviteEmails.filter(email => !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email));
     if (invalidEmails.length > 0) {
-      alert(`Invalid email(s): ${invalidEmails.join(', ')}`);
+      // alert(`Invalid email(s): ${invalidEmails.join(', ')}`);
+      toast.warning(`Invalid email(s): ${invalidEmails.join(', ')}`);
       return;
     }
 
@@ -421,7 +425,8 @@ const ProjectTasks = () => {
           },
         }
       );
-      alert('Invites sent successfully.');
+      // alert('Invites sent successfully.');
+      toast.success('Invites sent successfully!');
       setInviteEmails([]);
     } catch (error) {
       console.error('Error sending invites:', error);

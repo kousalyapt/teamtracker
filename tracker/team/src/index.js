@@ -20,6 +20,7 @@ import Report from './components/Report';
 import { ShowTaskDetailsProvider } from './components/ShowTaskDetailsContext';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import { ToastContainer } from 'react-toastify';
 
 
 // const router = createBrowserRouter([
@@ -122,6 +123,7 @@ root.render(
     <ShowTaskDetailsProvider>
     <CookiesProvider defaultSetOptions={{ path: '/'}}>
       <NotificationProvider>
+      <ToastContainer position="top-right" autoClose={3000} />
         
         <RouterProvider router={router} />
         
