@@ -1,31 +1,10 @@
-// src/cable.js
-import { createConsumer } from "@rails/actioncable";
-import { useCookies } from 'react-cookie';
-import { useState, useEffect } from 'react';
+import { createConsumer } from '@rails/actioncable';
 
-function useActionCable() {
-  const [cable, setCable] = useState(null);
-  const [cookies] = useCookies(['jwt']);
+let cable = null;
 
-  useEffect(() => {
-    if (cookies.jwt) {
-      const newCable = createConsumer(`/cable?token=${cookies.jwt}`); // Or full URL if needed
-      setCable(newCable);
-
-      return () => {
-        if (newCable) {
-          newCable.disconnect();
-        }
-      };
-    } else {
-        if (cable) {
-            cable.disconnect();
-            setCable(null);
-        }
-    }
-  }, [cookies.jwt]);
-
+export const getCable = (token) => {
+  if (!cable) {
+    cable = createConsumer(`ws://localhost:3000/cable?token=${token}`);
+  }
   return cable;
-}
-
-export default useActionCable;
+};

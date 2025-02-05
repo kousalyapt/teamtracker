@@ -543,7 +543,7 @@ const ProjectTasks = () => {
           </div>
 
         </div>
-        {project.description ?
+        {project?.description ?
                         <p className="text-gray-600 truncate cursor-pointer mt-2 ml-24" onClick={() => setIsDialogOpen(true)} >
                              {project.description?.split(" ").slice(0, 5).join(" ")}
                              {project.description?.split(" ").length > 5 && "....."}
@@ -553,7 +553,7 @@ const ProjectTasks = () => {
                         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
                             <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
                                 <h2 className="text-lg font-semibold mb-4">Full Description</h2>
-                                {project.description ?
+                                {project?.description ?
                                     <p className="text-gray-700">{project.description}</p>
                                     : <p className='text-gray-700'>No description</p>
                                 }

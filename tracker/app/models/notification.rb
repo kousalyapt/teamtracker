@@ -10,7 +10,7 @@ class Notification < ApplicationRecord
     puts "hello all"
     ActionCable.server.broadcast(
       "notifications_#{user.id}",
-      { notification: self.as_json(include: :task) }  # Send the full notification object
+      { notification: self.as_json(include: :task) } 
     )
   end
   

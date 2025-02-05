@@ -24,6 +24,14 @@ class CommentsController < ApplicationController
       @comment.user = current_user  # Set the logged-in user as the creator
       
       if @comment.save
+      #   ActionCable.server.broadcast(
+      #     "comments_#{@task.id}",
+      #     { 
+      #   comment: @comment, 
+      #   creator_id: @comment.user.id, 
+      #   creator_name: @comment.user.name 
+      # }
+      #   )
         if @task.assigned_to_id && current_user.id != @task.assigned_to_id 
           Notification.create(
           user_id: @task.assigned_to_id,

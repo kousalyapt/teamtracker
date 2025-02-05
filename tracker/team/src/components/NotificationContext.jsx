@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
 import { createConsumer } from '@rails/actioncable';
 import { jwtDecode } from 'jwt-decode';
+import { getCable } from '../cable';
 
 const NotificationContext = createContext();
 
@@ -14,7 +15,8 @@ export function NotificationProvider({ children }) {
     if (!cookies.jwt) return;
 
    
-    const cable = createConsumer(`ws://localhost:3000/cable?token=${cookies.jwt}`);
+    // const cable = createConsumer(`ws://localhost:3000/cable?token=${cookies.jwt}`);
+    const cable = getCable(cookies.jwt)
     const decodedToken = jwtDecode(cookies.jwt);
     const userId = decodedToken.sub;
 
@@ -23,10 +25,10 @@ export function NotificationProvider({ children }) {
       { channel: 'NotificationChannel', user_id: userId },
       {
         connected() {
-          console.log("✅ Connected to NotificationChannel for user:", userId);
+          console.log("Connected to NotificationChannel for user:", userId);
         },
         disconnected() {
-          console.log("❌ Disconnected from NotificationChannel");
+          console.log("Disconnected from NotificationChannel");
         },
         received(data) {
           console.log("Received Data:", data);

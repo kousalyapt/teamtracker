@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
@@ -15,6 +15,7 @@ import { useNotifications } from './NotificationContext';
 import { useOutletContext } from "react-router-dom";
 import { MdMoreVert } from "react-icons/md";
 import { MdMoreHoriz } from "react-icons/md";
+import { getCable } from '../cable';
 
 
 // { projectId, titleUpdate, setShowTaskDetails, fetchTasks, task }
@@ -45,6 +46,20 @@ const TaskDetails = () => {
     const [commentDropdown, setCommentDropdown] = useState(null)
     const [editingCommentId, setEditingCommentId] = useState(null);
 const [editedCommentContent, setEditedCommentContent] = useState("");
+
+const commentsEndRef = useRef(null);
+
+
+const scrollToBottom = () => {
+    if (commentsEndRef.current) {
+      commentsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [comments]);
+  
 
     const navigate = useNavigate();
     console.log(`tasked ${JSON.stringify(task)}`)
@@ -150,6 +165,25 @@ const [editedCommentContent, setEditedCommentContent] = useState("");
         }
     };
 
+    useEffect(() => {
+        if (!cookies.jwt || !taskId) return; // Ensure JWT and task ID are available
+    
+        const cable = getCable(cookies.jwt); // Get WebSocket connection
+        const channel = cable.subscriptions.create(
+            { channel: 'CommentsChannel', task_id: taskId },
+            {
+                received: (data) => {
+                    console.log("New Comment via WebSocket:", data.comment);
+                    setComments((prev) => [...prev, data.comment]); // Update comments in real-time
+                    setComment('')
+                },
+            }
+        );
+    
+        return () => {
+            channel.unsubscribe(); // Cleanup WebSocket subscription when component unmounts
+        };
+    }, [cookies.jwt, taskId]); 
 
     const handleEditTask = () => {
         setShowNewTaskForm(true); 
@@ -212,19 +246,20 @@ const [editedCommentContent, setEditedCommentContent] = useState("");
                 );
 
 
-                const newComment = {
-                    ...response.data,
-                    created_at: new Date(response.data.created_at),
-                };
-                console.log("newcommenttttttttttttttt", newComment)
-                setComments((prevComments) => [...prevComments, newComment]);
-                setComment('');
-                await fetchComments();
+                // const newComment = {
+                //     ...response.data,
+                //     created_at: new Date(response.data.created_at),
+                // };
+                // console.log("newcommenttttttttttttttt", newComment)
+                // setComments((prevComments) => [...prevComments, newComment]);
+                // setComment('');
+                // await fetchComments();
             } catch (error) {
                 console.error('Error posting comment:', error);
             }
         }
     };
+     
 
     const getActionButtonLabel = () => {
         const sanitizedComment = DOMPurify.sanitize(comment, { ALLOWED_TAGS: [] });
@@ -334,7 +369,15 @@ const [editedCommentContent, setEditedCommentContent] = useState("");
                     {taskState}
                 </span>
                 <p className="text-gray-600">
-                    Opened {formatDistanceToNow(new Date(taskCreatedAt))} ago by {task.creator_name}
+                    {/* Opened {formatDistanceToNow(new Date(taskCreatedAt))} ago by {task.creator_name} */}
+                    <p className="text-gray-600">
+    Opened{" "}
+    {isNaN(new Date(taskCreatedAt)) || !taskCreatedAt
+        ? "Invalid date"
+        : formatDistanceToNow(new Date(taskCreatedAt))}{" "}
+    ago by {task.creator_name}
+</p>
+
                 </p>
 
                 <div className="relative pl-160">
@@ -372,7 +415,7 @@ const [editedCommentContent, setEditedCommentContent] = useState("");
                         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
                             <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
                                 <h2 className="text-lg font-semibold mb-4">Full Description</h2>
-                                {task.description ?
+                                {task?.description ?
                                     <p className="text-gray-700">{task.description}</p>
                                     : <p className='text-gray-700'>No description</p>
                                 }
@@ -405,7 +448,7 @@ const [editedCommentContent, setEditedCommentContent] = useState("");
                     <div className="flex flex-col space-y-6">
                         <div className="mt-8">
                             <h3 className="text-xl font-semibold text-gray-800 mb-4">Comments ({comments.length})</h3>
-                            <div className="space-y-4">
+                            <div className="space-y-4 h-80 border rounded p-2 overflow-y-scroll">
                                 {console.log("hello")}
                                 {loading ? (
                                     <p className="text-gray-500">Loading comments...</p>
@@ -420,7 +463,7 @@ const [editedCommentContent, setEditedCommentContent] = useState("");
                                         return (
                                             <div key={comment.id} className="flex items-start justify-start">
                                                 <div>
-                                                    <p className="font-medium">{comment.creator_name}</p>
+                                                    <p className="font-medium">{comment.creator_name ? comment.creator_name : comment.user.name}</p>
                                                     {editingCommentId === comment.id ? (
                                                         <div className="flex flex-col space-y-2">
                                                             <ReactQuill
@@ -484,6 +527,7 @@ const [editedCommentContent, setEditedCommentContent] = useState("");
                                                             )}
                                                         </div>
                                                     )}
+                                                   
                                                     <p className="text-xs text-gray-500 mt-2">
                                                         {formatDistanceToNow(displayDate)} ago
                                                     </p>
@@ -491,9 +535,11 @@ const [editedCommentContent, setEditedCommentContent] = useState("");
                                             </div>
                                         );
                                     })
+                                    
                                 ) : (
                                     <p className="text-gray-500">No comments available.</p>
                                 )}
+                                <div ref={commentsEndRef} />
                             </div>
                         </div>
 
