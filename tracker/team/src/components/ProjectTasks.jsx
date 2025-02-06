@@ -17,6 +17,7 @@ import { MdMoreVert } from "react-icons/md";
 import { FcPlus } from "react-icons/fc";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getCable } from '../cable';
 
 
 
@@ -52,6 +53,7 @@ const ProjectTasks = () => {
   const [inviteEmails, setInviteEmails] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  
 
   console.log("projdetailsssssssssssssssss")
 
@@ -135,6 +137,19 @@ const ProjectTasks = () => {
       })
         .then(response => setChatMessages(response.data))
         .catch(error => console.error('Error fetching chat messages:', error));
+
+        const cable = getCable(cookies.jwt)
+        const channel = cable.subscriptions.create(
+          { channel: 'TeamWallChannel', project_id: id},
+          {
+            received: (data) => {
+              setChatMessages((prev) => [...prev, data.chat])
+            }
+          }
+        )
+        return () => {
+          channel.unsubscribe();
+        };
     }
   }, [selectedTab, id, cookies.jwt]);
 
@@ -452,14 +467,7 @@ const ProjectTasks = () => {
     );
   }
 
-  const contextValue = {
-
-    titleUpdate: handleTitleUpdate,
-    setShowTaskDetails,
-    fetchTasks,
-    task: showTaskDetails
-
-  };
+  
 
   return (
     <div>

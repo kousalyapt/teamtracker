@@ -46,19 +46,20 @@ const TaskDetails = () => {
     const [commentDropdown, setCommentDropdown] = useState(null)
     const [editingCommentId, setEditingCommentId] = useState(null);
 const [editedCommentContent, setEditedCommentContent] = useState("");
-
+const [newCommentAdded, setNewCommentAdded] = useState(false);
 const commentsEndRef = useRef(null);
 
 
 const scrollToBottom = () => {
-    if (commentsEndRef.current) {
-      commentsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (newCommentAdded && commentsEndRef.current) {
+        commentsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        setNewCommentAdded(false); 
     }
-  };
+};
 
-  useEffect(() => {
+useEffect(() => {
     scrollToBottom();
-  }, [comments]);
+}, [newCommentAdded]);
   
 
     const navigate = useNavigate();
@@ -81,9 +82,10 @@ const scrollToBottom = () => {
             });
             //fetchComments()
             setComments((prevComments) => prevComments.filter((comment) => comment.id !== commentId));
-            await fetchComments();
+            // await fetchComments();
             setShowTaskDetails(true)
             setCommentDropdown(false)
+            setNewCommentAdded(false); 
 
         } catch (error) {
             console.error("Error deleting comment:", error);
@@ -114,12 +116,14 @@ const scrollToBottom = () => {
                     }
                 );
     
-                setComments(prev => prev.map(comment => 
-                    comment.id === commentId ? { ...comment, ...response.data, id: commentId } : comment
-                ));
-    
+                setComments(prevComments => 
+                    prevComments.map(comment => 
+                        comment.id === commentId ? { ...comment, content: sanitizedComment } : comment
+                    )
+                );
                 setEditingCommentId(null);
                 setEditedCommentContent("");
+                setNewCommentAdded(false); 
             } catch (error) {
                 console.error("Error updating comment:", error);
             }
@@ -176,6 +180,7 @@ const scrollToBottom = () => {
                     console.log("New Comment via WebSocket:", data.comment);
                     setComments((prev) => [...prev, data.comment]); // Update comments in real-time
                     setComment('')
+                    setNewCommentAdded(true); 
                 },
             }
         );
@@ -254,6 +259,7 @@ const scrollToBottom = () => {
                 // setComments((prevComments) => [...prevComments, newComment]);
                 // setComment('');
                 // await fetchComments();
+                setNewCommentAdded(true); 
             } catch (error) {
                 console.error('Error posting comment:', error);
             }
@@ -458,7 +464,7 @@ const scrollToBottom = () => {
                                         const validCreatedAt = !isNaN(createdAt);
                                         const displayDate = validCreatedAt ? createdAt : new Date(comment.comment?.created_at || Date.now());
                                         const content = comment.content || comment.comment.content;
-                                        const isSender = comment.creator_id == sub;
+                                        const isSender = comment.creator_id == sub || comment.user_id == sub;
                                     
                                         return (
                                             <div key={comment.id} className="flex items-start justify-start">
