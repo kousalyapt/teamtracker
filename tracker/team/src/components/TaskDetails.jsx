@@ -46,7 +46,7 @@ const TaskDetails = () => {
     const [commentDropdown, setCommentDropdown] = useState(null)
     const [editingCommentId, setEditingCommentId] = useState(null);
 const [editedCommentContent, setEditedCommentContent] = useState("");
-const [newCommentAdded, setNewCommentAdded] = useState(false);
+const [newCommentAdded, setNewCommentAdded] = useState(true);
 const commentsEndRef = useRef(null);
 
 
@@ -176,6 +176,12 @@ useEffect(() => {
         const channel = cable.subscriptions.create(
             { channel: 'CommentsChannel', task_id: taskId },
             {
+                connected() {
+                    console.log("Connected to nnel for user:", taskId);
+                  },
+                  disconnected() {
+                    console.log("Disconnected from tionChannel");
+                  },
                 received: (data) => {
                     console.log("New Comment via WebSocket:", data.comment);
                     setComments((prev) => [...prev, data.comment]); // Update comments in real-time

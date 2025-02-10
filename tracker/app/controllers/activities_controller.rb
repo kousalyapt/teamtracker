@@ -15,6 +15,9 @@ class ActivitiesController < ApplicationController
         if params[:task_id].present?
           @activity.task = Task.find(params[:task_id])
         end
+        if params[:project_id].present?
+          @activity.project = Project.find(params[:project_id])
+        end
         if @activity.save
           render json: @activity, status: :created
         else
@@ -42,6 +45,6 @@ class ActivitiesController < ApplicationController
     private
   
     def activity_params
-        params.require(:activity).permit(:user, :message, :task_id, :link)
+        params.require(:activity).permit(:user, :message, :task_id, :link, :project_id)
     end
 end

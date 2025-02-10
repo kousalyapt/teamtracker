@@ -11,6 +11,14 @@ Rails.application.routes.draw do
     get 'tasks', to: 'tasks#user_tasks'
     
   end
+  get 'user/projectids', to: 'projects#user_projects' 
+
+  resources :chats, only: [:index, :create, :show] do
+    resources :messages, only: [:index, :create]
+    collection do
+      get :chatted_people # ✅ Add this new route
+    end
+  end
 
   mount ActionCable.server => '/cable' 
   get 'all_tasks', to: 'tasks#all_tasks'

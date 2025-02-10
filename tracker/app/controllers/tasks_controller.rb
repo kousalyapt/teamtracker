@@ -375,7 +375,8 @@ creator = User.find(@project.user_id)
           user: member,
           message: (member == user ? "You #{action}d the task '#{task.title}' in Project '#{project.title}'" : message),
           link: "/projects/#{project.id}/tasks/#{task.id}",
-          task_id: task.id
+          task_id: task.id,
+          project_id: project.id
         )
       end
     end

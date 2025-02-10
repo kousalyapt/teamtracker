@@ -105,6 +105,11 @@ class ProjectsController < ApplicationController
       head :no_content
     end
 
+    def user_projects
+      project_ids = current_user.project_ids
+      render json: { project_ids: project_ids } 
+    end
+
     private
   
     def project_params
@@ -214,14 +219,16 @@ class ProjectsController < ApplicationController
           Activity.create(
               user: member,
               message: "You #{action}d the project '#{project.title}'",
-              link: "/projects/#{project.id}/tasks"
+              link: "/projects/#{project.id}/tasks",
+              project_id: project.id
             )
 
         else
           Activity.create(
               user: member,
               message: "#{user.name} #{action}d the project '#{project.title}'",
-              link: "/projects/#{project.id}/tasks"
+              link: "/projects/#{project.id}/tasks",
+              project_id: project.id
             )
         end
       end
@@ -240,7 +247,8 @@ class ProjectsController < ApplicationController
           Activity.create(
               user: creator,
               message: "#{member.name} #{action}d to the project '#{project.title}'",
-              link: "/projects/#{project.id}/tasks"
+              link: "/projects/#{project.id}/tasks",
+              project_id: project.id
             )
       end
 
@@ -252,14 +260,16 @@ class ProjectsController < ApplicationController
             Activity.create(
                 user: member,
                 message: "You #{action}d to the project '#{project.title}'",
-                link: "/projects/#{project.id}/tasks"
+                link: "/projects/#{project.id}/tasks",
+                project_id: project.id
               )
         
           else
             Activity.create(
                 user: member,
                 message: "#{mem.name} #{action}d the project '#{project.title}'",
-                link: "/projects/#{project.id}/tasks"
+                link: "/projects/#{project.id}/tasks",
+                project_id: project.id
               )
           end
         end
@@ -274,13 +284,15 @@ class ProjectsController < ApplicationController
           Activity.create(
               user: member,
               message: "You #{action}d the project '#{project.title}'",
-              link: "/projects/#{project.id}/tasks"
+              link: "/projects/#{project.id}/tasks",
+              project_id: project.id
             )
         else
           Activity.create(
               user: member,
               message: "#{user.name} #{action}d the project '#{project.title}'",
-              link: "/projects/#{project.id}/tasks"
+              link: "/projects/#{project.id}/tasks",
+              project_id: project.id
             )
         end
         
@@ -296,13 +308,15 @@ class ProjectsController < ApplicationController
             Activity.create(
                 user: member,
                 message: "The Title for the project '#{previous_title}' has been changed to #{project.title} by You",
-                link: "/projects/#{project.id}/tasks"
+                link: "/projects/#{project.id}/tasks",
+                project_id: project.id
               )
           else
             Activity.create(
                 user: member,
                 message: "The Title for the project '#{previous_title}' has been changed to #{project.title} by #{user.name}",
-                link: "/projects/#{project.id}/tasks"
+                link: "/projects/#{project.id}/tasks",
+                project_id: project.id
               )
           end
           
@@ -319,13 +333,15 @@ class ProjectsController < ApplicationController
             Activity.create(
                 user: member,
                 message: "The description for the project '#{project.title}' has been changed by You",
-                link: "/projects/#{project.id}/tasks"
+                link: "/projects/#{project.id}/tasks",
+                project_id: project.id
               )
           else
             Activity.create(
                 user: member,
                 message: "The description for the project '#{project.title}' has been changed by #{user.name}",
-                link: "/projects/#{project.id}/tasks"
+                link: "/projects/#{project.id}/tasks",
+                project_id: project.id
               )
           end
           

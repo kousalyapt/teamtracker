@@ -12,6 +12,8 @@ const Activities = () => {
   const { setShowTaskDetails } = useShowTaskDetails();
   const navigate = useNavigate();
 
+
+
   useEffect(() => {
     const fetchActivities = async () => {
       try {
@@ -19,6 +21,7 @@ const Activities = () => {
         const response = await axios.get("/activities", { headers });
         if (response.data) {
           setActivities(response.data);
+          console.log("acti",activities)
         }
       } catch (error) {
         console.error("Failed to fetch activities.");

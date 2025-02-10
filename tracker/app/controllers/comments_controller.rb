@@ -47,14 +47,16 @@ class CommentsController < ApplicationController
               user: member,
               message: "You commented on the task '#{@task.title}' in Project #{@project.title}",
               link: "/projects/#{@project.id}/tasks/#{@task.id}",
-              task_id: @task.id
+              task_id: @task.id,
+              project_id: @project.id
             )
           else
             Activity.create(
               user: member,
               message: "#{current_user.name} commented on the task '#{@task.title}' in Project #{@project.title}",
               link: "/projects/#{@project.id}/tasks/#{@task.id}",
-              task_id: @task.id
+              task_id: @task.id,
+              project_id: @project.id
             )
           end
         end

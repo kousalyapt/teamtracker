@@ -18,7 +18,10 @@ function Navbar() {
   const navigate = useNavigate();
   const { notifications } = useNotifications();
   const { setShowTaskDetails } = useShowTaskDetails();
+ 
+ 
 
+ 
   useEffect(() => {
     const headers = {
       Authorization: `${cookies.jwt}` 
@@ -173,8 +176,9 @@ function Navbar() {
           </div>
           
           <Link to="/projects_reports" className="hover:text-indigo-400">Report</Link>
-        </div>
-
+          <Link to="/people" className="hover:text-indigo-400">People</Link>
+          
+</div>
         <div className="flex items-center space-x-4">
           <div className="relative">
           <Link
@@ -211,6 +215,7 @@ function Navbar() {
         </div>
       </div>
     </nav>
+    
   );
 }
 

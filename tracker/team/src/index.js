@@ -21,6 +21,8 @@ import { ShowTaskDetailsProvider } from './components/ShowTaskDetailsContext';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import { ToastContainer } from 'react-toastify';
+import People from './components/People';
+import UserChat from './components/UserChat';
 
 
 // const router = createBrowserRouter([
@@ -92,6 +94,14 @@ const router = createBrowserRouter([
       {
         path: "/projects_reports",
         element: <Report/>
+      },
+      {
+        path: "/people",
+        element: <People/>
+      },
+      {
+        path: "/user/:id/chat",
+        element: <UserChat/>
       }
     ]
   },

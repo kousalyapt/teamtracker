@@ -13,4 +13,12 @@ class User < ApplicationRecord
   has_many :notifications, dependent: :destroy
   belongs_to :project, optional: true 
   has_many :chat_messages, dependent: :destroy
+  has_many :sent_chats, class_name: "Chat", foreign_key: "sender_id"
+  has_many :received_chats, class_name: "Chat", foreign_key: "receiver_id"
+  has_many :messages, foreign_key: "sender_id"
+
+
+  def project_ids
+    member_projects.pluck(:id)
+  end
 end

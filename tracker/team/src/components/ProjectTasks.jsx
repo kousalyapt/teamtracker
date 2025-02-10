@@ -87,7 +87,7 @@ const ProjectTasks = () => {
 
         const tasksResponse = await axios.get(`http://localhost:3000/projects/${id}/tasks`, { headers });
         setTasks(tasksResponse.data);
-        await fetchTasks();
+        // await fetchTasks();
 
       } catch (error) {
         console.error('Error fetching data:', error);

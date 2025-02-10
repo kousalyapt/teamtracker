@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_29_121304) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_10_053404) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,6 +21,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_29_121304) do
     t.string "message"
     t.bigint "task_id"
     t.string "link"
+    t.integer "project_id"
     t.index ["task_id"], name: "index_activities_on_task_id"
     t.index ["user_id"], name: "index_activities_on_user_id"
   end
@@ -35,6 +36,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_29_121304) do
     t.index ["user_id"], name: "index_chat_messages_on_user_id"
   end
 
+  create_table "chats", force: :cascade do |t|
+    t.integer "sender_id"
+    t.integer "receiver_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "comments", force: :cascade do |t|
     t.string "content"
     t.bigint "task_id", null: false
@@ -43,6 +51,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_29_121304) do
     t.datetime "updated_at", null: false
     t.index ["task_id"], name: "index_comments_on_task_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "direct_conversations", force: :cascade do |t|
+    t.bigint "sender_id"
+    t.bigint "receiver_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["receiver_id"], name: "index_direct_conversations_on_receiver_id"
+    t.index ["sender_id"], name: "index_direct_conversations_on_sender_id"
+  end
+
+  create_table "direct_messages", force: :cascade do |t|
+    t.bigint "direct_conversation_id", null: false
+    t.bigint "user_id"
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["direct_conversation_id"], name: "index_direct_messages_on_direct_conversation_id"
+    t.index ["user_id"], name: "index_direct_messages_on_user_id"
   end
 
   create_table "labels", force: :cascade do |t|
@@ -55,6 +82,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_29_121304) do
   create_table "labels_tasks", id: false, force: :cascade do |t|
     t.bigint "task_id", null: false
     t.bigint "label_id", null: false
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.bigint "chat_id", null: false
+    t.integer "sender_id"
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_id"], name: "index_messages_on_chat_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -118,12 +154,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_29_121304) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "activities", "projects"
   add_foreign_key "activities", "tasks"
   add_foreign_key "activities", "users"
   add_foreign_key "chat_messages", "projects"
   add_foreign_key "chat_messages", "users"
   add_foreign_key "comments", "tasks"
   add_foreign_key "comments", "users"
+  add_foreign_key "direct_conversations", "users", column: "receiver_id"
+  add_foreign_key "direct_conversations", "users", column: "sender_id"
+  add_foreign_key "direct_messages", "direct_conversations"
+  add_foreign_key "direct_messages", "users", on_delete: :nullify
+  add_foreign_key "messages", "chats"
   add_foreign_key "notifications", "tasks"
   add_foreign_key "notifications", "users"
   add_foreign_key "project_members", "projects"
