@@ -19,6 +19,7 @@ export function NotificationProvider({ children }) {
     const cable = getCable(cookies.jwt)
     const decodedToken = jwtDecode(cookies.jwt);
     const userId = decodedToken.sub;
+    console.log(cookies.jwt)
 
    
     const channel = cable.subscriptions.create(

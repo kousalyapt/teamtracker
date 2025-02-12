@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   get 'user/projectids', to: 'projects#user_projects' 
 
   resources :chats, only: [:index, :create, :show] do
-    resources :messages, only: [:index, :create]
+    resources :messages
     collection do
       get :chatted_people # ✅ Add this new route
     end
