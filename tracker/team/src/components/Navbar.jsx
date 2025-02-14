@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import { logoutApi } from '../apis/logoutApi';
 import { useNotifications } from './NotificationContext';
 import { useShowTaskDetails } from './ShowTaskDetailsContext';
+import { PeopleContext } from './PeopleContext';
 
 
-function Navbar() {
+const Navbar = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['jwt']);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
@@ -18,7 +19,12 @@ function Navbar() {
   const navigate = useNavigate();
   const { notifications } = useNotifications();
   const { setShowTaskDetails } = useShowTaskDetails();
+  const {unreadCount, setUnreadCount} = useContext(PeopleContext);
+  console.log("naun",unreadCount)
  
+
+  
+  
  
 
  
@@ -66,55 +72,6 @@ function Navbar() {
       });
   }, [cookies.jwt]); 
 
-
-  // useEffect(() => {
-  //   if (cookies.jwt) {
-  //     const fetchProjects = async () => {
-  //       try {
-  //         const headers = { Authorization: `${cookies.jwt}` };
-  //         const response = await axios.get('/projects', { headers });
-
-  //         if (response.data) {
-  //           const createdProjects = Array.isArray(response.data.projects_created)
-  //             ? response.data.projects_created.map((project) => ({
-  //                 id: project.id,
-  //                 title: project.title,
-  //                 type: 'created',
-  //               }))
-  //             : [];
-
-  //           const memberProjects = Array.isArray(response.data.projects_as_member)
-  //             ? response.data.projects_as_member.map((project) => ({
-  //                 id: project.id,
-  //                 title: project.title,
-  //                 type: 'member',
-  //               }))
-  //             : [];
-
-  //           setProjects([...createdProjects, ...memberProjects]);
-  //         }
-  //       } catch (error) {
-  //         setError('Failed to load projects. Please try again later.');
-  //       }
-  //     };
-
-  //     // const fetchNotifications = async () => {
-  //     //   try {
-  //     //     const headers = { Authorization: `${cookies.jwt}` };
-  //     //     const response = await axios.get('/notifications', { headers }); // Assuming the endpoint for notifications
-  //     //     console.log(JSON.stringify(response.data))
-  //     //     if (response.data) {
-  //     //       setNotifications(response.data);
-  //     //     }
-  //     //   } catch (error) {
-  //     //     setError('Failed to load notifications. Please try again later.');
-  //     //   }
-  //     // };
-
-  //     fetchProjects();
-  //     //fetchNotifications();
-  //   }
-  // }, [cookies.jwt]);
 
   const toggleProfileDropdown = () => {
     setIsProfileOpen(!isProfileOpen);
@@ -176,8 +133,22 @@ function Navbar() {
           </div>
           
           <Link to="/projects_reports" className="hover:text-indigo-400">Report</Link>
-          <Link to="/people" className="hover:text-indigo-400">People</Link>
-          
+          <div className="relative inline-block">
+      <Link
+        to="/people"
+        className={`hover:text-indigo-400 ${
+          unreadCount > 0 ? "text-red-500" : ""
+        }`}
+      >
+        People
+      </Link>
+
+      {unreadCount > 0 && (
+        <span className="absolute -top-2 -right-3 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+          {unreadCount}
+        </span>
+      )}
+    </div>
 </div>
         <div className="flex items-center space-x-4">
           <div className="relative">

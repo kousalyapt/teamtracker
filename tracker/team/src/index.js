@@ -23,6 +23,7 @@ import ResetPassword from './components/ResetPassword';
 import { ToastContainer } from 'react-toastify';
 import People from './components/People';
 import UserChat from './components/UserChat';
+import { PeopleContextProvider } from './components/PeopleContext';
 
 
 // const router = createBrowserRouter([
@@ -97,7 +98,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/people",
-        element: <People/>
+        element: <People />
       },
       {
         path: "/user/:id/chat",
@@ -130,16 +131,20 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    
     <ShowTaskDetailsProvider>
     <CookiesProvider defaultSetOptions={{ path: '/'}}>
+    <PeopleContextProvider>
       <NotificationProvider>
       <ToastContainer position="top-right" autoClose={3000} />
         
         <RouterProvider router={router} />
         
       </NotificationProvider>
+      </PeopleContextProvider>
     </CookiesProvider>
     </ShowTaskDetailsProvider>
+    
   </React.StrictMode>
 );
 
