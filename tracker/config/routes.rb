@@ -14,11 +14,27 @@ Rails.application.routes.draw do
   get 'user/projectids', to: 'projects#user_projects' 
 
   resources :chats, only: [:index, :create, :show] do
-    resources :messages
+    resources :messages do
+      collection do
+        get :unread_messages
+      end
+    end
     collection do
       get :chatted_people # ✅ Add this new route
+      
+     
+    
+    end
+    member do
+      patch :mark_as_read  # Adds `/chats/:id/mark_as_read`
     end
   end
+  # resources :messages do
+  #   collection do
+  #     get :unread_messages
+  #   end
+  # end
+  
 
   mount ActionCable.server => '/cable' 
   get 'all_tasks', to: 'tasks#all_tasks'

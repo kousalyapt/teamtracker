@@ -22,16 +22,57 @@ class ChatsController < ApplicationController
       end
       
 
-    def chatted_people
+    # def chatted_people
        
-        people = User.where(id: Chat.where("sender_id = ? OR receiver_id = ?", current_user.id, current_user.id)
-                               .pluck(:sender_id, :receiver_id)
-                               .flatten
-                               .uniq
-                               .reject { |id| id == current_user.id })
+    #     people = User.where(id: Chat.where("sender_id = ? OR receiver_id = ?", current_user.id, current_user.id)
+    #                            .pluck(:sender_id, :receiver_id)
+    #                            .flatten
+    #                            .uniq
+    #                            .reject { |id| id == current_user.id })
+
+        
     
-        render json: people
+    #     render json: people
+    #   end
+
+    def chatted_people
+      chat_partners = Chat.where("sender_id = ? OR receiver_id = ?", current_user.id, current_user.id)
+                          .pluck(:sender_id, :receiver_id)
+                          .flatten
+                          .uniq
+                          .reject { |id| id == current_user.id }
+    
+      people_with_unread_count = User.where(id: chat_partners).map do |user|
+        unread_count = Message.where(chat_id: Chat.where("sender_id = ? AND receiver_id = ? OR sender_id = ? AND receiver_id = ?", 
+                                                         current_user.id, user.id, user.id, current_user.id)
+                                         .pluck(:id),
+                                  read: false)
+                                  .where.not(sender_id: current_user.id) 
+                               .count
+    
+        {
+          id: user.id,
+          name: user.name,  # Assuming User model has `name`
+          email: user.email,  # Add any other fields needed
+          unread_messages: unread_count
+        }
       end
+    
+      render json: people_with_unread_count
+    end
+    
+    def mark_as_read
+      chat = Chat.find(params[:chat_id])
+  
+      # Only mark messages as read that were sent to the current user
+      messages = chat.messages.where.not(sender_id: current_user.id, read: false)
+  
+      if messages.update_all(read: true)
+        render json: { success: true, message: "Messages marked as read" }
+      else
+        render json: { success: false, error: "Failed to mark messages as read" }, status: :unprocessable_entity
+      end
+    end
     
   
     def show

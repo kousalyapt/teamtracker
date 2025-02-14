@@ -3,5 +3,6 @@ class Chat < ApplicationRecord
   belongs_to :receiver, class_name: "User"
   has_many :messages, dependent: :destroy
 
-  validates :sender_id, uniqueness: { scope: :receiver_id } # Prevents
+  validates :sender_id, uniqueness: { scope: :receiver_id }
+
 end

@@ -3,14 +3,20 @@ class Message < ApplicationRecord
   belongs_to :sender, class_name: "User"
 
   validates :content, presence: true
-  after_create :broadcast_chat
+  # after_create :broadcast_message
 
-  private
+  # private
 
-  def broadcast_chat
-    ActionCable.server.broadcast(
-      "chat_#{chat.id}",
-      { chat: self.as_json() } 
-    )
-  end
+  # def broadcast_message
+  #   ActionCable.server.broadcast(
+  #     "chat_#{chat.id}",
+  #     {
+  #       chat_id: chat.id,
+  #       sender_id: .id,
+  #       content: message.content,
+       
+  #     }
+
+  #   )
+  # end
 end

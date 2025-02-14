@@ -21,11 +21,12 @@ const People = () => {
   const [showDropdown, setShowDropdown] = useState(null);
   const [editedComment, setEditedComment] = useState(null);
   const [editedContent, setEditedContent] = useState(null);
+  const [allChats, setAllChats] = useState()
 
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView();
   }, [messages]);
 
   const handleSelectMessage = (e, msgId) => {
@@ -65,8 +66,8 @@ const People = () => {
         { content: editedContent },
         { headers: { Authorization: `${cookies.jwt}` } }
       );
-      setMessages(prevMessages => 
-        prevMessages.map(msg => 
+      setMessages(prevMessages =>
+        prevMessages.map(msg =>
           msg.id === msgId ? { ...msg, content: editedContent } : msg
         )
       );
@@ -78,12 +79,14 @@ const People = () => {
 
   const fetchMessages = async (chatId) => {
     if (!chatId) return;
+    console.log("hy")
 
     try {
       const response = await axios.get(`http://localhost:3000/chats/${chatId}/messages`, {
         headers: { Authorization: `${cookies.jwt}` },
       });
       setMessages(response.data);
+      console.log("kh",messages)
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
@@ -93,6 +96,21 @@ const People = () => {
     const decodedToken = jwtDecode(cookies.jwt);
     const senderId = decodedToken.sub;
     setUserId(senderId);
+
+    const fetchAllChats = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/chats`, {
+          params: { user_id: senderId },
+          headers: {
+            Authorization: `${cookies.jwt}`
+          }
+        })
+        console.log("allch", response.data)
+        setAllChats(response.data)
+      } catch (e) {
+        console.log("error fetching all chat", e)
+      }
+    }
 
     const fetchCurrentUser = async () => {
       try {
@@ -121,6 +139,7 @@ const People = () => {
         const response = await axios.get(`http://localhost:3000/chats/chatted_people`, {
           headers: { Authorization: `${cookies.jwt}` },
         });
+        console.log("ctp", response.data)
         setChatPeople(response.data);
       } catch (e) {
         console.log(`Error fetching chat people: ${e}`);
@@ -128,6 +147,7 @@ const People = () => {
     };
 
     if (cookies.jwt) {
+      fetchAllChats();
       fetchPeople();
       fetchChatPeople();
       fetchCurrentUser();
@@ -138,12 +158,15 @@ const People = () => {
     if (chatId) {
       fetchMessages(chatId);
     }
-  }, [chatId]);
+  }, [chatId, chatPeople, selectedChat]);
 
   const handleSelectPerson = async (person) => {
+    console.log("person",person)
+    console.log("chatpeople",chatPeople)
     setSelectedChat(person);
     setSearchTerm('');
     setFilteredPeople([]);
+    console.log("msgs", messages)
 
     const decodedToken = jwtDecode(cookies.jwt);
     const senderId = decodedToken.sub;
@@ -155,44 +178,176 @@ const People = () => {
         { headers: { Authorization: `${cookies.jwt}` } }
       );
       setChatId(response.data.id);
+      // fetchMessages(response.data.id)
 
       if (!chatPeople.some(p => p.id === person.id)) {
         setChatPeople(prev => [...prev, person]);
       }
+
+      const markAsReadResponse = await axios.patch(
+        `http://localhost:3000/chats/${response.data.id}/mark_as_read`,
+        { chat_id: response.data.id }, // Data should be passed here
+        {
+          headers: {
+            Authorization: `${cookies.jwt}`
+          }
+        }
+      );
+      
+      // Update unread message count to 0 for the selected person
+      setChatPeople(prev =>
+        prev.map(per => per.id === person.id ? { ...per, unread_messages: 0 } : per)
+      );
+      
     } catch (error) {
       console.error("Error creating chat:", error);
     }
   };
 
+  // useEffect(() => {
+  //   if (!chatId) return;
+
+
+  //   const cable = getCable(cookies.jwt);
+  //   const channel = cable.subscriptions.create(
+  //     { channel: "ChatChannel", chat_id: chatId },
+  //     {
+  //       connected() {
+  //         console.log("Connected to chatChannel for chat:", chatId);
+  //       },
+  //       disconnected() {
+  //         console.log("Disconnected from chatChannel");
+  //       },
+  //       received: (message) => {
+  // setMessages(prev => {
+  //   const messageExists = prev.some(msg => msg.id === message.chat.id);
+  //   if (!messageExists) {
+  //     return [...prev, message.chat];
+  //   }
+  //   return prev;
+  // });
+  //       },
+  //     }
+  //   );
+
+  //   return () => {
+  //     channel.unsubscribe();
+  //   };
+  // }, [cookies.jwt, chatId]);
+
+  // useEffect(() => {
+  //   if(!allChats){
+  //     return;
+  //   }
+  //   console.log("hi")
+
+  //   const cable = getCable(cookies.jwt);
+  //   // console.log("cab",cable)
+  //   allChats.forEach(chat => {
+  //     // console.log("ch",chat)
+  //     const channel = cable.subscriptions.create(
+  //       { channel: 'ChatChannel', chat_id: chat.id },
+  //       {
+  //         connected() {
+  //           console.log("Connected to chatChannel for chat:", chat.id);
+  //         },
+  //         disconnected() {
+  //           console.log("Disconnected from chatChannel");
+  //         },
+  //         received: (data) => {
+  //           console.log("dtp",data)
+  // if (selectedChat?.id !== data.sender_id) {
+  //   // setUnreadMessages(prev => ({
+  //   //   ...prev,
+  //   //   [data.chat_id]: (prev[data.chat_id] || 0) + 1
+  //   // }));
+  // }
+  //         }
+  //       }
+  //     );
+  //   });
+
+  //   return () => {
+
+  //     // channel.forEach((subscription) => {
+  //     //   subscription.unsubscribe();
+  //     // });
+
+  //   };
+  // }, [allChats, selectedChat, cookies.jwt]);
+
+
   useEffect(() => {
-    if (!chatId) return;
+    console.log("All chats before subscribing:", allChats);
+    if (!allChats || allChats.length === 0) {
+      return;
+    }
 
     const cable = getCable(cookies.jwt);
-    const channel = cable.subscriptions.create(
-      { channel: "ChatChannel", chat_id: chatId },
-      {
-        connected() {
-          console.log("Connected to chatChannel for chat:", chatId);
-        },
-        disconnected() {
-          console.log("Disconnected from chatChannel");
-        },
-        received: (message) => {
-          setMessages(prev => {
-            const messageExists = prev.some(msg => msg.id === message.chat.id);
-            if (!messageExists) {
-              return [...prev, message.chat];
+    console.log("Cable object:", cable);
+
+    if (!cable) {
+      console.error("Cable is not initialized");
+      return;
+    }
+
+    const subscriptions = [];
+
+    allChats.forEach(chat => {
+      console.log("Subscribing to chat:", chat.id);
+
+      const subscription = cable.subscriptions.create(
+
+        { channel: 'ChatChannel', chat_id: chat.id },
+        {
+          connected() {
+            console.log("Connected to chatChannel for chat:", chat.id);
+          },
+          disconnected() {
+            console.log("Disconnected from chatChannel");
+          },
+          received: (data) => {
+            console.log("Received message:", data);
+
+            if (selectedChat?.id === data.sender_id || data.sender_id == userId) {
+
+              setMessages(prev => {
+                const messageExists = prev.some(msg => msg.id === data.message.id);
+                if (!messageExists) {
+                  return [...prev, data.message];
+                }
+                return prev;
+              });
+              // setUnreadMessages(prev => ({
+              //   ...prev,
+              //   [data.chat_id]: (prev[data.chat_id] || 0) + 1
+              // }));
+            }else{
+              console.log("chatpeople",chatPeople)
+              console.log("datasenderid",data.sender_id)
+              setChatPeople(prev =>
+                prev.map(person =>
+                  person.id === data.sender_id
+                    ? { ...person, unread_messages: (person.unread_messages || 0) + 1 }
+                    : person
+                )
+              );
+              console.log("after",chatPeople)
+
             }
-            return prev;
-          });
-        },
-      }
-    );
+          }
+        }
+      );
+
+      subscriptions.push(subscription);
+    });
 
     return () => {
-      channel.unsubscribe();
+      console.log("Unsubscribing from channels...");
+      subscriptions.forEach(sub => sub.unsubscribe());
     };
-  }, [cookies.jwt, chatId]);
+  }, [allChats, selectedChat, cookies.jwt]);
+
 
   const handleSearch = (e) => {
     const term = e.target.value;
@@ -220,6 +375,7 @@ const People = () => {
         { headers: { Authorization: `${cookies.jwt}` } }
       );
       setNewMessage('');
+
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -275,13 +431,18 @@ const People = () => {
           {chatPeople.map(person => (
             <div
               key={person.id}
-              className={`flex items-center space-x-4 p-3 rounded-lg cursor-pointer transition-all duration-200 ${selectedChat?.id === person.id ? 'bg-blue-50' : 'hover:bg-gray-100'}`}
+              className={`flex items-center justify-between space-x-4 p-3 rounded-lg cursor-pointer transition-all duration-200 ${selectedChat?.id === person.id ? 'bg-blue-50' : 'hover:bg-gray-100'}`}
               onClick={() => handleSelectPerson(person)}
             >
-              <div className="flex-1">
-                <p className="font-semibold text-gray-800">{person.name}</p>
-                <p className="text-sm text-gray-500">@{person.email}</p>
-              </div>
+              
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-800">{person.name}</p>
+                  <p className="text-sm text-gray-500">{person.email}</p>
+                </div>
+                {person.unread_messages > 0 && 
+                <p className='bg-gray-400 text-white text-xs font-bold px-2 py-1 rounded-full'>{person.unread_messages}</p>
+}
+              
             </div>
           ))}
         </div>

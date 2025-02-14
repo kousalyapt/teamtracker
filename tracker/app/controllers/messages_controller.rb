@@ -1,11 +1,29 @@
 class MessagesController < ApplicationController
+  before_action :authenticate_user!
     def index
-      @messages = Message.where(chat_id: params[:chat_id])
+      @messages = Message.where(chat_id: params[:chat_id]).order(:id)
       render json: @messages
     end
+
+    def unread_messages
+      messages = Message.where(chat_id: params[:chat_id], read: false)
+      render json: messages, status: :ok
+    end    
   
     def create
       @message = Message.create(chat_id: params[:chat_id], sender_id: params[:sender_id], content: params[:content])
+      @chat = Chat.find_by(id: params[:chat_id])
+      ActionCable.server.broadcast(
+      "chat_#{@chat.id}",
+      {
+        chat_id: @chat.id,
+        message: @message,
+        sender_id: current_user.id,
+        content: @message.content,
+       
+      }
+
+    )
       
       
       render json: @message
