@@ -1,10 +1,17 @@
 class ChatsController < ApplicationController
     before_action :authenticate_user!
 
+    # def index
+    #   chats = Chat.where("sender_id = ? OR receiver_id = ?", params[:user_id], params[:user_id])
+    #   render json: chats, include: [:sender, :receiver]
+    # end
+
     def index
-      chats = Chat.where("sender_id = ? OR receiver_id = ?", params[:user_id], params[:user_id])
+      chats = Chat.where("(sender_id = ? OR receiver_id = ?) AND (deleted_for_user_id IS NULL OR deleted_for_user_id != ?)",
+                         params[:user_id], params[:user_id], params[:user_id])
       render json: chats, include: [:sender, :receiver]
     end
+    
   
     # def create
     #   chat = Chat.find_or_create_by(sender_id: params[:sender_id], receiver_id: params[:receiver_id])
@@ -36,7 +43,7 @@ class ChatsController < ApplicationController
     #   end
 
     def chatted_people
-      chat_partners = Chat.where("sender_id = ? OR receiver_id = ?", current_user.id, current_user.id)
+      chat_partners = Chat.where("(sender_id = ? OR receiver_id = ?) AND (deleted_for_user_id IS NULL OR deleted_for_user_id != ?)", current_user.id, current_user.id, current_user.id)
                           .pluck(:sender_id, :receiver_id)
                           .flatten
                           .uniq
@@ -73,6 +80,19 @@ class ChatsController < ApplicationController
         render json: { success: false, error: "Failed to mark messages as read" }, status: :unprocessable_entity
       end
     end
+
+    def destroy
+      chat = Chat.find(params[:id])
+    
+      if chat.deleted_for_user_id.nil?
+        chat.update(deleted_for_user_id: current_user.id)
+      elsif chat.deleted_for_user_id != current_user.id
+        chat.destroy  # Permanently delete if both users delete
+      end
+    
+      head :no_content
+    end
+    
     
   
     def show

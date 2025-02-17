@@ -6,6 +6,7 @@ import { getCable } from '../cable';
 import { MdMoreVert } from "react-icons/md";
 import { useOutletContext } from 'react-router-dom';
 import { PeopleContext } from './PeopleContext';
+import {MdOutlineDeleteSweep} from "react-icons/md"
 
 
 const People = () => {
@@ -24,6 +25,7 @@ const People = () => {
   const [showDropdown, setShowDropdown] = useState(null);
   const [editedComment, setEditedComment] = useState(null);
   const [editedContent, setEditedContent] = useState(null);
+ 
   // const [allChats, setAllChats] = useState()
   // const [unreadCount, setUnreadCount] = useState(0);
    
@@ -42,19 +44,25 @@ const People = () => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   console.log("lk",allChats)
-  //   if (chatPeople && chatPeople.length > 0) {
-  //     const totalUnread = chatPeople.reduce((acc, chat) => acc + (chat.unread_messages || 0), 0);
-  //     console.log("totl",totalUnread)
-  //     setUnreadCount(totalUnread);
+  const handleDeleteChat = async(person) => {
+    console.log("dp",person)
+    console.log("dlcid",chatId)
+    console.log("chp",chatPeople)
+    try{
+      await axios.delete(`http://localhost:3000/chats/${chatId}`,{
+        headers:{
+          Authorization: `${cookies.jwt}`
+        }
+      })
+      setChatPeople(prev => prev.filter(prevpeople => prevpeople.id != person.id))
+      setSelectedChat(null)
       
-  //   }
-  // }, [allChats]);
+    }catch(e){
+      console.log("Error deleting chat",e)
+    }
+     
+  }
 
-  // useEffect(() => {
-  //   handlePeopleNotification(unreadCount);
-  // },[unreadCount])
   
   const handleSelectMessage = (e, msgId) => {
     if (e.target.classList.contains("dots")) return;
@@ -68,6 +76,7 @@ const People = () => {
     setShowDropdown(msgId === showDropdown ? null : msgId);
   };
 
+  
   const handleEditMessage = (msg) => {
     setEditedComment(msg.id);
     setEditedContent(msg.content);
@@ -124,20 +133,6 @@ const People = () => {
     const senderId = decodedToken.sub;
     setUserId(senderId);
 
-    // const fetchAllChats = async () => {
-    //   try {
-    //     const response = await axios.get(`http://localhost:3000/chats`, {
-    //       params: { user_id: senderId },
-    //       headers: {
-    //         Authorization: `${cookies.jwt}`
-    //       }
-    //     })
-    //     console.log("allch", response.data)
-    //     setAllChats(response.data)
-    //   } catch (e) {
-    //     console.log("error fetching all chat", e)
-    //   }
-    // }
 
     const fetchCurrentUser = async () => {
       try {
@@ -161,17 +156,6 @@ const People = () => {
       }
     };
 
-    // const fetchChatPeople = async () => {
-    //   try {
-    //     const response = await axios.get(`http://localhost:3000/chats/chatted_people`, {
-    //       headers: { Authorization: `${cookies.jwt}` },
-    //     });
-    //     console.log("ctp", response.data)
-    //     setChatPeople(response.data);
-    //   } catch (e) {
-    //     console.log(`Error fetching chat people: ${e}`);
-    //   }
-    // };
 
     if (cookies.jwt) {
       // fetchAllChats();
@@ -213,7 +197,7 @@ const People = () => {
 
       const markAsReadResponse = await axios.patch(
         `http://localhost:3000/chats/${response.data.id}/mark_as_read`,
-        { chat_id: response.data.id }, // Data should be passed here
+        { chat_id: response.data.id },
         {
           headers: {
             Authorization: `${cookies.jwt}`
@@ -221,7 +205,6 @@ const People = () => {
         }
       );
       
-      // Update unread message count to 0 for the selected person
       setChatPeople(prev =>
         prev.map(per => per.id === person.id ? { ...per, unread_messages: 0 } : per)
       );
@@ -232,151 +215,6 @@ const People = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (!chatId) return;
-
-
-  //   const cable = getCable(cookies.jwt);
-  //   const channel = cable.subscriptions.create(
-  //     { channel: "ChatChannel", chat_id: chatId },
-  //     {
-  //       connected() {
-  //         console.log("Connected to chatChannel for chat:", chatId);
-  //       },
-  //       disconnected() {
-  //         console.log("Disconnected from chatChannel");
-  //       },
-  //       received: (message) => {
-  // setMessages(prev => {
-  //   const messageExists = prev.some(msg => msg.id === message.chat.id);
-  //   if (!messageExists) {
-  //     return [...prev, message.chat];
-  //   }
-  //   return prev;
-  // });
-  //       },
-  //     }
-  //   );
-
-  //   return () => {
-  //     channel.unsubscribe();
-  //   };
-  // }, [cookies.jwt, chatId]);
-
-  // useEffect(() => {
-  //   if(!allChats){
-  //     return;
-  //   }
-  //   console.log("hi")
-
-  //   const cable = getCable(cookies.jwt);
-  //   // console.log("cab",cable)
-  //   allChats.forEach(chat => {
-  //     // console.log("ch",chat)
-  //     const channel = cable.subscriptions.create(
-  //       { channel: 'ChatChannel', chat_id: chat.id },
-  //       {
-  //         connected() {
-  //           console.log("Connected to chatChannel for chat:", chat.id);
-  //         },
-  //         disconnected() {
-  //           console.log("Disconnected from chatChannel");
-  //         },
-  //         received: (data) => {
-  //           console.log("dtp",data)
-  // if (selectedChat?.id !== data.sender_id) {
-  //   // setUnreadMessages(prev => ({
-  //   //   ...prev,
-  //   //   [data.chat_id]: (prev[data.chat_id] || 0) + 1
-  //   // }));
-  // }
-  //         }
-  //       }
-  //     );
-  //   });
-
-  //   return () => {
-
-  //     // channel.forEach((subscription) => {
-  //     //   subscription.unsubscribe();
-  //     // });
-
-  //   };
-  // }, [allChats, selectedChat, cookies.jwt]);
-
-
-  // useEffect(() => {
-  //   console.log("All chats before subscribing:", allChats);
-  //   if (!allChats || allChats.length === 0) {
-  //     return;
-  //   }
-
-  //   const cable = getCable(cookies.jwt);
-  //   console.log("Cable object:", cable);
-
-  //   if (!cable) {
-  //     console.error("Cable is not initialized");
-  //     return;
-  //   }
-
-  //   const subscriptions = [];
-
-  //   allChats.forEach(chat => {
-  //     console.log("Subscribing to chat:", chat.id);
-
-  //     const subscription = cable.subscriptions.create(
-
-  //       { channel: 'ChatChannel', chat_id: chat.id },
-  //       {
-  //         connected() {
-  //           console.log("Connected to chatChannel for chat:", chat.id);
-  //         },
-  //         disconnected() {
-  //           console.log("Disconnected from chatChannel");
-  //         },
-  //         received: (data) => {
-  //           console.log("Received message:", data);
-
-  //           if (selectedChat?.id === data.sender_id || data.sender_id == userId) {
-
-  //             setMessages(prev => {
-  //               const messageExists = prev.some(msg => msg.id === data.message.id);
-  //               if (!messageExists) {
-  //                 return [...prev, data.message];
-  //               }
-  //               return prev;
-  //             });
-  //             // setUnreadMessages(prev => ({
-  //             //   ...prev,
-  //             //   [data.chat_id]: (prev[data.chat_id] || 0) + 1
-  //             // }));
-  //           }else{
-  //             console.log("chatpeople",chatPeople)
-  //             console.log("datasenderid",data.sender_id)
-  //             setChatPeople(prev =>
-  //               prev.map(person =>
-  //                 person.id === data.sender_id
-  //                   ? { ...person, unread_messages: (person.unread_messages || 0) + 1 }
-  //                   : person
-  //               )
-  //             );
-  //             console.log("after",chatPeople)
-
-  //             setUnreadCount(prev => prev + 1);
-
-  //           }
-  //         }
-  //       }
-  //     );
-
-  //     subscriptions.push(subscription);
-  //   });
-
-  //   return () => {
-  //     console.log("Unsubscribing from channels...");
-  //     subscriptions.forEach(sub => sub.unsubscribe());
-  //   };
-  // }, [allChats, selectedChat, cookies.jwt]);
 
 
   const handleSearch = (e) => {
@@ -466,7 +304,13 @@ const People = () => {
             >
               
                 <div className="flex-1">
+                  <div className='flex justify-between'>
                   <p className="font-semibold text-gray-800">{person.name}</p>
+                  {selectedChat?.id === person.id &&
+                  < MdOutlineDeleteSweep className='cursor-pointer' onClick={()=>handleDeleteChat(person)}/>
+              
+                   }
+                   </div>
                   <p className="text-sm text-gray-500">{person.email}</p>
                 </div>
                 {person.unread_messages > 0 && 

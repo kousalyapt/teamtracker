@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   end
   get 'user/projectids', to: 'projects#user_projects' 
 
-  resources :chats, only: [:index, :create, :show] do
+  resources :chats, only: [:index, :create, :show, :destroy] do
     resources :messages do
       collection do
         get :unread_messages

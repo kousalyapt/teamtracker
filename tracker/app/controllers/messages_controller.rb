@@ -16,6 +16,7 @@ class MessagesController < ApplicationController
       ActionCable.server.broadcast(
       "chat_#{@chat.id}",
       {
+        action: "create",
         chat_id: @chat.id,
         message: @message,
         sender_id: current_user.id,
@@ -33,6 +34,17 @@ class MessagesController < ApplicationController
       @chat = Chat.find(params[:chat_id])
       @message = @chat.messages.find(params[:id])
       if @message.update(message_params)
+        ActionCable.server.broadcast(
+      "chat_#{@chat.id}",
+      {
+        action: "update",
+        chat_id: @chat.id,
+        message: @message,
+        sender_id: current_user.id,
+        content: @message.content,
+       
+      }
+        )
         render json: @message, status: :ok
       else
         render json: { errors: @message.errors.full_messages }
@@ -42,7 +54,19 @@ class MessagesController < ApplicationController
     def destroy
       @chat = Chat.find(params[:chat_id])
       @message = @chat.messages.find(params[:id])
+      @message_id = @message.id
       @message.destroy
+      ActionCable.server.broadcast(
+      "chat_#{@chat.id}",
+      {
+        action: "delete",
+        chat_id: @chat.id,
+        message_id: @message_id,
+        sender_id: current_user.id
+       
+      }
+      )
+
       head :no_content
 
     end
