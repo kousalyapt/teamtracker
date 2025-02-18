@@ -146,7 +146,7 @@ const PeopleContextProvider = ({ children }) => {
               console.log("updat",data)
               setMessages(prevMessages =>
                 prevMessages.map(msg =>
-                  msg.id === data.message.id ? { ...msg, content: data.content } : msg
+                  msg.id === data.message.id ? { ...msg, content: data.content, updated_at: data.message.updated_at } : msg
                 )
               );
             }else if(data.action == "delete"){

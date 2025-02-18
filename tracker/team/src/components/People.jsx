@@ -335,6 +335,16 @@ const People = () => {
             <div className="flex-grow p-6 overflow-y-auto">
               {messages.length > 0 ? (
                 messages.map((msg, index) => {
+                  const createdAt = new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                  const updatedAt = new Date(msg.updated_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                  console.log("------------")
+                  console.log(createdAt);
+                  console.log(updatedAt);
+                  console.log("--------------")
+                  let edited = false;
+                  if(msg.created_at !== msg.updated_at){
+                    edited = true;
+                  }
                   const messageDate = formatDate(msg.created_at);
                   const showDate = messageDate !== lastDate;
                   lastDate = messageDate;
@@ -349,7 +359,12 @@ const People = () => {
                         <div className="flex items-center space-x-2">
                           <span className="font-bold">{isSender ? currentUser.name : selectedChat.name}</span>
                           <span className="text-[11px] text-gray-500">
-                            {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            {
+                              edited ? `Edited ${new Date(msg.updated_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                                : new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                              
+                            }
+                            {/* {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} */}
                           </span>
                           {editedComment !== msg.id && isSender && selectedMessage === msg.id && (
                             <div className='relative'>
