@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@rails/actioncable": "^8.0.100",
+    "date-fns": "^4.1.0",
+    "jwt-decode": "^4.0.0",
+    "luxon": "^3.5.0"
+  }
+}
